@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The songs I'll still be playing in 2046 — Payton Nguyen</title>
+<meta name="description" content="Predicting which of today's tracks become long-term favourites, using the reminiscence bump and a Spotify listening history. The music psychology named the era but ranked nothing, and the biggest win was a units bug in a denominator.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The songs I'll still be playing in 2046">
+<meta property="og:description" content="Music psychology, a listening history, and a question with no ground truth — so I replaced it with one that had.">
+<link rel="stylesheet" href="assets/style.css?v=5">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d131d'/><text x='50' y='69' font-size='44' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23ffffff' text-anchor='middle'>PN</text></svg>">
+</head>
+<body class="sub-page">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav is-solid" id="nav">
+  <div class="nav-inner">
+    <a class="monogram" href="index.html" aria-label="Home">PN</a>
+    <nav aria-label="Primary">
+      <a href="index.html#about">About</a>
+      <a href="index.html#approach">Approach</a>
+      <a href="index.html#work">Projects</a>
+      <a href="index.html#background">Background</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <button class="nav-toggle" aria-expanded="false" aria-label="Menu"><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+
+  <header class="cs-head">
+    <div class="wrap">
+      <a class="back" href="index.html#work">← All projects</a>
+      <p class="cs-kicker">Case study · Music psychology &amp; prediction</p>
+      <h1>The songs I'll still be playing in 2046 — and why the psychology couldn't pick them</h1>
+      <p class="cs-lede">
+        A question with no ground truth, replaced by one that had it. The
+        reminiscence bump turned out to name the right decade and rank nothing
+        inside it, the audio features never cleared their own confidence
+        interval, and the single largest improvement came from noticing that
+        an hour-long DJ set breaks a denominator.
+      </p>
+
+      <dl class="facts">
+        <div><dt>Role</dt><dd>Solo — framing, pipeline, analysis</dd></div>
+        <div><dt>Tools</dt><dd>Python, scikit-learn, Spotipy, matplotlib</dd></div>
+        <div><dt>Data</dt><dd>Spotify listening history · 1,400 tracks</dd></div>
+        <div><dt>Code</dt><dd><a href="https://github.com/paytonnguyen-creator/ecommerce-customer-retention-analysis/tree/main/memory-lane" target="_blank" rel="noopener">GitHub →</a></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <article class="cs-body">
+
+    <h2>The question, and why it had to be replaced</h2>
+    <p>
+      The idea was to take my own Spotify history and predict which songs I'm
+      playing now will trigger real nostalgia in twenty years — grounding it in
+      the <em>reminiscence bump</em>, the finding that autobiographical memory
+      over-represents things encoded roughly between ages 10 and 30, with music
+      peaking in the mid-teens.
+    </p>
+    <p>
+      It took about an hour to realise the project as stated cannot be built.
+      <strong>"Will this song give me chills in 2046" has no ground truth.</strong>
+      Nobody holds a labelled dataset of songs that turned out to be core
+      memories, mine least of all. A supervised classifier without labels is
+      astrology with a train/test split, and no amount of feature engineering
+      fixes a missing target.
+    </p>
+    <p>
+      So the first real decision was to replace the question with one the data
+      can actually answer:
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">The substitution the whole project rests on</span>
+      <p>
+        <strong>Which songs do I come back to after I've stopped listening to
+        them?</strong> A track is a <em>returner</em> if it went dormant for a
+        year or more and then came back for at least three more plays.
+      </p>
+      <p>
+        That isn't nostalgia. It's the behavioural shadow nostalgia casts in a
+        listening log — and unlike nostalgia, it can be held out, scored and
+        argued with.
+      </p>
+    </div>
+
+    <p>
+      Being precise about what the substitution costs matters more than the
+      substitution itself. The sharpest loss: a song welded to something
+      painful is one you might deliberately <em>never</em> play again. Maximum
+      autobiographical weight, scored zero here. The label systematically
+      misses avoidance, and nothing in the data fixes that.
+    </p>
+
+    <div class="note">
+      <strong>On the numbers below.</strong> A private listening history can't
+      be committed to a public repository, which would leave every figure here
+      unverifiable and the code untestable. So the pipeline ships with a
+      listener it can invent — deterministic from a seed, with its true
+      parameters written down so that an estimate recovering something the
+      simulator never put in is a visible bug. <strong>Every number on this
+      page is from that synthetic listener.</strong> It proves the pipeline
+      runs; it does not prove the theory. The code path for a real account is
+      built and documented, and it's the same path.
+    </div>
+
+    <h2>The design falls out of the data's shape</h2>
+    <p>
+      A track needs 635 days of observation before its label means anything —
+      90 days to measure how it was first listened to, 365 of dormancy, 180 for
+      a return to actually happen. Anything younger can't be labelled, and
+      labelling it "never came back" would be labelling it for being new.
+    </p>
+    <p>
+      That constraint is the design rather than an annoyance:
+      <strong>train on the old tracks whose verdict is already in, score the
+      recent ones that haven't had their chance yet.</strong> The held-out
+      recent tracks are exactly what the project is about — the modern songs.
+      Every model feature comes from a track's first ninety days, so total play
+      count, last-played date and lifetime span are all excluded for containing
+      the answer.
+    </p>
+
+    <h2>The psychology named the decade and ranked nothing</h2>
+    <p>
+      The bump curve is the literature's strongest claim, and it holds up in
+      the sense that matters least. For a 19-year-old with an account opened at
+      11, <strong>100% of the library falls inside the encoding window</strong>.
+    </p>
+
+    <figure class="chart">
+      <img src="outputs/figures-memory/reminiscence_bump.svg" alt="Two stacked panels sharing an age axis. The top shows the encoding-weight curve rising from age 8, plateauing near 1.0 between roughly 15 and 23, and decaying after 28. The bottom shows the share of the library first played at each age, entirely between 12 and 19 — fully inside the window.">
+    </figure>
+
+    <p>
+      Which is simultaneously the most striking thing the psychology says here
+      and the reason it contributes nothing. <strong>A variable that takes one
+      value cannot order a list.</strong> Across a whole lifetime the bump
+      weight ranges from 0.35 to 0.99 and is genuinely informative; across one
+      person's teens it is a constant.
+    </p>
+    <p>
+      So it's reported alongside the score and deliberately kept out of it.
+      Folding it in would have changed no ordering while making the output look
+      better grounded in the literature than it was — which is the specific way
+      this kind of project usually goes wrong.
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">The part I find genuinely interesting</span>
+      <p>
+        At 19 the bump isn't finished — roughly a third of the window is still
+        ahead. This is a measurement taken mid-event rather than after it,
+        which is the one thing about the project that can't be replicated by
+        waiting.
+      </p>
+    </div>
+
+    <h2>Testing the acoustic hypothesis properly</h2>
+    <p>
+      The narrower, testable claim from the literature is that memory-evoking
+      songs are more arousing and more emotionally intense. That gets a clean
+      test: fit the model on behaviour alone, then on behaviour plus every
+      acoustic feature, and bootstrap the <em>difference</em> in hold-out AUC on
+      the same resampled rows — so the interval answers "did acoustics help"
+      rather than "are these two numbers different".
+    </p>
+    <p>
+      First, K-Means over acoustic space, with <em>k</em> chosen by silhouette
+      rather than asserted. It picked two.
+    </p>
+
+    <figure class="chart">
+      <img src="outputs/figures-memory/sonic_worlds.svg" alt="Two small-multiple panels showing the acoustic space in two principal components, one cluster highlighted per panel. A small low-loudness, low-tempo cluster of 142 tracks returning at 6%, and a large high-loudness, high-tempo cluster of 964 tracks returning at 15%.">
+    </figure>
+
+    <p>
+      Six genres went into the simulated library and two clusters came out.
+      That's a real limitation on display rather than a tidy result: on
+      overlapping acoustic blobs, K-Means recovers the dominant axis and not
+      the taxonomy, and silhouette monotonically prefers the coarser split.
+    </p>
+
+    <figure class="chart chart--narrow">
+      <img src="outputs/figures-memory/acoustics_vs_behaviour.svg" alt="Two nearly overlapping ROC curves. Behaviour only reaches AUC 0.784; adding acoustic features reaches 0.807. The difference is +0.023 with a 95% interval from −0.007 to +0.053.">
+    </figure>
+
+    <p>
+      Behaviour alone reaches <strong>AUC 0.784</strong>. Every acoustic
+      feature Spotify exposes adds <strong>+0.023, with a 95% interval of
+      [−0.007, +0.053]</strong>. The interval contains zero.
+    </p>
+    <p>
+      The coefficients aren't nothing and they point where the literature says
+      they should — cluster membership at +0.54, emotional intensity at +0.19,
+      arousal at +0.19. But a coefficient with the right sign and a plausible
+      size can still buy no ranking power, and separating those two things is
+      most of what this project does. The honest phrasing is <em>not
+      distinguishable from zero at this sample size</em>, which is a different
+      claim from <em>no effect</em> — and one the write-up is careful not to
+      overstate in either direction.
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">Read the interval, not the point estimate</span>
+      <p>
+        The simulated listener was reconfigured twice as the profile sharpened:
+        first from a generic library to a genre-polarised one, then from a
+        13-year history to the 7.6 years a 19-year-old actually has. The
+        acoustic point estimate moved <strong>+0.000 → +0.019 → +0.023</strong>
+        across those runs — and its interval contained zero in all three.
+      </p>
+      <p>
+        Two things follow, and they transfer further than the number does. How
+        much audio features help <strong>depends on how genre-polarised the
+        library is</strong> — two distant scenes give the acoustic block real
+        variance to exploit, one scene doesn't. And a shorter history widens
+        everything: dropping to 7.6 years pushed 19% of the library into the
+        unlabelable bucket and widened the interval from 0.044 to 0.060.
+      </p>
+    </div>
+
+    <h2>The lever I rejected</h2>
+    <p>
+      The most tempting behavioural signal was <em>concentration</em> — how
+      much of a song's first ninety days piled into its densest fortnight. The
+      theory is clean: a song welded to one autumn should beat a song trickled
+      evenly across a year. The raw numbers cooperate, with the top decile
+      returning at 2% against 14% overall.
+    </p>
+
+    <figure class="chart">
+      <img src="outputs/figures-memory/distinctiveness.svg" alt="Return rate by concentration decile, broadly flat around 14% for deciles 1 to 7 and falling sharply to 2% at decile 10. Title notes the effect is mostly play count: −0.71 alone, −0.33 once volume is held constant.">
+    </figure>
+
+    <p>
+      It doesn't survive control. Concentration correlates −0.59 with play
+      count, and the coefficient falls from <strong>−0.71 to −0.33 once volume
+      is held constant — a 53% attenuation</strong>. Songs crammed into a
+      single fortnight mostly aren't bound to a moment. They were played four
+      times, and four plays can only land in one fortnight.
+    </p>
+    <p>
+      This is the same shape as the confounded lever in my
+      <a href="case-study.html">CDNOW retention analysis</a>, and I check for it
+      the same way now: any finding large enough to act on gets refit with the
+      obvious confounder held constant before it reaches a recommendation.
+    </p>
+
+    <h2>What actually mattered was a units bug</h2>
+    <p>
+      The model's completion feature is <code>ms_played / duration_ms</code> —
+      what fraction of a track you play. That's fine until a chunk of the
+      library is 40–90 minute DJ sets and live mixes, where the metric stops
+      meaning anything. <strong>Twenty minutes of an hour-long set scores
+      0.28</strong> — identical to bailing on a three-minute track after fifty
+      seconds.
+    </p>
+    <p>
+      Since completion is one of the strongest features, every mix in the
+      library was being quietly pushed to the bottom of the ranking for the
+      crime of being long. Not a modelling subtlety: a systematic,
+      one-directional error against an entire format.
+    </p>
+    <p>
+      The fix is a judgment stated rather than tuned — <strong>engagement with
+      long-form content is an absolute amount of time, not a fraction.</strong>
+      Cap the denominator at eight minutes, and add an indicator so mixes carry
+      their own baseline instead of distorting everyone else's.
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">The result, and what I make of it</span>
+      <p>
+        That indicator became the <strong>strongest feature in the entire model
+        at −1.41 log-odds</strong> — ahead of every acoustic feature, ahead of
+        play count, ahead of skip rate.
+      </p>
+      <p>
+        The largest single improvement in a project about music psychology came
+        from noticing a units problem in a denominator. I'd rather lead with
+        that than with the model.
+      </p>
+    </div>
+
+    <p>
+      With the caveat attached: because the capped denominator saturates for
+      long-form, that indicator is partly <em>absorbing</em> an inflated
+      completion signal rather than measuring a property of mixes — and the
+      fact that it grew from −0.83 to −1.41 when the history shortened is
+      consistent with absorption rather than a stable effect. The eight-minute
+      cap is also arbitrary in exactly the way the other constants are, and
+      unlike them it isn't swept. It should be.
+    </p>
+
+    <h2>The output</h2>
+    <p>
+      The deliverable is the tracks too new to have proven themselves, ranked
+      by how closely their first ninety days resemble the first ninety days of
+      songs that turned out to be returners.
+    </p>
+
+    <figure class="chart">
+      <img src="outputs/figures-memory/shortlist.svg" alt="Horizontal bar chart of the fifteen highest-scoring recent tracks, with modelled probabilities of returning ranging from about 35% down to 27%.">
+    </figure>
+
+    <p>
+      One rule in the selection is worth naming because it only shows up when
+      you look at the output as a playlist rather than a ranking: a cap of two
+      tracks per artist. A shortlist that's eleven songs by one band is a model
+      telling you about one band. The cap <em>relaxes</em> rather than silently
+      under-filling — someone who listens to seven artists on repeat can't fill
+      thirty slots at two apiece — and the applied value is written to the
+      output, because a list built at five per artist is a different object
+      from one built at two.
+    </p>
+
+    <h2>What held still</h2>
+    <p>
+      Since the headline moved across three configurations, the thing worth
+      publishing is what didn't move:
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <caption class="visually-hidden">Findings that were stable across every configuration</caption>
+        <thead>
+          <tr><th scope="col">Result</th><th scope="col">Across all three runs</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Behavioural AUC</td><td>0.78–0.79 every time</td></tr>
+          <tr><td>Acoustic confidence interval</td><td>Contained zero every time</td></tr>
+          <tr><td>Concentration under control</td><td>Rejected every time (53–61% attenuation)</td></tr>
+          <tr><td>Library inside the bump window</td><td>93–100%, and never ranked within it</td></tr>
+          <tr><td><em>k</em> chosen by silhouette</td><td>2, every time</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Those are the claims I'd defend. The point estimates aren't, and the
+      write-up says so in the same breath as it reports them.
+    </p>
+
+    <h2>A constraint worth knowing about</h2>
+    <p>
+      On 27 November 2024 Spotify closed <code>/v1/audio-features</code>,
+      <code>/v1/audio-analysis</code>, recommendations and preview URLs to
+      applications created after that date. A developer app you make today gets
+      a 403 on danceability, energy, valence and acousticness.
+    </p>
+    <p>
+      That endpoint <em>is</em> the acoustic half of this project, so the
+      pipeline treats it as optional throughout: it asks, records the answer,
+      runs either way, and reports which mode it ran in — because a result
+      computed without acoustic features is a different result and shouldn't be
+      allowed to look identical. Given the finding above, the acoustic-free run
+      loses about two points of AUC, inside its own interval.
+    </p>
+
+    <h2>What I'd do differently</h2>
+    <ul class="hollow">
+      <li>
+        <strong>The label misses avoidance, and I can't fix it.</strong> Songs
+        too loaded to play are the strongest possible case of the thing I set
+        out to find, and they score zero. Any honest version of this project
+        needs a self-report layer the log can't provide.
+      </li>
+      <li>
+        <strong>Train and score sets are separated by time.</strong> A model
+        fitted on how someone listened at 15 is being applied to how they
+        listen at 19, and taste drifts more over those four years than over any
+        later four. Age is in the model, which absorbs some of it and none of
+        it cleanly — the right fix is a temporal validation split, and I didn't
+        build one.
+      </li>
+      <li>
+        <strong>I'd sweep the eight-minute cap.</strong> I swept the four label
+        constants and then introduced a fifth without giving it the same
+        treatment, which is exactly the inconsistency I'd flag in someone
+        else's work.
+      </li>
+      <li>
+        <strong>Being 19 is the binding constraint, not the model.</strong>
+        Seven and a half years of history leaves 19% of the library unlabelable
+        and biases the return rate downward through right-censoring. The same
+        account in five years clears the threshold for everything currently
+        held out — waiting is a legitimate experiment here.
+      </li>
+    </ul>
+
+    <p class="cs-foot-link">
+      <a class="back" href="index.html#work">← All projects</a>
+    </p>
+
+  </article>
+
+</main>
+
+<footer class="foot">
+  <span>© <span id="year">2026</span> Payton Nguyen</span>
+  <span>Built and hosted on GitHub Pages</span>
+</footer>
+
+<script src="assets/main.js?v=5"></script>
+</body>
+</html>
