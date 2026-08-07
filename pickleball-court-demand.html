@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The pickleball bottleneck — Payton Nguyen</title>
+<meta name="description" content="Forecasting open-play court congestion across 843,581 simulated visits driven by four years of real NOAA weather — and finding that the queue sheds people rather than lengthening, that darkness beats congestion, and that the free lever beats the app.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The pickleball bottleneck">
+<meta property="og:description" content="Predicting court congestion, and finding the forecast is worth a lot to a player and almost nothing to a parks department.">
+<link rel="stylesheet" href="assets/style.css?v=5">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d131d'/><text x='50' y='69' font-size='44' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23ffffff' text-anchor='middle'>PN</text></svg>">
+</head>
+<body class="sub-page">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav is-solid" id="nav">
+  <div class="nav-inner">
+    <a class="monogram" href="index.html" aria-label="Home">PN</a>
+    <nav aria-label="Primary">
+      <a href="index.html#about">About</a>
+      <a href="index.html#approach">Approach</a>
+      <a href="index.html#work">Projects</a>
+      <a href="index.html#background">Background</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <button class="nav-toggle" aria-expanded="false" aria-label="Menu"><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+
+  <header class="cs-head">
+    <div class="wrap">
+      <a class="back" href="index.html#work">← All projects</a>
+      <p class="cs-kicker">Case study · Demand forecasting &amp; operations</p>
+      <h1>The pickleball bottleneck — why the line isn't the problem</h1>
+      <p class="cs-lede">
+        Open play rations a scarce court by making people queue. I built a
+        forecast to tell players when to turn up, and the analysis kept
+        undercutting the product: the queue hides its own congestion, the sun
+        does more damage than the crowd, and the cheapest fix is a laminated
+        sign.
+      </p>
+
+      <dl class="facts">
+        <div><dt>Role</dt><dd>Solo — framing, simulation, analysis, recommendation</dd></div>
+        <div><dt>Tools</dt><dd>Python, pandas, scikit-learn, discrete-event simulation</dd></div>
+        <div><dt>Scale</dt><dd>843,581 visits · 5 parks × 8 courts · 4 years</dd></div>
+        <div><dt>Code</dt><dd><a href="https://github.com/paytonnguyen-creator/ecommerce-customer-retention-analysis/tree/claude/pickleball-demand-prediction-4dhb13/pickleball" target="_blank" rel="noopener">GitHub →</a></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <article class="cs-body">
+
+    <h2>The problem I actually had to solve first</h2>
+    <p>
+      I wanted to know whether telling people the paddle line was long would get
+      them to come at a different time. The obstacle is that no parks department
+      publishes paddle-stack telemetry — which is, incidentally, the reason the
+      product in this case study has a market at all.
+    </p>
+    <p>
+      So the court sessions here are simulated, and that creates a trap worth
+      naming out loud. If I write down <em>"demand peaks at 70°F"</em> and then
+      run a regression that discovers demand peaks at 70°F, I have discovered
+      nothing at all. I have drawn a picture of my own assumption.
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">The rule I built the project around</span>
+      <p>
+        Every result is sorted into <strong>recovered</strong> — a pattern I
+        wrote into the simulator and then read back out, which proves the
+        pipeline runs and proves nothing about pickleball — or
+        <strong>emergent</strong>: a consequence of the queue's mechanics that
+        nobody specified. The labels are printed on the charts themselves. Only
+        emergent results were allowed to reach a recommendation.
+      </p>
+    </div>
+
+    <h2>What is real here</h2>
+    <p>
+      The weather is not simulated. It is four years of NOAA observations from
+      Seattle — 1,461 days, 2012 to 2015 — with hourly temperature reconstructed
+      from the same station's own diurnal shape. Sunrise and sunset are computed
+      from solar geometry at 47.61°N rather than assumed, which turned out to
+      matter more than anything else in the project: an unlit outdoor court
+      offers <strong>13.9 playable hours in June and 8.0 in December</strong>.
+    </p>
+    <p>
+      What I supplied was the behaviour — how many people want to play at 6pm on
+      a mild Tuesday — and it lives in a single dictionary that gets dumped to
+      JSON so a reader can attack the inputs directly instead of
+      reverse-engineering them out of my conclusions. What the simulation
+      supplies is the mechanism: eight courts, four players to a game, a
+      first-in-first-out rack of paddles, and finite patience.
+    </p>
+    <figure class="chart">
+      <img src="outputs/figures-pickleball/temperature_response.svg" alt="Demand against temperature, peaking in the 65–75°F band. The chart is labelled RECOVERED, meaning it reflects an assumption written into the simulator rather than a measurement.">
+    </figure>
+    <p>
+      This chart is a receipt, not a finding. The brief for this project asked
+      me to prove demand spikes between 65 and 75°F. You cannot prove that
+      against data you generated — but you can say so clearly and move on to the
+      things you did not put there.
+    </p>
+
+    <h2>Three things I did not put there</h2>
+
+    <h3>Waiting is U-shaped, because you need four people</h3>
+    <p>
+      I expected the wait to rise with demand. It does — and it also rises when
+      the court is nearly empty, to a mean of <strong>11.1 minutes</strong>
+      against 1.8 minutes at the sweet spot of about 13 arrivals an hour. On a
+      quiet court you are not queueing for a court. You are queueing for
+      opponents.
+    </p>
+    <p>
+      That single observation kills the obvious version of the product. An app
+      that sends you to the quietest court is giving bad advice at one end of
+      its own range, and open play turns out to have a minimum viable crowd as
+      well as a maximum one.
+    </p>
+    <figure class="chart">
+      <img src="outputs/figures-pickleball/bottleneck_curve.svg" alt="Two panels. Mean wait against arrivals per hour forms a U — high when nearly empty, lowest around 13 arrivals, rising steeply after. Below it, the share who never get a game rises sharply with demand.">
+    </figure>
+
+    <h3>Congestion hides itself</h3>
+    <p>
+      From the sweet spot to the busiest hours, demand rises about 6× and the
+      wait about 9×. The share of arrivals who go home without playing rises
+      <strong>52×</strong>.
+    </p>
+    <p>
+      The queue is self-limiting. It does not grow deeper than people will
+      tolerate; it converts the excess into departures. Which means anyone
+      measuring congestion by counting paddles in the rack is measuring the
+      survivors, and will conclude the problem is smaller than it is. This is
+      why the project reports abandonment rather than queue length — the metric
+      choice is the finding.
+    </p>
+    <figure class="chart">
+      <img src="outputs/figures-pickleball/waiting_vs_playing.svg" alt="Stacked bars by hour of day showing the share of time at the park spent playing versus waiting, with waiting peaking in the evening block.">
+    </figure>
+    <p>
+      Across the evening peak, <strong>36%</strong> of the time a player spends
+      at the park is spent waiting rather than playing.
+    </p>
+
+    <h3>Darkness beats congestion — and I got this wrong first</h3>
+    <p>
+      My first pass reported that 17% of peak arrivals never got a game and
+      called it congestion. Splitting the number by time of day showed that most
+      of it was something else entirely: people arriving shortly before the
+      light ran out.
+    </p>
+    <p>
+      Separated properly, <strong>7.7%</strong> of peak arrivals give up because
+      it is busy, while <strong>38.8%</strong> of arrivals in the final hour of
+      usable light go home without playing — and 9.2% of all arrivals land in
+      that hour. The largest single source of wasted trips is not the crowd. It
+      is the sunset, and it is computable a year in advance with no model
+      whatsoever.
+    </p>
+    <figure class="chart">
+      <img src="outputs/figures-pickleball/daylight_cliff.svg" alt="Left: playable hours per day by month, from 13.9 in June down to 8.0 in December. Right: share who never get a game by how much light remained on arrival — 39% with under an hour left, versus 4–8% otherwise.">
+    </figure>
+    <p>
+      The error mattered. Left uncorrected, it would have argued for building
+      courts to solve a problem that a sunrise table solves.
+    </p>
+
+    <h2>The model, and the ceiling above it</h2>
+    <p>
+      Train on 2012–2014, score on 2015 — a genuinely harder test, because
+      demand grows across the window and the model has to extrapolate rather
+      than interpolate. Alongside four candidate models I ran an
+      <strong>oracle</strong>: a model handed the true demand that generated the
+      arrivals, which no amount of feature engineering could ever beat.
+    </p>
+    <p>
+      The oracle still posts a mean absolute error of <strong>2.18
+      minutes</strong>. That residual is the queue's own randomness. It is
+      irreducible, and it settles an interface question that would otherwise be
+      a matter of taste: <strong>you can never honestly display "12
+      minutes."</strong> The product ships four states instead — dead, good,
+      busy, packed — because a number invites a promise the physics cannot keep.
+    </p>
+    <figure class="chart">
+      <img src="outputs/figures-pickleball/forecast_accuracy.svg" alt="Mean absolute error by model on the 2015 hold-out: historical average 3.46, ridge 3.86, gradient boosting 2.54, gradient boosting with trend removed 3.09 (shipped), oracle knowing true demand 2.18.">
+    </figure>
+
+    <div class="callout">
+      <span class="callout-label">Why I shipped the second-most-accurate model</span>
+      <p>
+        The boosted tree scores 15% better on error — and runs
+        <strong>0.77 minutes low</strong>, because a tree cannot extrapolate a
+        growth trend past the edge of its training data. Removing the trend
+        first costs accuracy and buys calibration (bias 0.13 minutes). Selection
+        rule, fixed before I looked at which model it picked: lowest absolute
+        bias among models within 1.25× of the best error. Tell someone the wait
+        is 10 minutes when it is 18 and they stop opening the app; tell them 15
+        when it is 10 and they are pleased.
+      </p>
+    </div>
+
+    <h2>What the advice is worth, and to whom</h2>
+    <p>
+      To a player, a lot. Routed to the best slot within two hours either side,
+      expected wait falls from <strong>7.3 to 4.1 minutes</strong> — 69% of what
+      perfect hindsight would deliver. But the better number is the other one:
+      the chance of going home without a game at all falls from
+      <strong>17.5% to 8.9%</strong>, and adding one guardrail — never recommend
+      a slot with under 90 minutes of light left — takes it to
+      <strong>5.0%</strong>.
+    </p>
+    <p>
+      The guardrail beats the model. It needs no training data, it is a lookup
+      against a sunrise table, and it moves the metric that matters more than
+      the forecast does.
+    </p>
+    <figure class="chart">
+      <img src="outputs/figures-pickleball/advice_value.svg" alt="Two panels comparing turning up as planned, following the model, adding a daylight guardrail, and perfect hindsight — on mean wait and on the share who never get a game.">
+    </figure>
+    <p>
+      To a parks department, almost nothing. When 15% of peak arrivals shift to
+      the quietest nearby slot, system-wide peak wait moves by
+      <strong>3.2%</strong>. Information redistributes a queue; it does not
+      shrink one. So this is a consumer product, not a municipal one, and the
+      PRD says so in as many words.
+    </p>
+
+    <h2>The recommendation I didn't want to make</h2>
+    <p>
+      Every policy scenario re-draws its arrivals, game lengths and patience
+      thresholds from a stream seeded on the park and the date but never on the
+      scenario — the same people, wanting the same games, on the same afternoon,
+      meeting a different court rule. So the differences below are the policy
+      rather than sampling noise.
+    </p>
+    <figure class="chart">
+      <img src="outputs/figures-pickleball/policy_comparison.svg" alt="Mean peak wait by policy: winners stay on 11.9 minutes, today 10.0, app shifts 15% off peak 9.7, build two more courts 7.5.">
+    </figure>
+
+    <div class="table-scroll">
+      <table>
+        <caption class="visually-hidden">Levers considered, with verdicts</caption>
+        <thead>
+          <tr><th>Lever</th><th>Peak wait</th><th>vs today</th><th>Effort</th><th>Verdict</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Standardise rotation on “all four off”</td><td>10.0 min</td><td>−1.9 vs winners-stay</td><td>None</td><td>Recommended first</td></tr>
+          <tr><td>Build two more courts (+25%)</td><td>7.5 min</td><td>−2.6 min</td><td>High — capital, 12–18 months</td><td>Real, but expensive</td></tr>
+          <tr><td>App shifts 15% of peak arrivals</td><td>9.7 min</td><td>−0.3 min</td><td>Medium</td><td>Rejected as congestion relief</td></tr>
+          <tr><td>Daylight guardrail (consumer app)</td><td>—</td><td>no-game rate 17.5% → 5.0%</td><td>Low</td><td>Ship first</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Effort is a judgment, not a computation — nothing in a court log tells you
+      what a programme costs — so it is recorded per lever rather than folded
+      silently into the ranking. It changes the answer here. Switching open play
+      from “winners stay on” to “all four off” is worth 1.9 minutes of mean peak
+      wait and 5.8 points of abandonment, which is
+      <strong>75% of what a 25% court expansion buys</strong>, at the cost of a
+      sign on the fence.
+    </p>
+    <p>
+      If I were advising the parks department rather than building the app, that
+      is the entire recommendation — and the honest version of this case study
+      has to say that my own product loses to it.
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">How you'd know it worked</span>
+      <p>
+        Primary metric: the share of app-influenced visits that end in at least
+        one game. <strong>Target ≥92% against an 82.5% unassisted baseline; kill
+        it below a 5pp improvement after one season</strong> — the wait-time
+        saving alone does not justify the build. Counter-metric: the share of
+        recommendations landing in dead hours, because optimising for “shortest
+        wait” walks people onto empty courts, which the U-curve says is its own
+        failure.
+      </p>
+    </div>
+
+    <p>
+      Two deliverables carry this further: a
+      <a href="https://github.com/paytonnguyen-creator/ecommerce-customer-retention-analysis/blob/claude/pickleball-demand-prediction-4dhb13/pickleball/docs/PRD.md" target="_blank" rel="noopener">product requirements document</a>
+      with scope, guardrails and kill criteria, and a
+      <a href="https://github.com/paytonnguyen-creator/ecommerce-customer-retention-analysis/blob/claude/pickleball-demand-prediction-4dhb13/pickleball/docs/BEHAVIORAL_AUDIT.md" target="_blank" rel="noopener">behavioural audit</a>
+      that ties each psychological claim to a named simulator parameter, so the
+      psychology is falsifiable rather than decorative.
+    </p>
+
+    <h2>What I'd do differently</h2>
+    <ul class="hollow">
+      <li>
+        <strong>Herding is the hole in every number here.</strong> All the advice
+        figures assume the player taking the recommendation is marginal — one
+        person moving does not change the queue. That is true at low adoption
+        and false at high adoption, which means the product degrades exactly as
+        it succeeds. I test it in one scenario, at an adoption rate I guessed.
+      </li>
+      <li>
+        <strong>I'd instrument one real paddle stack before building anything.</strong>
+        A camera and a clock for a season would settle three of the four
+        behavioural claims directly — whether abandonment outruns wait, whether
+        it concentrates in first-timers, and whether arrivals rise or fall with
+        observed crowding. None of my recommendations survive if the first one
+        is wrong.
+      </li>
+      <li>
+        <strong>The patience distribution is doing too much work.</strong> The
+        median tolerance before a first game is a number I chose, and it sets
+        how much of the congestion appears as waiting versus as walking away.
+        The scenario comparisons are robust to it because they all share it, but
+        the headline wait figure is not.
+      </li>
+      <li>
+        <strong>I'd model the choice, not just the wait.</strong> Players pick
+        between parks as well as between hours, and I only ever modelled the
+        second. A real DinkRadar competes for the same player across five
+        courts, and that is a substitution problem I did not touch.
+      </li>
+    </ul>
+
+    <p class="cs-foot-link">
+      <a class="back" href="index.html#work">← All projects</a>
+    </p>
+
+  </article>
+
+</main>
+
+<footer class="foot">
+  <span>© <span id="year">2026</span> Payton Nguyen</span>
+  <span>Built and hosted on GitHub Pages</span>
+</footer>
+
+<script src="assets/main.js?v=5"></script>
+</body>
+</html>
