@@ -1,0 +1,278 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Outer Banks S5 release simulator — tool chrome.
+
+   Scoped to .tool so nothing here can leak into the rest of the site.
+   The parent site is light-only (color-scheme: light on :root), so this
+   commits to a single light look and paints every surface explicitly
+   rather than inheriting.
+
+   The categorical slots below were validated against a #ffffff surface
+   before anything was drawn: worst adjacent-pair CVD ΔE 9.2, worst
+   normal-vision ΔE 18.0. Slots 1–3 also clear the all-pairs gate, which
+   is why no chart here ever puts more than three hues on one plot —
+   five release patterns are drawn as one emphasised series plus muted
+   context, never as five colours.
+   ───────────────────────────────────────────────────────────────────── */
+
+.tool {
+  --s1:        #2f6fb0;   /* categorical slot 1 — the selected pattern */
+  --s2:        #eb6834;   /* slot 2 — the one comparison series        */
+  --s3:        #1baf7a;   /* slot 3 — reserved, rarely used            */
+  --seq-1:     #cde2fb;
+  --seq-3:     #5598e7;
+  --seq-5:     #1c5cab;
+  --pole-lo:   #2f6fb0;   /* diverging: blue ↔ red, neutral gray mid   */
+  --pole-hi:   #d03b3b;
+  --ok:        #0ca30c;
+  --warn:      #fab219;
+  --crit:      #d03b3b;
+
+  --surface:   #ffffff;
+  --plane:     #f4f5f7;
+  --ink:       #14161a;
+  --ink-2:     #4d525b;
+  --muted:     #7c828d;
+  --grid:      #e8eaee;
+  --axis:      #c9ced6;
+  --hair:      rgba(20,22,26,.10);
+
+  background: var(--plane);
+  padding: 3.5rem 0 4rem;
+  border-block: 1px solid var(--line);
+}
+
+.tool-wrap { width: min(1180px, calc(100% - 3rem)); margin-inline: auto; }
+
+.tool-head { max-width: 74ch; margin-bottom: 2rem; }
+.tool-head h2 {
+  margin: 0 0 .6rem; font-size: clamp(1.4rem, 3.2vw, 1.9rem);
+  font-weight: 700; letter-spacing: -.02em; line-height: 1.2;
+}
+.tool-head p { margin: 0 0 .5rem; color: var(--ink-2); font-size: .96rem; }
+.tool-eyebrow {
+  display: block; margin-bottom: .7rem;
+  font-size: .68rem; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--s1);
+}
+
+/* ── Controls: one row above everything it scopes ─────────────────── */
+
+.controls {
+  background: var(--surface); border: 1px solid var(--hair);
+  border-radius: 14px; padding: 1.35rem 1.5rem 1.5rem;
+  box-shadow: 0 1px 2px rgba(20,22,26,.04);
+  margin-bottom: 1.25rem;
+}
+.control-grid {
+  display: grid; gap: 1.35rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  align-items: start;
+}
+.ctl-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: .75rem; margin-bottom: .55rem;
+}
+.ctl-label span:first-child {
+  font-size: .68rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.ctl-val { font-size: .88rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.segmented { display: flex; flex-wrap: wrap; gap: .4rem; }
+.seg {
+  flex: 1 1 auto; min-height: 2.75rem; padding: .5rem .7rem;
+  border: 1px solid var(--axis); border-radius: 9px;
+  background: var(--surface); color: var(--ink-2);
+  font: inherit; font-size: .8rem; font-weight: 600; line-height: 1.25;
+  cursor: pointer; text-align: center;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+.seg:hover { border-color: var(--s1); color: var(--s1); }
+.seg[aria-pressed="true"] {
+  background: var(--s1); border-color: var(--s1); color: #fff;
+}
+.seg small { display: block; font-weight: 500; font-size: .68rem; opacity: .78; }
+
+input[type="range"] {
+  width: 100%; height: 1.6rem; accent-color: var(--s1); cursor: pointer;
+}
+input[type="range"]:disabled { cursor: not-allowed; opacity: .38; }
+.ctl.is-off { opacity: .45; }
+.ctl-note { margin: .3rem 0 0; font-size: .75rem; color: var(--muted); }
+
+.switch { display: inline-flex; align-items: center; gap: .6rem; cursor: pointer; min-height: 2.75rem; }
+.switch input { width: 1.1rem; height: 1.1rem; accent-color: var(--s1); cursor: pointer; }
+.switch span { font-size: .88rem; color: var(--ink-2); }
+
+.ctl-actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+.btn {
+  min-height: 2.6rem; padding: .55rem 1.05rem;
+  border: 1px solid var(--axis); border-radius: 9px;
+  background: var(--surface); color: var(--ink-2);
+  font: inherit; font-size: .78rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+  transition: border-color .16s ease, color .16s ease, background .16s ease;
+}
+.btn:hover:not(:disabled) { border-color: var(--s1); color: var(--s1); }
+.btn:disabled { opacity: .5; cursor: progress; }
+.btn-primary { background: var(--s1); border-color: var(--s1); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--blue-dk); border-color: var(--blue-dk); color: #fff; }
+
+/* ── Stat tiles ───────────────────────────────────────────────────── */
+
+.kpis {
+  display: grid; gap: .85rem; margin-bottom: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+}
+.kpi {
+  background: var(--surface); border: 1px solid var(--hair);
+  border-radius: 12px; padding: 1.05rem 1.15rem;
+}
+.kpi-k {
+  font-size: .66rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted);
+}
+/* Proportional figures: tabular-nums makes a display-size number read loose. */
+.kpi-v {
+  margin: .35rem 0 .1rem; font-size: 1.72rem; font-weight: 700;
+  letter-spacing: -.03em; line-height: 1.05; color: var(--ink);
+}
+.kpi-v.is-neg { color: var(--crit); }
+.kpi-s { font-size: .76rem; color: var(--muted); line-height: 1.45; }
+
+/* ── The memo ─────────────────────────────────────────────────────── */
+
+.memo {
+  background: var(--surface); border: 1px solid var(--hair);
+  border-left: 3px solid var(--s1); border-radius: 0 14px 14px 0;
+  padding: 1.4rem 1.6rem; margin-bottom: 1.5rem;
+}
+.memo h3 {
+  margin: 0 0 .75rem; font-size: .68rem; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+.memo p { margin: 0 0 .8rem; font-size: .95rem; color: var(--ink-2); line-height: 1.65; }
+.memo p:last-child { margin-bottom: 0; }
+.memo strong { color: var(--ink); }
+.memo .verdict { font-size: 1.06rem; color: var(--ink); font-weight: 600; }
+
+.flag {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .2rem .55rem; border-radius: 6px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  background: #fdf1d6; color: #6b4c00;
+}
+.flag svg { width: 13px; height: 13px; fill: currentColor; flex: none; }
+.flag.is-crit { background: #fbe6e6; color: #8f2020; }
+.flag.is-ok   { background: #e2f5e2; color: #14601a; }
+
+/* ── Chart cards ──────────────────────────────────────────────────── */
+
+.viz-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 900px) {
+  .viz-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viz-wide { grid-column: 1 / -1; }
+}
+
+.vizcard {
+  background: var(--surface); border: 1px solid var(--hair);
+  border-radius: 14px; padding: 1.25rem 1.35rem 1.15rem; margin: 0;
+  min-width: 0;                       /* lets the SVG shrink inside grid */
+}
+.viz-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 1rem; margin-bottom: .2rem;
+}
+.viz-title { font-size: 1rem; font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
+.viz-sub { margin: .3rem 0 .9rem; font-size: .82rem; color: var(--muted); line-height: 1.5; max-width: 62ch; }
+.viz-toggle {
+  flex: none; min-height: 2rem; padding: .3rem .65rem;
+  border: 1px solid var(--axis); border-radius: 7px; background: var(--surface);
+  color: var(--muted); font: inherit; font-size: .68rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+}
+.viz-toggle:hover { border-color: var(--s1); color: var(--s1); }
+
+.viz-plot { position: relative; }
+.viz-plot svg { display: block; width: 100%; height: auto; overflow: visible; }
+/* Hold the previous render while recomputing — no skeleton flash, no jump. */
+.tool.is-busy .viz-plot, .tool.is-busy .kpis, .tool.is-busy .memo { opacity: .55; }
+.viz-plot, .kpis, .memo { transition: opacity .16s ease; }
+
+.legend {
+  display: flex; flex-wrap: wrap; gap: .35rem 1.1rem;
+  margin: 0 0 .7rem; padding: 0; list-style: none;
+  font-size: .78rem; color: var(--ink-2);
+}
+.legend li { display: flex; align-items: center; gap: .42rem; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.swatch.line { height: 3px; border-radius: 2px; }
+
+.tip {
+  position: absolute; z-index: 5; pointer-events: none;
+  background: var(--ink); color: #fff;
+  padding: .5rem .7rem; border-radius: 8px;
+  font-size: .76rem; line-height: 1.45; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(20,22,26,.22);
+  opacity: 0; transform: translate(-50%, -112%); transition: opacity .12s ease;
+}
+.tip.is-on { opacity: 1; }
+.tip b { font-weight: 700; }
+.tip em { font-style: normal; color: #9fc4ea; }
+
+.viz-table { display: none; overflow-x: auto; max-height: 320px; }
+.viz-table table { min-width: 0; font-size: .82rem; }
+.viz-table th, .viz-table td { padding: .4rem .6rem; }
+.viz-table td { font-variant-numeric: tabular-nums; }
+.vizcard.show-table .viz-table { display: block; }
+.vizcard.show-table .viz-plot, .vizcard.show-table .legend { display: none; }
+
+/* ── Drawers ──────────────────────────────────────────────────────── */
+
+.drawer {
+  background: var(--surface); border: 1px solid var(--hair);
+  border-radius: 14px; margin-top: 1rem; overflow: hidden;
+}
+.drawer > summary {
+  padding: 1.05rem 1.35rem; cursor: pointer;
+  font-size: .8rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-2); list-style: none;
+}
+.drawer > summary::-webkit-details-marker { display: none; }
+.drawer > summary::before {
+  content: "＋"; margin-right: .6rem; color: var(--s1); font-weight: 700;
+}
+.drawer[open] > summary::before { content: "－"; }
+.drawer > summary:hover { color: var(--s1); }
+.drawer-body { padding: 0 1.35rem 1.4rem; }
+.drawer-body > p:first-child { margin-top: 0; }
+.drawer-body p { font-size: .9rem; color: var(--ink-2); line-height: 1.6; }
+
+.assump-grid {
+  display: grid; gap: 1.1rem 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.assump h4 {
+  margin: 0 0 .2rem; font-size: .86rem; font-weight: 700; color: var(--ink);
+}
+.assump p { margin: 0 0 .45rem; font-size: .78rem; color: var(--muted); line-height: 1.5; }
+
+.runbar { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+.runbar .status { font-size: .82rem; color: var(--muted); }
+
+@media (max-width: 560px) {
+  .tool { padding: 2.5rem 0 3rem; }
+  .tool-wrap { width: calc(100% - 2rem); }
+  .controls { padding: 1.1rem 1.1rem 1.25rem; }
+  .vizcard { padding: 1.1rem 1rem 1rem; }
+  .kpi-v { font-size: 1.5rem; }
+}
+
+@media print {
+  .controls, .viz-toggle, .runbar .btn { display: none; }
+  .tool { background: #fff; }
+}
+
+/* The lead article runs straight into the tool, so it must not carry the
+   section's bottom padding. */
+.cs-body--lead { padding-bottom: 2rem; }
