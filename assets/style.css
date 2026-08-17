@@ -535,3 +535,24 @@ td { color: var(--body); }
 .chart figcaption { margin-top: .6rem; font-size: .85rem; color: var(--faint); }
 /* square-ish plots balloon at full column width */
 .chart--narrow img { max-width: 440px; margin-inline: auto; }
+
+/* ── Project thumbnail ─────────────────────────────────────────────
+   Used by the release-simulator card, which is an interactive page
+   rather than a written case study — the strip and the badge are what
+   say so before you click. Original vector art, no image request.
+   ───────────────────────────────────────────────────────────────── */
+.proj-thumb {
+  display: block; position: relative; margin-bottom: 1.15rem;
+  border-radius: 12px; overflow: hidden; line-height: 0;
+  box-shadow: var(--shadow);
+  transition: box-shadow .22s ease, transform .22s ease;
+}
+.proj-thumb:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); }
+.proj-thumb svg { display: block; width: 100%; height: auto; }
+.proj-badge {
+  position: absolute; left: .85rem; top: .85rem; z-index: 2;
+  background: #f0b93c; color: #2a1d00;
+  font-size: .62rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; padding: .3rem .62rem;
+  border-radius: 6px; line-height: 1.5;
+}

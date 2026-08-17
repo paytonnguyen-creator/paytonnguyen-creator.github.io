@@ -71,7 +71,8 @@ M.STRATEGIES.forEach(function (s) { SHAPE[s.id] = s.shape; });
 /* ── State ────────────────────────────────────────────────────────── */
 
 var P = Object.assign({}, M.ASSUMPTIONS);
-var state = { strategy: 'split2', last: null, sweep: null, sweepFor: null, busy: false };
+var state = { strategy: 'split2', last: null, sweep: null, sweepFor: null,
+              busy: false, pickedDay: null };
 
 /* ── Worker, with a synchronous fallback ──────────────────────────── */
 
@@ -182,7 +183,7 @@ function rangeTicks(lo, hi, n) {
 
 /* ── Tooltip + keyboard readout ───────────────────────────────────── */
 
-function attachHover(card, F, items) {
+function attachHover(card, F, items, onPick) {
   /* items: [{ x, y, html }] in viewBox coordinates. The hit layer is a
      nearest-x lookup, so the target is the whole column rather than the
      mark — an 8px dot you have to hit dead-centre is not a hit target. */
@@ -208,7 +209,11 @@ function attachHover(card, F, items) {
   });
   F.svg.appendChild(hit);
 
-  hit.addEventListener('pointermove', function (ev) {
+  /* Nearest item to an event's x, in viewBox units. Both the hover and the
+     click derive their index from this rather than the click reading
+     whatever the last hover left behind — a tap fires no pointermove, so a
+     click that trusted the hover state did nothing at all on touch. */
+  function nearest(ev) {
     var r = F.svg.getBoundingClientRect();
     var vx = (ev.clientX - r.left) / r.width * F.W;
     var best = 0, bd = Infinity;
@@ -216,14 +221,22 @@ function attachHover(card, F, items) {
       var d = Math.abs(it.x - vx);
       if (d < bd) { bd = d; best = i; }
     });
-    show(best);
-  });
+    return best;
+  }
+
+  if (onPick) {
+    hit.style.cursor = 'pointer';
+    hit.addEventListener('click', function (ev) { onPick(nearest(ev)); });
+  }
+
+  hit.addEventListener('pointermove', function (ev) { show(nearest(ev)); });
   hit.addEventListener('pointerleave', hide);
 
   F.svg.setAttribute('tabindex', '0');
   F.svg.addEventListener('keydown', function (ev) {
     if (ev.key === 'ArrowRight') { show(Math.min(items.length - 1, cur + 1)); ev.preventDefault(); }
     else if (ev.key === 'ArrowLeft') { show(Math.max(0, (cur < 0 ? 1 : cur) - 1)); ev.preventDefault(); }
+    else if ((ev.key === 'Enter' || ev.key === ' ') && onPick && cur >= 0) { onPick(cur); ev.preventDefault(); }
     else if (ev.key === 'Escape') hide();
   });
   F.svg.addEventListener('blur', hide);
@@ -296,7 +309,10 @@ function chartViews(results, sel) {
     var wk = d.d / 7;
     if (wk > weeks - 1) return;
     F.svg.appendChild(e('line', { x1: x(wk), x2: x(wk), y1: F.T - 4, y2: F.B, stroke: C.gold, 'stroke-width': 1, opacity: .3 }));
-    F.svg.appendChild(e('circle', { cx: x(wk), cy: F.T - 8, r: 3.5, fill: C.gold }));
+    F.svg.appendChild(e('path', {
+      d: 'M' + (x(wk) - 4.5) + ' ' + (F.T - 12.5) + 'l9 9M' + (x(wk) + 4.5) + ' ' + (F.T - 12.5) + 'l-9 9',
+      stroke: C.gold, 'stroke-width': 2.2, 'stroke-linecap': 'round', fill: 'none'
+    }));
   });
 
   baseline(F, F.B);
@@ -346,9 +362,16 @@ function chartCoverage(results, sel) {
   d.forEach(function (p) {
     var h = Math.max(0, y(0) - y(Math.max(p.save, 0)));
     if (h < 0.5) return;
+    var picked = p.day === state.pickedDay;
     F.svg.appendChild(e('path', {
-      d: bar(x(p.day) - bw / 2, y(Math.max(p.save, 0)), bw, h, 3, 'up'), fill: C.s1
+      d: bar(x(p.day) - bw / 2, y(Math.max(p.save, 0)), bw, h, 3, 'up'),
+      fill: picked ? C.gold : C.s1
     }));
+    if (picked) {
+      F.svg.appendChild(e('circle', {
+        cx: x(p.day), cy: y(Math.max(p.save, 0)) - 9, r: 3.5, fill: C.gold
+      }));
+    }
   });
 
   /* Where a drop lands, and where the month boundary falls. */
@@ -369,15 +392,66 @@ function chartCoverage(results, sel) {
   attachHover(card, F, d.map(function (p) {
     return {
       x: x(p.day), y: y(Math.max(p.save, 0)),
-      html: '<b>Renews on day ' + p.day + '</b><br>' + pct(p.save, 1) + ' less likely to cancel<br><em>vs no release at all</em>'
+      html: '<b>Renews on day ' + p.day + '</b><br>' + pct(p.save, 1) + ' less likely to cancel<br><em>click to pin this date</em>'
     };
-  }));
+  }), function (i) {
+    state.pickedDay = state.pickedDay === d[i].day ? null : d[i].day;
+    chartCoverage(results, sel);
+  });
+  writeCoverageNote(r0, d, sel);
 
   legend('viz-coverage', [{ color: C.s1, label: 'Reduction in cancellations, vs a month with no Outer Banks' }]);
   table('viz-coverage', ['Renewal day'].concat(results.map(function (r) { return LABEL[r.strategy]; })),
     d.map(function (p, i) {
       return ['day ' + p.day].concat(results.map(function (r) { return pct(r.saveByDay[i].save, 1); }));
     }));
+}
+
+/* The point of pinning a date is to make the mechanism personal: the
+   release either lands near your renewal or it doesn't, and there is
+   nothing you or the subscriber can do about which. */
+function writeCoverageNote(r0, d, sel) {
+  var el = document.getElementById('coverage-note');
+  if (!el) return;
+
+  if (state.pickedDay == null) {
+    el.innerHTML = '<span class="hint">Click any bar to pin a renewal date and see what this release does for the people billed that day.</span>';
+    return;
+  }
+
+  var row = d.find(function (p) { return p.day === state.pickedDay; });
+  var best = d.reduce(function (a, b) { return b.save > a.save ? b : a; });
+  var day = state.pickedDay;
+
+  /* Nearest drop behind, and the next one ahead. */
+  var before = null, after = null;
+  r0.schedule.forEach(function (sd) {
+    if (sd.d <= day && (before === null || sd.d > before.d)) before = sd;
+    if (sd.d > day && (after === null || sd.d < after.d)) after = sd;
+  });
+
+  var h = '<strong>Charged on day ' + day + ':</strong> ' + pct(row.save, 1) +
+          ' less likely to cancel than in a month with no Outer Banks. ';
+  h += day === best.day
+    ? 'That is the best any renewal date does under this pattern.'
+    : 'The best-covered date is day ' + best.day + ', at ' + pct(best.save, 1) + '.';
+
+  if (before) {
+    var gap = day - before.d;
+    h += ' The last drop was ' + (gap === 0 ? 'that same day' : gap + ' day' + (gap === 1 ? '' : 's') + ' earlier') +
+         (gap > 18 ? ' — long enough for most of it to have faded by the time the card is charged.' : '.');
+  }
+  if (after) {
+    h += ' The next ' + after.n + ' episodes land ' + (after.d - day) + ' days later, which is after the decision.';
+  }
+  h += ' <button type="button" class="linkbtn" id="clear-day">Clear</button>';
+  el.innerHTML = h;
+
+  var btn = document.getElementById('clear-day');
+  if (btn) btn.addEventListener('click', function () {
+    state.pickedDay = null;
+    chartCoverage(state.last, state.strategy);
+  });
 }
 
 /* ═══ Chart C — net contribution ranking ═══════════════════════════ */
@@ -858,6 +932,123 @@ function renderGap() {
   if (state.sweep) chartGap(state.sweep, state.sweepFor, state.strategy);
 }
 
+/* ── Presets ──────────────────────────────────────────────────────────
+   Five starting points that correspond to arguments someone would
+   actually make in a room, rather than five random slider positions.
+   "Season 4 replay" is the real decision the show made, so the tool can
+   be checked against the one data point that exists. */
+
+var PRESETS = [
+  { id: 's4', label: 'Season 4 replay',
+    note: 'What the show actually did: two parts, five weeks apart.',
+    set: { strategy: 'split2', gapWeeks: 5, mktSpend: 28, competition: 0.35, handoff: false } },
+  { id: 'model', label: 'The model’s pick',
+    note: 'Shorter gap, leaner campaign, something programmed behind the finale.',
+    set: { strategy: 'split2', gapWeeks: 3, mktSpend: 18, competition: 0.35, handoff: true } },
+  { id: 'acq', label: 'Go for subscribers',
+    note: 'Everything at once, spend hard, buy the biggest opening week you can.',
+    set: { strategy: 'binge', gapWeeks: 5, mktSpend: 42, competition: 0.4, handoff: false } },
+  { id: 'ret', label: 'Defend the base',
+    note: 'Stretch the run out and cover as many renewal dates as possible.',
+    set: { strategy: 'hybrid', gapWeeks: 5, mktSpend: 20, competition: 0.35, handoff: true } },
+  { id: 'war', label: 'Crowded quarter',
+    note: 'A rival tentpole is taking the attention. Same season, worse window.',
+    set: { strategy: 'split2', gapWeeks: 3, mktSpend: 34, competition: 0.85, handoff: true } }
+];
+
+function applyPreset(id) {
+  var pre = PRESETS.find(function (x) { return x.id === id; });
+  if (!pre) return;
+  P = Object.assign({}, M.ASSUMPTIONS);          /* presets start from clean */
+  Object.keys(pre.set).forEach(function (k) {
+    if (k === 'strategy') state.strategy = pre.set[k]; else P[k] = pre.set[k];
+  });
+  state.pickedDay = null;
+  syncAllControls();
+  recompute(true);
+}
+
+function buildPresets() {
+  var box = document.getElementById('preset-row');
+  box.innerHTML = PRESETS.map(function (pr) {
+    return '<button type="button" class="chip" data-id="' + pr.id + '" title="' + pr.note + '">' + pr.label + '</button>';
+  }).join('');
+  box.addEventListener('click', function (ev) {
+    var b = ev.target.closest('.chip');
+    if (b) applyPreset(b.dataset.id);
+  });
+}
+
+/* ── Shareable state ──────────────────────────────────────────────────
+   Only the differences from the defaults go in the URL, so a link stays
+   short and a future change to a default doesn't silently rewrite what
+   someone else's link meant. */
+
+function encodeState() {
+  var q = ['s=' + state.strategy];
+  Object.keys(M.ASSUMPTIONS).forEach(function (k) {
+    var v = P[k], d = M.ASSUMPTIONS[k];
+    if (v === d) return;
+    q.push(k + '=' + (typeof v === 'boolean' ? (v ? 1 : 0) : Number(v.toPrecision(6))));
+  });
+  return '#' + q.join('&');
+}
+
+function applyHash() {
+  var raw = (location.hash || '').replace(/^#/, '');
+  if (!raw) return false;
+  var touched = false;
+  raw.split('&').forEach(function (pair) {
+    var i = pair.indexOf('='); if (i < 0) return;
+    var k = decodeURIComponent(pair.slice(0, i)), v = decodeURIComponent(pair.slice(i + 1));
+    if (k === 's') {
+      if (M.STRATEGIES.some(function (x) { return x.id === v; })) { state.strategy = v; touched = true; }
+      return;
+    }
+    if (!(k in M.ASSUMPTIONS)) return;            /* ignore anything unknown */
+    if (typeof M.ASSUMPTIONS[k] === 'boolean') { P[k] = v === '1' || v === 'true'; touched = true; return; }
+    var n = parseFloat(v);
+    if (isFinite(n)) { P[k] = n; touched = true; }
+  });
+  return touched;
+}
+
+function wireShare() {
+  var btn = document.getElementById('btn-share');
+  var out = document.getElementById('share-status');
+  btn.addEventListener('click', function () {
+    var url = location.origin + location.pathname + encodeState();
+    history.replaceState(null, '', encodeState());
+    var done = function (msg) { out.textContent = msg; setTimeout(function () { out.textContent = ''; }, 3200); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(
+        function () { done('Link copied — it reopens with these exact settings.'); },
+        function () { done('Copy failed. The address bar now holds the link.'); }
+      );
+    } else {
+      done('The address bar now holds a link to these settings.');
+    }
+  });
+}
+
+/* Push every control back into agreement with P and state. Used by the
+   presets, the reset button and the initial load from a shared link. */
+function syncAllControls() {
+  Array.prototype.forEach.call(document.getElementById('strategy-seg').children, function (c) {
+    c.setAttribute('aria-pressed', String(c.dataset.id === state.strategy));
+  });
+  document.getElementById('ctl-gap').value = P.gapWeeks;
+  document.getElementById('ctl-spend').value = P.mktSpend;
+  document.getElementById('ctl-comp').value = P.competition * 100;
+  document.getElementById('ctl-handoff').checked = P.handoff;
+  ['gap', 'spend', 'comp'].forEach(syncLabel);
+  EDITABLE.forEach(function (a) {
+    var el = document.getElementById('ai-' + a.key);
+    if (el) { el.value = P[a.key]; document.getElementById('av-' + a.key).textContent = a.fmt(P[a.key]); }
+  });
+  syncGapControl();
+}
+
 /* ── Controls ─────────────────────────────────────────────────────── */
 
 function buildControls() {
@@ -888,16 +1079,9 @@ function buildControls() {
   document.getElementById('btn-reset').addEventListener('click', function () {
     P = Object.assign({}, M.ASSUMPTIONS);
     state.strategy = 'split2';
-    buildAssumptions();
-    document.getElementById('ctl-gap').value = P.gapWeeks;
-    document.getElementById('ctl-spend').value = P.mktSpend;
-    document.getElementById('ctl-comp').value = P.competition * 100;
-    document.getElementById('ctl-handoff').checked = P.handoff;
-    Array.prototype.forEach.call(document.getElementById('strategy-seg').children, function (c) {
-      c.setAttribute('aria-pressed', String(c.dataset.id === state.strategy));
-    });
-    ['gap', 'spend', 'comp'].forEach(syncLabel);
-    syncGapControl();
+    state.pickedDay = null;
+    history.replaceState(null, '', location.pathname);
+    syncAllControls();
     recompute(true);
   });
 
@@ -1010,8 +1194,12 @@ document.addEventListener('click', function (ev) {
 
 /* ── Go ───────────────────────────────────────────────────────────── */
 
+var fromLink = applyHash();
+buildPresets();
 buildControls();
 buildAssumptions();
+wireShare();
+if (fromLink) syncAllControls();
 wireRun('btn-tornado', 'tornado-status', 'tornado', function (out) {
   chartTornado(out.tornado, state.strategy);
 });
