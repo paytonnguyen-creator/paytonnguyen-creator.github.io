@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/obx.css?v=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d131d'/><text x='50' y='69' font-size='44' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23ffffff' text-anchor='middle'>PN</text></svg>">
 </head>
-<body class="sub-page">
+<body class="sub-page obx-page">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav is-solid" id="nav">
@@ -31,7 +31,96 @@
 
 <main id="main">
 
-  <header class="cs-head">
+  <header class="cs-head obx-hero">
+    <!--
+      Coastal scene, drawn rather than photographed. A picture of the real
+      Outer Banks — or a still from the show — would be someone else's
+      copyright on a public page, so this is all primitives: a low sun, the
+      sound, a barrier island, a lighthouse and marsh grass.
+    -->
+    <div class="obx-hero-art" aria-hidden="true">
+      <svg viewBox="0 0 1440 460" role="img">
+        <defs>
+          <linearGradient id="obx-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#0a3550" stop-opacity="0"/>
+            <stop offset="46%"  stop-color="#3d5f70" stop-opacity=".55"/>
+            <stop offset="74%"  stop-color="#b8763c" stop-opacity=".72"/>
+            <stop offset="100%" stop-color="#e8a24a" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="obx-glow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#f0b93c" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="#e2673a" stop-opacity=".55"/>
+          </linearGradient>
+          <linearGradient id="obx-water" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#12506b"/>
+            <stop offset="100%" stop-color="#071f2f"/>
+          </linearGradient>
+          <!-- keeps the sun from spilling below the waterline -->
+          <clipPath id="obx-above"><rect x="0" y="0" width="1440" height="300"/></clipPath>
+        </defs>
+
+        <!-- dusk band low in the sky -->
+        <rect x="0" y="150" width="1440" height="150" fill="url(#obx-sky)"/>
+
+        <!-- the low sun, half-set, with its track on the water -->
+        <g clip-path="url(#obx-above)">
+          <circle cx="1044" cy="292" r="54" fill="url(#obx-glow)"/>
+          <circle cx="1044" cy="292" r="96" fill="#f0b93c" opacity=".14"/>
+        </g>
+        <g fill="#f0b93c" opacity=".26">
+          <rect x="1024" y="306" width="40" height="4" rx="2"/>
+          <rect x="1012" y="318" width="64" height="3" rx="1.5"/>
+          <rect x="1028" y="330" width="32" height="3" rx="1.5"/>
+          <rect x="1006" y="342" width="76" height="3" rx="1.5"/>
+        </g>
+
+        <!-- the sound -->
+        <rect x="0" y="300" width="1440" height="60" fill="url(#obx-water)"/>
+
+        <!-- far barrier island -->
+        <path fill="#0a2b3e" d="M0 306V296Q160 286 320 294T640 288T960 296T1280 290T1440 296V306Z"/>
+
+        <!-- Cape-style lighthouse, its beam thrown out over the water -->
+        <g fill="#04141f">
+          <path d="M243 372V150l9-14 9 14v222z" opacity="0"/>
+          <path d="M236 372 246 150h28l10 222z"/>
+          <rect x="240" y="138" width="40" height="14" rx="3"/>
+          <rect x="248" y="120" width="24" height="20" rx="2"/>
+          <path d="M252 120h16l-8-12z"/>
+        </g>
+        <g fill="#fffdf6">
+          <rect x="252" y="126" width="16" height="9" rx="2" opacity=".9"/>
+        </g>
+        <path d="M268 130 470 96l0 68z" fill="#f0b93c" opacity=".12"/>
+        <!-- the tower's bands -->
+        <g fill="#f4ede0" opacity=".16">
+          <path d="M243 320h34l1 22h-36z"/>
+          <path d="M247 246h26l1 22h-28z"/>
+          <path d="M250 182h20l1 20h-22z"/>
+        </g>
+
+        <!-- pier reaching out over the sound -->
+        <g fill="#04141f">
+          <rect x="1120" y="330" width="300" height="7"/>
+          <g>
+            <rect x="1150" y="336" width="6" height="34"/>
+            <rect x="1210" y="336" width="6" height="34"/>
+            <rect x="1270" y="336" width="6" height="34"/>
+            <rect x="1330" y="336" width="6" height="34"/>
+            <rect x="1390" y="336" width="6" height="34"/>
+          </g>
+        </g>
+
+        <!-- dune line and marsh grass -->
+        <path fill="#03101a" d="M0 460V368Q210 344 420 364T880 356T1180 372T1440 360V460Z"/>
+        <g stroke="#03101a" stroke-width="3" stroke-linecap="round" fill="none">
+          <path d="M120 372q6-30 2-46M132 372q10-28 14-44M144 374q2-26-4-40"/>
+          <path d="M560 366q7-32 3-48M572 366q11-28 16-42M584 368q1-24-5-38"/>
+          <path d="M980 364q6-30 2-46M992 364q10-26 15-40M1004 366q2-24-4-36"/>
+        </g>
+      </svg>
+    </div>
+
     <div class="wrap">
       <a class="back" href="index.html#work">← All projects</a>
       <p class="cs-kicker">Interactive tool · Content &amp; product strategy</p>

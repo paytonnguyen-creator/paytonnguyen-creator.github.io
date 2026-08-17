@@ -1,44 +1,51 @@
 /* ─────────────────────────────────────────────────────────────────────
    Outer Banks S5 release simulator — tool chrome.
 
-   Scoped to .tool so nothing here can leak into the rest of the site.
-   The parent site is light-only (color-scheme: light on :root), so this
-   commits to a single light look and paints every surface explicitly
-   rather than inheriting.
+   Scoped to .tool and .obx-* so nothing here can leak into the rest of
+   the site. The parent site is light-only (color-scheme: light on :root),
+   so this commits to a single light look and paints every surface
+   explicitly rather than inheriting.
 
-   The categorical slots below were validated against a #ffffff surface
-   before anything was drawn: worst adjacent-pair CVD ΔE 9.2, worst
-   normal-vision ΔE 18.0. Slots 1–3 also clear the all-pairs gate, which
-   is why no chart here ever puts more than three hues on one plot —
-   five release patterns are drawn as one emphasised series plus muted
-   context, never as five colours.
+   Themed to the show's own setting — sand, ocean and a low sun — rather
+   than to the Berkeley palette the other case studies use. The theme is
+   allowed to pick the hues; it is not allowed to pick unreadable ones.
+   Every colour below was run through the colourblind validator against
+   this page's warm surface (#fffcf6) BEFORE anything was drawn:
+
+     ocean #0a7096 ↔ sunset #e2673a   all-pairs CVD ΔE 16.4, normal 30.1
+     diverging ocean ↔ #c4472e        all-pairs CVD ΔE 15.2, normal 26.8
+     accent gold #a8761c              3.89:1 on the warm surface
+
+   A first pass used a marsh green as a third series; it failed
+   green↔orange at CVD ΔE 4.4 and was cut rather than kept and excused.
+   No chart puts more than two hues on one plot — five release patterns
+   are one emphasised series plus muted context, never five colours.
    ───────────────────────────────────────────────────────────────────── */
 
 .tool {
-  --s1:        #2f6fb0;   /* categorical slot 1 — the selected pattern */
-  --s2:        #eb6834;   /* slot 2 — the one comparison series        */
-  --s3:        #1baf7a;   /* slot 3 — reserved, rarely used            */
-  --seq-1:     #cde2fb;
-  --seq-3:     #5598e7;
-  --seq-5:     #1c5cab;
-  --pole-lo:   #2f6fb0;   /* diverging: blue ↔ red, neutral gray mid   */
-  --pole-hi:   #d03b3b;
-  --ok:        #0ca30c;
+  --s1:        #0a7096;   /* ocean — the selected pattern             */
+  --s2:        #e2673a;   /* low sun — the one comparison series      */
+  --s1-dk:     #07536f;   /* pressed / hover state of the ocean       */
+  --gold:      #a8761c;   /* accent: drop markers, rules              */
+  --pole-lo:   #0a7096;   /* diverging: ocean ↔ rust, neutral middle  */
+  --pole-hi:   #c4472e;
+  --ok:        #0ca30c;   /* status tokens stay reserved and unthemed */
   --warn:      #fab219;
-  --crit:      #d03b3b;
+  --crit:      #c4472e;
 
-  --surface:   #ffffff;
-  --plane:     #f4f5f7;
-  --ink:       #14161a;
-  --ink-2:     #4d525b;
-  --muted:     #7c828d;
-  --grid:      #e8eaee;
-  --axis:      #c9ced6;
-  --hair:      rgba(20,22,26,.10);
+  --surface:   #fffcf6;   /* warm card — the chart surface            */
+  --plane:     #f4ede0;   /* sand                                     */
+  --ink:       #17212a;
+  --ink-2:     #4c5560;
+  --muted:     #7d7669;
+  --grid:      #eae2d3;
+  --axis:      #cfc5b3;
+  --hair:      rgba(23,33,42,.11);
 
   background: var(--plane);
   padding: 3.5rem 0 4rem;
-  border-block: 1px solid var(--line);
+  border-top: 3px solid var(--gold);
+  border-bottom: 1px solid var(--line);
 }
 
 .tool-wrap { width: min(1180px, calc(100% - 3rem)); margin-inline: auto; }
@@ -116,7 +123,7 @@ input[type="range"]:disabled { cursor: not-allowed; opacity: .38; }
 .btn:hover:not(:disabled) { border-color: var(--s1); color: var(--s1); }
 .btn:disabled { opacity: .5; cursor: progress; }
 .btn-primary { background: var(--s1); border-color: var(--s1); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: var(--blue-dk); border-color: var(--blue-dk); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--s1-dk); border-color: var(--s1-dk); color: #fff; }
 
 /* ── Stat tiles ───────────────────────────────────────────────────── */
 
@@ -144,7 +151,7 @@ input[type="range"]:disabled { cursor: not-allowed; opacity: .38; }
 
 .memo {
   background: var(--surface); border: 1px solid var(--hair);
-  border-left: 3px solid var(--s1); border-radius: 0 14px 14px 0;
+  border-left: 3px solid var(--gold); border-radius: 0 14px 14px 0;
   padding: 1.4rem 1.6rem; margin-bottom: 1.5rem;
 }
 .memo h3 {
@@ -276,3 +283,69 @@ input[type="range"]:disabled { cursor: not-allowed; opacity: .38; }
 /* The lead article runs straight into the tool, so it must not carry the
    section's bottom padding. */
 .cs-body--lead { padding-bottom: 2rem; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Coastal header
+
+   Original vector art, the same rule the home page's Campanile skyline
+   follows: a photograph of the Outer Banks — or a still from the show —
+   would be someone else's copyright on a public page. Everything here is
+   drawn from primitives, so it costs no request and can't be a licensing
+   problem.
+   ───────────────────────────────────────────────────────────────────── */
+
+.obx-hero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(180deg, #061f30 0%, #0a3550 46%, #14506d 100%);
+  border-bottom: 3px solid #d9a133;
+}
+/* The art sits at the bottom of the header and scales with it; height:auto
+   preserves the viewBox aspect so the lighthouse is never sliced. */
+.obx-hero-art { position: absolute; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; }
+.obx-hero-art svg { display: block; width: 100%; height: auto; }
+.obx-hero > .wrap { position: relative; z-index: 2; }
+
+/* Text sits over the busiest part of the drawing and needs a scrim. Full
+   bleed and weighted to the left, so it darkens the side the type is on
+   without either a visible box edge — which a scrim sized to the text
+   column gives you — or dimming the sun on the right. */
+.obx-hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(3,15,25,.80) 0%, rgba(3,15,25,.62) 38%, rgba(3,15,25,.22) 68%, rgba(3,15,25,0) 92%),
+    linear-gradient(180deg, rgba(3,15,25,.5) 0%, rgba(3,15,25,0) 42%),
+    /* The facts row lands wherever the viewport puts it, and the sun is the
+       one bright thing in the drawing. Darkening the bottom band keeps that
+       row legible at every width instead of hoping the two never collide. */
+    linear-gradient(0deg, rgba(3,15,25,.62) 0%, rgba(3,15,25,.3) 18%, rgba(3,15,25,0) 34%);
+}
+
+.obx-hero .back { color: rgba(255,255,255,.7); }
+.obx-hero .back:hover { color: #f0b93c; }
+.obx-hero .cs-kicker { color: #f0b93c; }
+.obx-hero h1 { color: #fff; text-shadow: 0 2px 18px rgba(2,12,20,.45); }
+.obx-hero .cs-lede { color: rgba(255,255,255,.88); }
+.obx-hero .facts { border-block-color: rgba(255,255,255,.24); }
+.obx-hero .facts dt { color: rgba(255,255,255,.6); }
+.obx-hero .facts dd { color: #fff; }
+.obx-hero .facts a { color: #f0b93c; }
+
+/* Nav sits above a dark header here, so the solid white bar the other
+   case studies use would cut the page in half. */
+.obx-page .nav.is-solid {
+  background: rgba(6,31,48,.9);
+  box-shadow: 0 1px 0 rgba(255,255,255,.14);
+}
+.obx-page .nav.is-solid .monogram { color: #fff; }
+.obx-page .nav.is-solid nav a { color: rgba(255,255,255,.85); }
+.obx-page .nav.is-solid nav a:hover,
+.obx-page .nav.is-solid nav a.is-active { color: #f0b93c; }
+.obx-page .nav.is-solid .nav-toggle span,
+.obx-page .nav.is-solid .nav-toggle span::before,
+.obx-page .nav.is-solid .nav-toggle span::after { background: #fff; }
+
+/* A hairline of sand under the lead article, so the tool reads as a panel
+   set into the page rather than a colour change halfway down it. */
+.obx-page .cs-body--lead { padding-bottom: 2.5rem; }

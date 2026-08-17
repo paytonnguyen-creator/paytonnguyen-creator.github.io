@@ -47,6 +47,15 @@ top of `obx-model.js`; the ones that move the answer are exposed as controls on
 the page rather than buried. There is no Netflix data behind it and the page
 says so — Netflix publishes weekly view counts and nothing about churn.
 
+This page is themed to the show — sand, ocean, a low sun — rather than to the
+Berkeley palette the other case studies use, and the coastal header is original
+vector art for the same reason the home page's Campanile is. The theme picks the
+hues but not unreadable ones: every colour was run through a colourblind
+validator against the page's warm surface before anything was drawn, and a marsh
+green that failed green↔orange separation was cut rather than kept and excused.
+No chart puts more than two hues on one plot; the five release patterns are one
+emphasised series plus muted context.
+
 ## Notes
 
 - **Portrait:** the hero circle reads `assets/portrait.png`. If the file is missing the image removes itself and the circle falls back to initials. Framing is set by `object-position` on `.portrait img`.

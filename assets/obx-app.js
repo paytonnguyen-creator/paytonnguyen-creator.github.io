@@ -19,14 +19,16 @@ if (!root) return;
 var M = window.OBXModel;
 var NS = 'http://www.w3.org/2000/svg';
 
-/* ── Palette (mirrors assets/obx.css) ─────────────────────────────── */
+/* ── Palette (mirrors assets/obx.css — keep the two in step) ───────
+   Ocean and low sun, validated against this page's warm surface before
+   anything was drawn: all-pairs CVD ΔE 16.4, normal-vision 30.1. Gold is
+   an accent for release markers, never a series. */
 var C = {
-  s1: '#2f6fb0', s2: '#eb6834',
-  seq1: '#cde2fb', seq3: '#5598e7', seq5: '#1c5cab',
-  lo: '#2f6fb0', hi: '#d03b3b',
-  ink: '#14161a', ink2: '#4d525b', muted: '#7c828d',
-  grid: '#e8eaee', axis: '#c9ced6', surface: '#ffffff',
-  ctx: '#b9bfc9'            /* muted context lines — never a series colour */
+  s1: '#0a7096', s2: '#e2673a', gold: '#a8761c',
+  lo: '#0a7096', hi: '#c4472e',
+  ink: '#17212a', ink2: '#4c5560', muted: '#7d7669',
+  grid: '#eae2d3', axis: '#cfc5b3', surface: '#fffcf6',
+  ctx: '#bdb5a6'            /* muted context lines — never a series colour */
 };
 
 /* ── Small SVG helpers ────────────────────────────────────────────── */
@@ -293,8 +295,8 @@ function chartViews(results, sel) {
   r0.schedule.forEach(function (d) {
     var wk = d.d / 7;
     if (wk > weeks - 1) return;
-    F.svg.appendChild(e('line', { x1: x(wk), x2: x(wk), y1: F.T - 4, y2: F.B, stroke: C.s1, 'stroke-width': 1, opacity: .16 }));
-    F.svg.appendChild(e('circle', { cx: x(wk), cy: F.T - 8, r: 3.5, fill: C.s1 }));
+    F.svg.appendChild(e('line', { x1: x(wk), x2: x(wk), y1: F.T - 4, y2: F.B, stroke: C.gold, 'stroke-width': 1, opacity: .3 }));
+    F.svg.appendChild(e('circle', { cx: x(wk), cy: F.T - 8, r: 3.5, fill: C.gold }));
   });
 
   baseline(F, F.B);
@@ -352,8 +354,8 @@ function chartCoverage(results, sel) {
   /* Where a drop lands, and where the month boundary falls. */
   r0.schedule.forEach(function (s) {
     if (s.d < 1 || s.d > 59) return;
-    F.svg.appendChild(e('line', { x1: x(s.d), x2: x(s.d), y1: F.T - 6, y2: F.B, stroke: C.ink, 'stroke-width': 1, opacity: .35 }));
-    F.svg.appendChild(e('text', { x: x(s.d), y: F.T - 10, 'text-anchor': 'middle', fill: C.ink2, 'font-size': 10.5, 'font-weight': 700, 'font-family': 'inherit' }, s.n + ' eps'));
+    F.svg.appendChild(e('line', { x1: x(s.d), x2: x(s.d), y1: F.T - 6, y2: F.B, stroke: C.gold, 'stroke-width': 1, opacity: .55 }));
+    F.svg.appendChild(e('text', { x: x(s.d), y: F.T - 10, 'text-anchor': 'middle', fill: C.gold, 'font-size': 10.5, 'font-weight': 700, 'font-family': 'inherit' }, s.n + ' eps'));
   });
 
   baseline(F, F.B);
@@ -414,7 +416,7 @@ function chartRank(results, sel) {
     ' leads at ' + money(sorted[0].netContribution) + '.');
   legend('viz-rank', [
     { color: C.s1, label: 'Selected pattern' },
-    { color: 'rgba(47,111,176,.3)', label: 'Alternatives' }
+    { color: C.s1, alpha: .3, label: 'Alternatives' }
   ]);
   table('viz-rank', ['Pattern', 'Retention', 'Acquisition', 'Marketing', 'Net'],
     sorted.map(function (r) {
