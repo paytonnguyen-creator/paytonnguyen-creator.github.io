@@ -349,3 +349,46 @@ input[type="range"]:disabled { cursor: not-allowed; opacity: .38; }
 /* A hairline of sand under the lead article, so the tool reads as a panel
    set into the page rather than a colour change halfway down it. */
 .obx-page .cs-body--lead { padding-bottom: 2.5rem; }
+
+/* ── Presets, sharing, pinned dates ───────────────────────────────── */
+
+.preset-bar {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: .55rem .9rem; margin-bottom: 1rem;
+}
+.preset-lead {
+  font-size: .68rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.chips-row { display: flex; flex-wrap: wrap; gap: .45rem; }
+.chip {
+  min-height: 2.3rem; padding: .38rem .85rem;
+  border: 1px solid var(--axis); border-radius: 999px;
+  background: var(--surface); color: var(--ink-2);
+  font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
+  transition: border-color .16s ease, color .16s ease, background .16s ease;
+}
+.chip:hover { border-color: var(--gold); color: var(--gold); background: #fdf6e8; }
+
+.pin-note {
+  margin: .35rem 0 0; padding: .7rem .9rem;
+  background: #fdf6e8; border-left: 3px solid var(--gold);
+  border-radius: 0 8px 8px 0;
+  font-size: .85rem; line-height: 1.55; color: var(--ink-2);
+}
+.pin-note strong { color: var(--ink); }
+.pin-note .hint { color: var(--muted); }
+.vizcard.show-table .pin-note { display: none; }
+
+.linkbtn {
+  border: 0; background: none; padding: 0; margin-left: .4rem;
+  font: inherit; font-size: .82rem; font-weight: 700;
+  color: var(--s1); text-decoration: underline; cursor: pointer;
+}
+.linkbtn:hover { color: var(--s1-dk); }
+
+#share-status { min-height: 1rem; color: var(--s1); font-weight: 600; }
+
+/* A hairline of gold under each card title ties the panels to the header
+   without adding another colour to the plots themselves. */
+.viz-title { padding-bottom: .4rem; border-bottom: 2px solid rgba(168,118,28,.28); display: inline-block; }

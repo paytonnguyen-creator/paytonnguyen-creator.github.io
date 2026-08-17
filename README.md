@@ -40,7 +40,16 @@ assets/obx-worker.js   runs the model off the main thread (a full recompute is s
                        the sensitivity pass is a hundred more)
 assets/obx-app.js      controls, the auto-written memo, and the charts as hand-drawn SVG
 assets/obx.css         tool chrome, scoped to `.tool`
+assets/obx-og.png      link-preview card, generated from the page's own hero art
 ```
+
+Beyond the sliders, the page carries five presets (each one an argument someone
+would actually make, including a "Season 4 replay" that matches the real
+decision), a clickable coverage chart that pins a renewal date and explains what
+the release does for the people billed that day, and a **Copy link** button that
+encodes only the settings differing from the defaults — so a shared link stays
+short and a later change to a default cannot silently rewrite what someone
+else's link meant.
 
 Every behavioural parameter is an assumption and lives in `ASSUMPTIONS` at the
 top of `obx-model.js`; the ones that move the answer are exposed as controls on
