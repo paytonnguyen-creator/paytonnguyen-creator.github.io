@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thirty billing dates — Payton Nguyen</title>
+<meta name="description" content="An interactive release-strategy simulator for the final season of Outer Banks. Acquisition wants a spike, retention wants a plateau, and the pattern that wins does so by a margin too small to defend.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thirty billing dates">
+<meta property="og:description" content="A release pattern doesn't change how many people want a season. It changes how much 'recently watched' they're carrying on the one day a month that decides anything.">
+<link rel="stylesheet" href="assets/style.css?v=5">
+<link rel="stylesheet" href="assets/obx.css?v=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d131d'/><text x='50' y='69' font-size='44' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23ffffff' text-anchor='middle'>PN</text></svg>">
+</head>
+<body class="sub-page">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav is-solid" id="nav">
+  <div class="nav-inner">
+    <a class="monogram" href="index.html" aria-label="Home">PN</a>
+    <nav aria-label="Primary">
+      <a href="index.html#about">About</a>
+      <a href="index.html#approach">Approach</a>
+      <a href="index.html#work">Projects</a>
+      <a href="index.html#background">Background</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <button class="nav-toggle" aria-expanded="false" aria-label="Menu"><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+
+  <header class="cs-head">
+    <div class="wrap">
+      <a class="back" href="index.html#work">← All projects</a>
+      <p class="cs-kicker">Interactive tool · Content &amp; product strategy</p>
+      <h1>Thirty billing dates — what a release pattern is actually worth</h1>
+      <p class="cs-lede">
+        Outer Banks ends with season five. Almost every decision about it is
+        already sunk — the cast, the scripts, the budget. The release pattern
+        is one of the last levers that costs nothing to pull and still moves
+        the P&amp;L. So I built the thing that would let a PM argue about it:
+        a simulator you can disagree with, in public, by dragging its
+        assumptions.
+      </p>
+
+      <dl class="facts">
+        <div><dt>Role</dt><dd>Solo — framing, model, simulator, recommendation</dd></div>
+        <div><dt>Built with</dt><dd>JavaScript, agent-based simulation, hand-drawn SVG</dd></div>
+        <div><dt>Scale</dt><dd>13,000 simulated households × 182 days × 5 patterns, live in the browser</dd></div>
+        <div><dt>Type</dt><dd>Decision tool, not a forecast</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <article class="cs-body cs-body--lead">
+
+    <h2>The decision</h2>
+    <p>
+      A streaming service can release ten episodes in one night, in two
+      halves, or one a week for ten weeks. It is a genuinely contested
+      question inside the industry, and the interesting part is that both
+      camps are arguing about different metrics without saying so.
+    </p>
+    <p>
+      The public record for this show is short and useful. Seasons one
+      through four each ran ten episodes. Season four was split, with the
+      first five landing on 3 October 2024 and the second five on 7 November
+      — thirty-five days later. Netflix has used the same two-part shape for
+      several tentpoles, including Stranger Things 4 and Bridgerton 3. And
+      season five has been announced as the last one, which quietly removes
+      the usual justification for stretching a release out: there is no next
+      season to hold anyone for.
+    </p>
+
+    <h2>What is real here, and what is not</h2>
+    <p>
+      Netflix publishes a weekly Top 10 and a twice-yearly engagement
+      report. It does not publish churn, it does not publish the
+      distribution of billing dates, it does not publish per-title cohort
+      behaviour, and since 2025 it no longer reports quarterly subscriber
+      counts at all. There is no dataset behind this project, and pretending
+      otherwise would be the whole failure mode.
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">The rule I built the project around</span>
+      <p>
+        Every behavioural number in the model is an assumption, and every
+        assumption a reader could reasonably dispute is exposed as a control
+        rather than buried in the code. What the model contributes is
+        <strong>mechanism, not measurement</strong>: if you accept how the
+        pieces fit together, the tool tells you what follows. If you don't,
+        it lets you change the pieces and watch the recommendation move —
+        which it does, for three of them.
+      </p>
+    </div>
+
+    <h2>The mechanism</h2>
+    <p>
+      Subscribers do not cancel continuously. They cancel on their renewal
+      date, which happens once a month, and those dates are spread roughly
+      evenly across the calendar. So on any given day, about one
+      subscriber in thirty is standing at the only decision point that
+      matters. Everyone else is unreachable — you can delight them, but you
+      cannot bill them differently for it.
+    </p>
+    <p>
+      That reframes the question. A release pattern does not change how many
+      people want to watch a season. It changes <em>when</em> their viewing
+      hours land, and therefore how much "I've been watching this thing"
+      each subscriber is carrying on the day their card gets charged. Ten
+      episodes dropped at once produce an enormous amount of that feeling,
+      concentrated in about four days, and then it decays. Ten episodes
+      dropped weekly produce much less of it at any moment, but they keep
+      producing it for nine weeks.
+    </p>
+    <p>
+      Which of those is worth more is not obvious, it depends on numbers
+      nobody outside the company has, and it is exactly the sort of argument
+      that gets settled by whoever is most confident in the room. So: build
+      the model, expose the assumptions, and let the argument be about the
+      assumptions.
+    </p>
+
+  </article>
+
+  <!-- ═══ THE TOOL ═══════════════════════════════════════════════════ -->
+  <section class="tool" id="obx-tool">
+    <div class="tool-wrap">
+
+      <div class="tool-head">
+        <span class="tool-eyebrow">Release strategy simulator</span>
+        <h2>Pick a pattern. Watch the two objectives disagree.</h2>
+        <p>
+          Everything below recomputes from a fresh simulation of 13,000
+          households over the six months after the premiere — five release
+          patterns, run against the same people, the same appetites and the
+          same billing dates, so the differences are the policy and not the
+          sample.
+        </p>
+      </div>
+
+      <div class="controls">
+        <div class="control-grid">
+
+          <div class="ctl" style="grid-column: 1 / -1">
+            <div class="ctl-label"><span>Release pattern</span></div>
+            <div class="segmented" id="strategy-seg" role="group" aria-label="Release pattern"></div>
+          </div>
+
+          <div class="ctl">
+            <div class="ctl-label"><span>Gap between parts</span><span class="ctl-val" id="val-gap"></span></div>
+            <input type="range" id="ctl-gap" min="2" max="9" step="1" aria-label="Gap between parts, weeks">
+            <p class="ctl-note" id="gap-hint">Between each part.</p>
+          </div>
+
+          <div class="ctl">
+            <div class="ctl-label"><span>Marketing spend</span><span class="ctl-val" id="val-spend"></span></div>
+            <input type="range" id="ctl-spend" min="6" max="60" step="1" aria-label="Marketing spend, millions of dollars">
+            <p class="ctl-note">Campaign budget for the launch window.</p>
+          </div>
+
+          <div class="ctl">
+            <div class="ctl-label"><span>Competition in the window</span><span class="ctl-val" id="val-comp"></span></div>
+            <input type="range" id="ctl-comp" min="0" max="100" step="5" aria-label="Competitive pressure, percent">
+            <p class="ctl-note">How much of the audience's attention someone else is taking.</p>
+          </div>
+
+          <div class="ctl">
+            <div class="ctl-label"><span>Programming</span></div>
+            <label class="switch">
+              <input type="checkbox" id="ctl-handoff">
+              <span>Slot a companion title behind the finale</span>
+            </label>
+            <p class="ctl-note">Costs $4.5M of the marketing budget.</p>
+          </div>
+
+          <div class="ctl">
+            <div class="ctl-label"><span>&nbsp;</span></div>
+            <div class="ctl-actions">
+              <button type="button" class="btn" id="btn-reset">Reset all</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="memo">
+        <h3>The call, as the numbers currently stand</h3>
+        <div id="memo-body"></div>
+      </div>
+
+      <div class="viz-grid">
+
+        <figure class="vizcard viz-wide" id="viz-views">
+          <div class="viz-top">
+            <div>
+              <div class="viz-title">Where the audience actually is, week by week</div>
+              <p class="viz-sub">
+                Views, in the modelled footprint. The selected pattern is drawn in blue against
+                the other four in grey; dots on the top edge mark each drop. The same season
+                produces wildly different shapes — and the shape, not the total, is what the
+                rest of the business responds to.
+              </p>
+            </div>
+            <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+          </div>
+          <ul class="legend"></ul>
+          <div class="viz-plot"></div>
+          <div class="viz-table"></div>
+        </figure>
+
+        <figure class="vizcard viz-wide" id="viz-coverage">
+          <div class="viz-top">
+            <div>
+              <div class="viz-title">Churn saved, by the day your renewal happens to fall on</div>
+              <p class="viz-sub">
+                This is the chart the whole model exists to draw. Each bar is a group of
+                subscribers whose card is charged on that day, and its height is how much less
+                likely they are to cancel than they would have been with no Outer Banks at all.
+                A release covers the days near it and leaves the rest alone — so the pattern is,
+                literally, a choice about which subscribers you are allowed to save.
+              </p>
+            </div>
+            <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+          </div>
+          <ul class="legend"></ul>
+          <div class="viz-plot"></div>
+          <div class="viz-table"></div>
+        </figure>
+
+        <figure class="vizcard" id="viz-rank">
+          <div class="viz-top">
+            <div>
+              <div class="viz-title">Net contribution by pattern</div>
+              <p class="viz-sub">Retention plus acquisition, less marketing. Production cost is identical under every pattern, so it cancels.</p>
+            </div>
+            <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+          </div>
+          <ul class="legend"></ul>
+          <div class="viz-plot"></div>
+          <div class="viz-table"></div>
+        </figure>
+
+        <figure class="vizcard" id="viz-tradeoff">
+          <div class="viz-top">
+            <div>
+              <div class="viz-title">The two objectives disagree</div>
+              <p class="viz-sub">Patterns that are good at signing people up are bad at keeping them, and the reverse. Points on the same faint diagonal are worth the same in total.</p>
+            </div>
+            <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+          </div>
+          <ul class="legend"></ul>
+          <div class="viz-plot"></div>
+          <div class="viz-table"></div>
+        </figure>
+
+        <figure class="vizcard" id="viz-gap">
+          <div class="viz-top">
+            <div>
+              <div class="viz-title">How long to wait between parts</div>
+              <p class="viz-sub" id="gap-note">Sweeping the gap for the pattern you have selected.</p>
+            </div>
+            <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+          </div>
+          <ul class="legend"></ul>
+          <div class="viz-plot"></div>
+          <div class="viz-table"></div>
+        </figure>
+
+        <figure class="vizcard" id="viz-dropoff">
+          <div class="viz-top">
+            <div>
+              <div class="viz-title">Who is still there by episode ten</div>
+              <p class="viz-sub">Share of everyone who started the season. Each extra week you ask people to come back is another chance for them not to.</p>
+            </div>
+            <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+          </div>
+          <ul class="legend"></ul>
+          <div class="viz-plot"></div>
+          <div class="viz-table"></div>
+        </figure>
+
+      </div>
+
+      <details class="drawer">
+        <summary>Attack the assumptions</summary>
+        <div class="drawer-body">
+          <p>
+            None of these are measured. They are the numbers the whole answer rests on,
+            so they belong in the interface rather than in the source. Two of them —
+            the halo and the concentration premium — are load-bearing enough that
+            moving either one changes which pattern wins.
+          </p>
+          <div class="assump-grid" id="assumptions"></div>
+        </div>
+      </details>
+
+      <details class="drawer">
+        <summary>What would change the recommendation</summary>
+        <div class="drawer-body">
+          <p>
+            A tornado chart of the wrong kind tells you how much the number moves. This
+            one also tells you whether the <em>call</em> moves — whether a different
+            pattern would win if the assumption were wrong in either direction. That is
+            the only sensitivity question a decision-maker actually has.
+          </p>
+          <div class="runbar">
+            <button type="button" class="btn btn-primary" id="btn-tornado">Run sensitivity</button>
+            <span class="status" id="tornado-status">About 200 more release windows. Takes a couple of seconds.</span>
+          </div>
+          <p id="tornado-note"></p>
+          <figure class="vizcard" id="viz-tornado" style="border:0;padding:0">
+            <div class="viz-top">
+              <div><div class="viz-title">Swing in net contribution, per assumption</div></div>
+              <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+            </div>
+            <ul class="legend"></ul>
+            <div class="viz-plot"></div>
+            <div class="viz-table"></div>
+          </figure>
+        </div>
+      </details>
+
+      <details class="drawer">
+        <summary>Is the winning margin even real?</summary>
+        <div class="drawer-body">
+          <p>
+            The leading patterns finish close together, and a simulation has its own
+            sampling noise. This re-runs all five against eight independently drawn
+            audiences and reports the <em>paired</em> difference between the top two —
+            same people, same coin flips, different policy — because comparing two
+            averages from correlated draws would flatter whichever one won.
+          </p>
+          <div class="runbar">
+            <button type="button" class="btn btn-primary" id="btn-stability">Run stability check</button>
+            <span class="status" id="stability-status">Eight full re-runs. Takes a few seconds.</span>
+          </div>
+          <p id="stability-note"></p>
+          <figure class="vizcard" id="viz-stability" style="border:0;padding:0">
+            <div class="viz-top">
+              <div><div class="viz-title">Net contribution across eight draws of the audience</div></div>
+              <button type="button" class="viz-toggle" aria-pressed="false">Table</button>
+            </div>
+            <ul class="legend"></ul>
+            <div class="viz-plot"></div>
+            <div class="viz-table"></div>
+          </figure>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <article class="cs-body">
+
+    <h2>Three things the model says</h2>
+
+    <h3>The two objectives rank the patterns in opposite orders</h3>
+    <p>
+      At the default settings, the pattern that maximises acquisition is
+      <strong>all at once</strong>, and the pattern that maximises retention
+      is <strong>premiere plus weekly</strong>. They sit at opposite ends of
+      the same list. That is not a coincidence or a modelling accident — it
+      falls out of two mechanisms pointing in opposite directions.
+    </p>
+    <p>
+      Signups follow <em>concentration</em>. A crowded opening week is what
+      buys the Top 10 slot, the press cycle and the social feed, and all
+      three reward simultaneity rather than cumulative hours. Retention
+      follows <em>spread</em>, because renewal dates are spread, and a single
+      spike of engagement can only sit near some of them.
+    </p>
+    <p>
+      Which means the honest framing of the decision is not "binge or
+      weekly." It is: <strong>how much acquisition are you willing to sell
+      for how much retention</strong> — and the answer depends on whether the
+      business is currently short of subscribers or short of loyalty. That is
+      a strategy question, and the model can only tell you the exchange rate.
+    </p>
+
+    <h3>The winner wins by an amount too small to defend</h3>
+    <p>
+      A two-part split comes out ahead, which is also what the show actually
+      did last season. But the margin over second place is around
+      <strong>$1M against a $28M marketing line</strong> — smaller than the
+      swing from any single assumption in the sensitivity panel, and only a
+      little larger than the model's own variation between audience draws.
+      Run the stability check and it wins seven times out of eight, by a
+      paired mean under a million dollars.
+    </p>
+    <p>
+      So the tool's most useful output is not the ranking. It is the finding
+      that <strong>the top three patterns are, on money, a tie</strong> —
+      which means anyone presenting one of them as the clear financial winner
+      is reading precision that isn't there. Once the money is a tie, the
+      decision should be made on something else, and the decision rule I
+      fixed before running anything says what: take the option that produces
+      the most evidence for next time.
+    </p>
+
+    <h3>The savable audience is much smaller than the reach</h3>
+    <p>
+      The season reaches around 39% of the modelled subscriber base, but on
+      its best day it reduces cancellations by under 10%. The gap is not
+      wastage — it is overlap. The people most likely to watch a returning
+      Netflix tentpole are heavy users, and heavy users were not going to
+      cancel this month anyway. The people on the edge of leaving are light
+      users, and light users are the hardest to get into episode one.
+    </p>
+    <p>
+      This is the single most transferable thing in the project, and it has
+      nothing to do with television: <strong>a retention programme aimed at
+      your most engaged segment is mostly paying to keep people who were
+      staying.</strong> Any business case that multiplies "reach" by "churn
+      reduction among people we reached" is double-counting unless it checks
+      that overlap first.
+    </p>
+
+    <h2>Where the model disagrees with the real decision</h2>
+    <p>
+      Sweep the gap between parts and it peaks at about
+      <strong>three weeks</strong>. The actual gap last season was five. The
+      model prefers three because a shorter gap keeps the buzz channel
+      compounding while still landing the second part after the first one's
+      engagement has decayed enough to be worth refreshing; by five weeks it
+      is paying for the decay without buying much extra coverage.
+    </p>
+    <p>
+      I think the model is wrong and the real calendar is right, and it is
+      worth being specific about why rather than quietly adjusting a
+      parameter until my answer matches. Three things it does not know:
+      a marketing organisation cannot mount two genuine campaigns three weeks
+      apart; the competitive calendar has holes in it that a release has to
+      fit; and post-production on the back half of a season delivers when it
+      delivers. The gap curve is nearly flat between two and five weeks
+      anyway — a $1.6M spread — so the operational constraints should win.
+      A model that overrides a scheduling reality it never encoded is not
+      being rigorous, it is being naive.
+    </p>
+
+    <h2>What would change the call</h2>
+    <p>
+      Three assumptions flip the recommendation outright, and one of them
+      carries the entire argument for spreading a release out. I call it the
+      <strong>halo</strong>: the extra viewing of <em>everything else</em>
+      that someone does while they are mid-season on a show they are
+      following. Set it to zero in the drawer and releasing all at once wins.
+      Set it high and weekly climbs from last place to competitive.
+    </p>
+    <p>
+      Nobody outside Netflix can observe that number, and I could not find a
+      defensible public estimate, so I chose one. Every conclusion here that
+      favours spreading a release out is downstream of a number I made up —
+      which is precisely why it is a slider on the page instead of a constant
+      in the source, and why the tool reports whether the call flips rather
+      than only how far the total moves.
+    </p>
+
+    <div class="callout">
+      <span class="callout-label">How you'd know it worked</span>
+      <p>
+        <strong>Primary metric:</strong> subscriber-months retained per
+        thousand viewers reached, measured against the same window in the
+        prior season, split by whether the viewer's renewal date fell inside
+        or outside the release window. That split is the whole design — the
+        outside-window group is the control, and it is free.
+        <strong>Target:</strong> the inside-window group retains at least 4
+        percentage points better. <strong>Kill criterion:</strong> under 1.5
+        points, the coverage mechanism this entire model rests on does not
+        exist, and release patterning should be handed back to marketing as a
+        pure awareness decision. <strong>Counter-metric:</strong> thirty-day
+        retention of the acquisition cohort, because a pattern that maximises
+        signups by concentrating them also delivers them all to the same
+        first renewal with nothing left to watch.
+      </p>
+    </div>
+
+    <h2>What I'd do differently</h2>
+    <ul class="hollow">
+      <li>
+        <strong>The concentration premium is doing too much work and I can't
+        verify it.</strong> One exponent decides that a crowd arriving at
+        once is worth more than the same crowd spread thin, and it sets which
+        pattern wins acquisition. It is defensible — every ranking and press
+        cycle rewards simultaneity — but it is a judgement, and the model
+        would be better if it were fitted against public Top 10 data for
+        split releases rather than asserted.
+      </li>
+      <li>
+        <strong>I gave split releases a second marketing campaign and then
+        found that split releases do well.</strong> The budget weighting is a
+        real feature of how launches work, but it is an input, not a finding,
+        and it flatters the pattern that wins. Turn the awareness-per-dollar
+        assumption up and this shows its hand — the ranking starts moving for
+        a reason that has nothing to do with billing dates.
+      </li>
+      <li>
+        <strong>Uniform renewal dates are too convenient.</strong> Real
+        billing dates cluster, because signups clustered when past hits
+        landed. A base whose renewal dates are already piled up near previous
+        premiere anniversaries would make coverage a much richer problem than
+        the flat one I modelled, and might well change the optimal gap.
+      </li>
+      <li>
+        <strong>This model reproduced a decision I already knew the answer
+        to.</strong> Two parts, which is what the show actually did. That is
+        the kind of agreement that should make you suspicious rather than
+        pleased — I built the thing knowing the answer, and there is no
+        version of this where I can fully rule out having steered toward it.
+        The defence is that the mechanisms were fixed before the numbers were
+        tuned and the disagreement about the gap length was left in rather
+        than fixed. It is a defence, not a proof.
+      </li>
+      <li>
+        <strong>Nothing here models the finale.</strong> A final season's real
+        strategic question is not retention during the run — it is where the
+        audience goes afterwards, and I reduced that to a single checkbox.
+        The handoff is the most interesting decision on this show and it got
+        the least modelling.
+      </li>
+    </ul>
+
+    <p class="cs-foot-link">
+      <a class="back" href="index.html#work">← All projects</a>
+    </p>
+
+  </article>
+
+</main>
+
+<footer class="foot">
+  <span>© <span id="year">2026</span> Payton Nguyen</span>
+  <span>Built and hosted on GitHub Pages</span>
+</footer>
+
+<script src="assets/main.js?v=5"></script>
+<script src="assets/obx-model.js?v=1"></script>
+<script src="assets/obx-app.js?v=1"></script>
+</body>
+</html>
