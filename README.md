@@ -41,6 +41,19 @@ assets/obx-worker.js   runs the model off the main thread (a full recompute is s
 assets/obx-app.js      controls, the auto-written memo, and the charts as hand-drawn SVG
 assets/obx.css         tool chrome, scoped to `.tool`
 assets/obx-og.png      link-preview card, generated from the page's own hero art
+docs/outer-banks-release-strategy-executive-deck.pptx
+                       six-slide decision deck
+tools/deck-data.js     dumps every figure the deck quotes, out of the model
+tools/build-deck.js    lays those figures out with pptxgenjs
+```
+
+Rebuild the deck after changing the model, so the slides cannot drift from
+the page:
+
+```
+npm i pptxgenjs                       # build-time only, nothing ships to the browser
+node tools/deck-data.js > tools/deck-data.json
+node tools/build-deck.js
 ```
 
 Beyond the sliders, the page carries five presets (each one an argument someone
