@@ -13,7 +13,7 @@
 <meta property="og:url" content="https://paytonnguyen-creator.github.io/">
 <meta name="twitter:card" content="summary">
 
-<link rel="stylesheet" href="assets/style.css?v=5">
+<link rel="stylesheet" href="assets/style.css?v=6">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d131d'/><text x='50' y='69' font-size='44' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23ffffff' text-anchor='middle'>PN</text></svg>">
 </head>
 <body>
@@ -237,39 +237,65 @@
           <svg viewBox="0 0 800 230" role="img" aria-hidden="true">
             <defs>
               <linearGradient id="pt-sky" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#061f30"/>
-                <stop offset="58%" stop-color="#0a3550"/>
-                <stop offset="100%" stop-color="#14506d"/>
+                <stop offset="0%" stop-color="#12080e"/>
+                <stop offset="40%" stop-color="#3a1519"/>
+                <stop offset="72%" stop-color="#8e3a1c"/>
+                <stop offset="100%" stop-color="#e07f2b"/>
               </linearGradient>
-              <linearGradient id="pt-dusk" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#b8763c" stop-opacity="0"/>
-                <stop offset="100%" stop-color="#e8a24a" stop-opacity=".6"/>
+              <linearGradient id="pt-sun" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffd36b"/>
+                <stop offset="100%" stop-color="#ef7a22"/>
               </linearGradient>
-              <clipPath id="pt-above"><rect x="0" y="0" width="800" height="163"/></clipPath>
+              <linearGradient id="pt-water" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7d4020"/>
+                <stop offset="100%" stop-color="#190c0e"/>
+              </linearGradient>
+              <clipPath id="pt-above"><rect x="0" y="0" width="800" height="168"/></clipPath>
             </defs>
             <rect width="800" height="230" fill="url(#pt-sky)"/>
-            <rect x="0" y="96" width="800" height="70" fill="url(#pt-dusk)"/>
+            <g fill="#ffb457" opacity=".16">
+              <path d="M60 118q200-10 400 4t340-8v8q-160 6-340 18t-400-6z"/>
+              <path d="M20 144q240-10 480 4t300-8v8q-140 6-300 18t-480-6z"/>
+            </g>
             <g clip-path="url(#pt-above)">
-              <circle cx="596" cy="160" r="30" fill="#f0b93c" opacity=".92"/>
-              <circle cx="596" cy="160" r="54" fill="#f0b93c" opacity=".14"/>
+              <circle cx="150" cy="168" r="62" fill="#ffb14a" opacity=".18"/>
+              <circle cx="150" cy="168" r="26" fill="url(#pt-sun)"/>
             </g>
-            <rect x="0" y="163" width="800" height="30" fill="#0b3350"/>
-            <path fill="#072335" d="M0 168V162Q120 156 240 163T480 159T680 165T800 160V168Z"/>
-            <g fill="#03101a">
-              <path d="M128 196 133 74h9l5 122z"/>
-              <rect x="126" y="68" width="21" height="7" rx="2"/>
-              <rect x="131" y="57" width="11" height="12" rx="2"/>
+            <rect x="0" y="168" width="800" height="62" fill="url(#pt-water)"/>
+            <g fill="#ffc760" opacity=".34">
+              <rect x="130" y="176" width="40" height="2.5" rx="1.25"/>
+              <rect x="120" y="186" width="60" height="2.5" rx="1.25"/>
+              <rect x="134" y="197" width="32" height="2" rx="1"/>
             </g>
-            <rect x="133" y="60" width="7" height="5" rx="1" fill="#fffdf6" opacity=".9"/>
-            <g fill="#03101a">
-              <rect x="648" y="180" width="152" height="4"/>
-              <rect x="666" y="183" width="4" height="18"/><rect x="702" y="183" width="4" height="18"/>
-              <rect x="738" y="183" width="4" height="18"/><rect x="774" y="183" width="4" height="18"/>
+            <path fill="#3d1a16" opacity=".8" d="M0 168V163q140-6 280 0t260-3 260 3v5Z"/>
+            <g fill="#150a0c">
+              <path d="M520 230V162q4-14 20-18 26-6 54-7l206-4v97Z"/>
             </g>
-            <path fill="#020c15" d="M0 230V194Q140 182 280 192T520 188T660 196T800 190V230Z"/>
-            <g stroke="#020c15" stroke-width="2.4" stroke-linecap="round" fill="none">
-              <path d="M60 196q4-17 1-26M69 196q6-16 9-25M78 197q1-14-3-22"/>
-              <path d="M330 193q4-18 2-27M339 193q6-16 9-24M348 194q1-14-3-21"/>
+            <g fill="#0b0407">
+              <g><circle cx="562" cy="132" r="2.6"/><path d="M558.6 136h6.8l2 10-2.6 14h-2.6l-1.2-11-1.2 11h-2.6l-2.6-14z"/></g>
+              <g><circle cx="588" cy="129" r="2.8"/><path d="M584.6 133h6.8l2.4 10-3 14h-2.6l-.8-11-1.2 11h-2.6l-2.6-14z"/><path d="M591 134l9-13 2 1.4-8.4 14z"/></g>
+              <g><circle cx="614" cy="131" r="2.6"/><path d="M610.6 135h6.8l2 10-2.6 14h-2.6l-1.2-11-1.2 11h-2.6l-2.6-14z"/></g>
+              <g><circle cx="640" cy="129" r="2.6"/><path d="M636.6 133h6.8l2 10-2.6 14h-2.6l-1.2-11-1.2 11h-2.6l-2.6-14z"/></g>
+              <g><circle cx="666" cy="131" r="2.6"/><path d="M662.6 135h6.8l2 10-2.6 14h-2.6l-1.2-11-1.2 11h-2.6l-2.6-14z"/></g>
+              <g><circle cx="692" cy="128" r="2.6"/><path d="M688.6 132h6.8l2 10-2.6 14h-2.6l-1.2-11-1.2 11h-2.6l-2.6-14z"/></g>
+              <rect x="698" y="92" width="2" height="52"/>
+              <path d="M700 95q13 2 20-3t18-1l-2 20q-11-4-18 1t-18 3z" opacity=".92"/>
+            </g>
+            <g fill="#0b0407">
+              <path d="M752 146q-2-32 4-56t15-36l4 2q-8 13-13 35t-3 55z"/>
+              <g>
+                <path d="M773 55q15-9 30-3-14-1-25 7z"/>
+                <path d="M773 54q13-17 31-18-16 6-27 21z"/>
+                <path d="M772 54q2-18-8-30 14 8 13 30z"/>
+                <path d="M771 55q-15-11-32-8 17 0 30 12z"/>
+                <path d="M771 57q-18 2-29 18 14-13 30-15z"/>
+                <path d="M773 58q11 13 12 30-6-17-15-27z"/>
+              </g>
+              <circle cx="772" cy="55" r="3"/>
+            </g>
+            <path fill="#090306" d="M0 230V196q120-14 240-2t260 4 300-8v40Z"/>
+            <g stroke="#090306" stroke-width="2.2" stroke-linecap="round" fill="none">
+              <path d="M300 198q3-15 1-23M308 198q5-14 8-21M316 199q1-12-3-19"/>
             </g>
           </svg>
         </a>

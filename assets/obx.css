@@ -288,18 +288,19 @@ input[type="range"]:disabled { cursor: not-allowed; opacity: .38; }
    Coastal header
 
    Original vector art, the same rule the home page's Campanile skyline
-   follows: a photograph of the Outer Banks — or a still from the show —
-   would be someone else's copyright on a public page. Everything here is
-   drawn from primitives, so it costs no request and can't be a licensing
-   problem.
+   follows: the show's key art and its episode stills are Netflix's
+   copyright and cannot go on a public page, so nothing here is traced or
+   copied. What it does take is the genre — a burning sunset, a crew
+   silhouetted on a bluff, a palm, a flag — which is an idea rather than an
+   image, and draws it fresh from primitives. No request, no licence.
    ───────────────────────────────────────────────────────────────────── */
 
 .obx-hero {
   position: relative;
   overflow: hidden;
   color: #fff;
-  background: linear-gradient(180deg, #061f30 0%, #0a3550 46%, #14506d 100%);
-  border-bottom: 3px solid #d9a133;
+  background: linear-gradient(180deg, #12080e 0%, #2a1018 42%, #4a1d1a 72%, #7e3520 100%);
+  border-bottom: 3px solid #f0b93c;
 }
 /* The art sits at the bottom of the header and scales with it; height:auto
    preserves the viewBox aspect so the lighthouse is never sliced. */
@@ -314,12 +315,14 @@ input[type="range"]:disabled { cursor: not-allowed; opacity: .38; }
 .obx-hero::after {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(3,15,25,.80) 0%, rgba(3,15,25,.62) 38%, rgba(3,15,25,.22) 68%, rgba(3,15,25,0) 92%),
-    linear-gradient(180deg, rgba(3,15,25,.5) 0%, rgba(3,15,25,0) 42%),
-    /* The facts row lands wherever the viewport puts it, and the sun is the
-       one bright thing in the drawing. Darkening the bottom band keeps that
-       row legible at every width instead of hoping the two never collide. */
-    linear-gradient(0deg, rgba(3,15,25,.62) 0%, rgba(3,15,25,.3) 18%, rgba(3,15,25,0) 34%);
+    /* A sunset sky is bright exactly where a navy one was dark, so the scrim
+       carries more of the load here than it did before: the type sits over a
+       burning horizon rather than over dusk. */
+    linear-gradient(90deg, rgba(10,4,8,.52) 0%, rgba(10,4,8,.32) 42%, rgba(10,4,8,.1) 74%, rgba(10,4,8,0) 94%),
+    linear-gradient(180deg, rgba(10,4,8,.5) 0%, rgba(10,4,8,.06) 40%, rgba(10,4,8,0) 56%),
+    /* The facts row is the only type that sits over the burn, so the bottom
+       band carries the contrast and the sky is left alone to be a sky. */
+    linear-gradient(0deg, rgba(10,4,8,.74) 0%, rgba(10,4,8,.42) 22%, rgba(10,4,8,0) 42%);
 }
 
 .obx-hero .back { color: rgba(255,255,255,.7); }
