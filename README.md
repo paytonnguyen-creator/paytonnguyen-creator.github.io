@@ -12,6 +12,8 @@ case-study.html                   CDNOW retention write-up
 ai-support-automation.html        support-automation write-up
 pickleball-court-demand.html      court-congestion write-up
 outer-banks-release-strategy.html release-strategy simulator (interactive)
+degree-ledger/index.html          Berkeley requirement tracker (interactive)
+src/                              the tracker's React source
 assets/                           styling, script, portrait, résumé
 outputs/figures/                  charts for the retention case study
 outputs/figures-ai/               charts for the support-automation case study
@@ -77,6 +79,24 @@ validator against the page's warm surface before anything was drawn, and a marsh
 green that failed green↔orange separation was cut rather than kept and excused.
 No chart puts more than two hues on one plot; the five release patterns are one
 emphasised series plus muted context.
+
+## Degree Ledger
+
+`degree-ledger/index.html` is a **prebuilt, self-contained bundle** — React and
+the app are inlined into that one file, so it drops onto Pages with no build
+step and no network calls beyond the Google Fonts stylesheet. Everything runs in
+the visitor's browser and saves to their own device; no transcript data reaches a
+server, and the page says so.
+
+The readable source is `src/berkeley-degree-ledger.jsx`. Editing the JSX does
+**not** change the live page — the bundle has to be rebuilt from it (any
+JSX-aware bundler will do; the current file was built with esbuild). Don't hand-edit
+the minified bundle: the two would drift and the JSX would stop being the source of
+truth. The only things added to the built file by hand are the canonical/`og:url`
+tags and the `.site-back` link in the head, both marked in place.
+
+Requirement text follows the Berkeley Academic Guide, which changes between
+catalog years — the page carries that caveat in its footer.
 
 ## Notes
 
