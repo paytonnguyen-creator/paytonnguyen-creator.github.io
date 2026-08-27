@@ -130,7 +130,7 @@ const CSS = `
 .bdl-btn:disabled { opacity:.45; cursor:not-allowed; }
 .bdl-row { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; }
 .bdl-switch { display:flex; gap:0; border:1px solid var(--line); border-radius:2px; overflow:hidden; }
-.bdl-switch button { background:#fff; border:0; padding:7px 12px; font-size:13px; color:var(--slate); }
+.bdl-switch button { flex:1 1 auto; background:#fff; border:0; padding:7px 12px; font-size:13px; color:var(--slate); }
 .bdl-switch button.sel { background:var(--blue); color:#fff; }
 .bdl-check { display:flex; gap:9px; align-items:flex-start; padding:8px 0;
   border-bottom:1px dotted var(--line); font-size:13.5px; }
@@ -149,6 +149,19 @@ const CSS = `
 .bdl-empty { text-align:center; padding:32px 16px; color:var(--slate); font-size:13.5px;
   border:1px dashed var(--line); border-radius:2px; background:#fff; }
 
+/* ---- one-click clearance buttons ---- */
+.bdl-big { display:flex; gap:8px; flex-wrap:wrap; }
+.bdl-big > button { flex:1 1 165px; text-align:left; padding:11px 13px; border:1px solid var(--line);
+  background:#fff; border-radius:2px; }
+.bdl-big > button:hover { border-color:#9FB0C2; }
+.bdl-big > button.sel { border-color:var(--pine); background:var(--pine-soft); }
+.bdl-big b { display:block; font-size:13.5px; font-weight:600; margin-bottom:2px; }
+.bdl-big small { display:block; color:var(--slate); font-size:12px; line-height:1.4; }
+.bdl-big > button.sel small { color:#2E6656; }
+.bdl-ledgerlist { list-style:none; margin:9px 0 0; padding:0; font-size:12.5px; color:var(--slate); }
+.bdl-ledgerlist li { padding:3px 0 3px 16px; position:relative; }
+.bdl-ledgerlist li::before { content:"✓"; position:absolute; left:0; color:var(--pine); font-family:var(--mono); }
+.bdl-ledgerlist.no li::before { content:"—"; color:var(--slate); }
 .bdl-foot { max-width:1180px; margin:0 auto; padding:0 24px 40px; font-size:12px; color:var(--slate); }
 .bdl-foot a { color:var(--blue); }
 @media (prefers-reduced-motion:reduce){ .bdl * { transition:none !important; } }
@@ -355,6 +368,41 @@ const LS_COLLEGE = {
   ],
 };
 
+/* What a filed certification actually clears, in the College's own terms.
+   Every block carrying `igetc: true` above closes itself when certification is
+   set to full; this is the same claim written out in words, so the student can
+   see what the button did rather than trusting it. */
+const CERT_CLEARS = [
+  "Entry Level Writing",
+  "Reading & Composition, Parts A and B",
+  "Quantitative Reasoning",
+  "Foreign Language",
+  "All seven breadth courses",
+];
+const CERT_LEAVES = [
+  "American Cultures — Berkeley's own requirement, never covered by certification",
+  "Major and minor prerequisites — matched course by course through ASSIST",
+  "The 120-unit total and the 36 upper-division units",
+  "Senior residence",
+];
+
+/* The ten IGETC / Cal-GETC areas, for students who are partially certified.
+   These are ticked by hand rather than mapped onto L&S blocks automatically:
+   partial certification is evaluated course by course by the College, and a
+   guessed mapping in a graduation tracker is worse than no mapping. */
+const CERT_AREAS = [
+  { id: "a1a", label: "Area 1A — English Composition" },
+  { id: "a1b", label: "Area 1B — Critical Thinking / English Composition" },
+  { id: "a1c", label: "Area 1C — Oral Communication" },
+  { id: "a2", label: "Area 2 — Mathematical Concepts & Quantitative Reasoning" },
+  { id: "a3a", label: "Area 3A — Arts" },
+  { id: "a3b", label: "Area 3B — Humanities" },
+  { id: "a4", label: "Area 4 — Social & Behavioral Sciences" },
+  { id: "a5a", label: "Area 5A — Physical Science" },
+  { id: "a5b", label: "Area 5B — Biological Science" },
+  { id: "a6", label: "Area 6 — Language Other Than English" },
+];
+
 /* ============ Cognitive Science, B.A. ============ */
 const COGSCI = {
   id: "cogsci", type: "major", name: "Cognitive Science", degree: "B.A.",
@@ -375,7 +423,7 @@ const COGSCI = {
       G("bio", "Biology", 1, ["MCELLBI61/NEU61/NEUC61/PSYCHC61", "NEUC64/PSYCHC64", "PSYCH110/PSYCHN110"]),
       G("intro", "Cognitive Science", 1, ["COGSCIN1", "COGSCI1", "COGSCI1B"]),
     ]},
-    { id: "upper", name: "Upper division areas", note: "One course from each of the seven areas. A single course can only close one area.", groups: [
+    { id: "upper", name: "Upper division areas", note: "One course from each area below, and a single course can only close one area. Six areas are encoded here; confirm the list against the Academic Guide for your catalog year before you count on it.", groups: [
       G("area_cn", "Cognitive Neuroscience", 1, ["ANTHRO107","COGSCI132","COGSCI170","COGSCI171","COGSCI172",
         "COGSCIC126/PSYCHC126","COGSCIC127/PSYCHC127","NEU128","NEU162","NEU164","PSYCH114",
         "PSYCH117/PSYCHN117","PSYCH133/PSYCHN133"]),
@@ -478,7 +526,14 @@ const CATALOG = { majors: [COGSCI], minors: [DATASCI_MINOR] };
 /* ============================================================
    Parser: paste a Berkeley Academic Guide requirements page
    ============================================================ */
-const DIRECTIVE = /^Complete\s+(?:at\s+least\s+)?(\d+|ALL)\s+of(?:\s+the\s+following)?(?:\s+Courses?)?\s*:?\s*$/i;
+/* Guide pages phrase the same instruction a dozen ways — "Complete at least 2 of
+   the following Courses:", "Select one of the following:", "Complete all of the
+   following". Anything this misses is read as a heading instead, which shows up
+   as a mis-named block rather than as lost courses. */
+const NUMWORD = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+const DIRECTIVE = /^(?:complete|select|choose|take)\s+(?:at\s+least\s+|any\s+|a\s+minimum\s+of\s+)?(\d+|all|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:of\s+)?(?:the\s+)?(?:following)?\s*(?:courses?|options?|units?)?\s*:?\s*$/i;
+/* "Complete the following course:" — no count, means all of them. */
+const DIRECTIVE_ALL = /^(?:complete|take)\s+the\s+following\s+courses?\s*:?\s*$/i;
 const COURSE_LINE = /^(OR\s+)?([A-Z][A-Za-z]*\s?[A-Z]?\d+[A-Z]*)\s*[-–]\s*(.+)$/;
 const BARE_CODE = /^([A-Z][A-Z]*)\s?([A-Z]?\d+[A-Z]*)$/;
 const EXAM_LINE = /^(AP|IB|ALEVEL|A-LEVEL)\s*:\s*(.+)$/i;
@@ -487,16 +542,22 @@ function parseGuide(text, name) {
   const lines = String(text).split("\n").map((l) => l.trim()).filter(Boolean);
   const groups = [];
   let heading = "";
+  let lastHeading = "";   // so a second block under one heading is not just "Requirement 2"
+  let underHeading = 0;
   let i = 0;
   while (i < lines.length) {
-    const d = lines[i].match(DIRECTIVE);
+    const d = lines[i].match(DIRECTIVE) || (DIRECTIVE_ALL.test(lines[i]) ? [lines[i], "all"] : null);
     if (!d) {
-      if (!DIRECTIVE.test(lines[i]) && !COURSE_LINE.test(lines[i]) && !BARE_CODE.test(lines[i]))
+      if (!COURSE_LINE.test(lines[i]) && !BARE_CODE.test(lines[i])) {
         heading = lines[i].replace(/[:.]$/, "");
+        lastHeading = heading;
+        underHeading = 0;
+      }
       i++;
       continue;
     }
-    const need = /all/i.test(d[1]) ? -1 : parseInt(d[1], 10);
+    const word = String(d[1]).toLowerCase();
+    const need = word === "all" ? -1 : (NUMWORD[word] || parseInt(word, 10));
     const options = [];
     const exams = [];
     i++;
@@ -520,11 +581,12 @@ function parseGuide(text, name) {
     if (options.length || exams.length) {
       groups.push({
         kind: "courses", id: "p" + groups.length + "_" + norm(heading).slice(0, 12),
-        name: heading || "Requirement " + (groups.length + 1),
+        name: heading || (lastHeading ? `${lastHeading} (${underHeading + 1})` : "Requirement " + (groups.length + 1)),
         need: need === -1 ? options.length : need,
         all: need === -1, options, exams: exams.length ? exams : undefined,
       });
     }
+    underHeading++;
     heading = "";
   }
   if (!groups.length) return null;
@@ -599,7 +661,7 @@ const KEY = "berkeley-degree-ledger:v1";
 const BLANK = {
   profile: { name: "", entry: "freshman", gpa: "", igetc: "none", simultaneous: false,
     secondCollege: "", dsPath: "data", majors: ["cogsci"], minors: ["dsminor"] },
-  courses: [], pins: {}, excl: {}, checks: {}, customPrograms: [],
+  courses: [], pins: {}, excl: {}, checks: {}, customPrograms: [], certAreas: {},
 };
 
 function useStore() {
@@ -785,16 +847,281 @@ function OpenBlock({ group, courses, assigned, onPin, onRelease }) {
 /* ============================================================
    Views
    ============================================================ */
-function SetupView({ p, setProfile, state, setState }) {
-  const [paste, setPaste] = useState("");
+/* Turn a pasted or hand-built program into something the rules engine can use.
+   `dept` drives the minor's "one course from your major department" rule, so it
+   is guessed from whichever subject shows up most in the program's own course
+   lists — shown back to the student as an editable field rather than hidden. */
+function guessDept(prog) {
+  const tally = {};
+  for (const sec of prog.sections || [])
+    for (const g of sec.groups || [])
+      for (const o of g.options || [])
+        for (const c of o.codes) {
+          const sub = splitCode(c).subject;
+          if (sub) tally[sub] = (tally[sub] || 0) + 1;
+        }
+  const best = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
+  return best ? [best[0]] : [];
+}
+
+function AddProgram({ state, setState }) {
+  const [mode, setMode] = useState("paste");
   const [pname, setPname] = useState("");
+  const [ptype, setPtype] = useState("major");
+  const [paste, setPaste] = useState("");
   const [msg, setMsg] = useState("");
-  const addProgram = () => {
-    const prog = parseGuide(paste, pname);
-    if (!prog) { setMsg("Nothing parsed. Paste the Requirements tab of an Academic Guide page, blocks and all."); return; }
+  const [blocks, setBlocks] = useState([]);
+  const [bf, setBf] = useState({ name: "", need: "1", codes: "" });
+
+  const commit = (prog) => {
+    prog.type = ptype;
+    prog.degree = ptype === "minor" ? "Minor" : ptype === "major" ? "Major" : "";
+    prog.dept = guessDept(prog);
     setState((s) => ({ ...s, customPrograms: [...(s.customPrograms || []), prog] }));
-    setPaste(""); setPname(""); setMsg(`Added ${prog.name} with ${prog.sections[0].groups.length} requirement blocks.`);
+    setPaste(""); setPname(""); setBlocks([]);
+    const n = prog.sections[0].groups.length;
+    setMsg(`Added ${prog.name} — ${n} requirement block${n === 1 ? "" : "s"}. It has its own tab now.`);
   };
+
+  const addPasted = () => {
+    const prog = parseGuide(paste, pname);
+    if (!prog) { setMsg("Nothing parsed. Copy the Requirements tab of the Academic Guide page, blocks and all — the “Complete N of the following” lines are what the reader keys off."); return; }
+    commit(prog);
+  };
+
+  const addBlock = () => {
+    const codes = bf.codes.split(/[\s,]+/).map(norm).filter(Boolean);
+    if (!bf.name.trim() || !codes.length) return;
+    setBlocks((b) => [...b, { name: bf.name.trim(), need: Math.max(1, parseInt(bf.need, 10) || 1), codes }]);
+    setBf({ name: "", need: "1", codes: "" });
+  };
+  const addBuilt = () => {
+    if (!blocks.length) return;
+    commit({
+      id: "custom_" + Date.now(), custom: true, name: pname || "My program",
+      sections: [{ id: "all", name: "Requirements",
+        groups: blocks.map((b, i) => G("b" + i + "_" + norm(b.name).slice(0, 10), b.name, b.need, b.codes)) }],
+    });
+  };
+
+  return (
+    <div className="bdl-card">
+      <h3>Any other program</h3>
+      <p className="bdl-note">
+        Every L&amp;S major and every CDSS minor works here. Only Cognitive Science and the Data Science minor
+        ship with their course lists already typed in and checked; for anything else you load the requirements
+        once and they stay on this device. Everything on the University, L&amp;S and Graduation tabs applies to
+        you either way — those rules are the same for every major.
+      </p>
+      <div className="bdl-row" style={{ marginBottom: 11 }}>
+        <label style={{ flex: "1 1 220px" }}>
+          <span className="bdl-label">Program name</span>
+          <input className="bdl-in" value={pname} placeholder="e.g. Psychology, B.A."
+            onChange={(e) => setPname(e.target.value)} />
+        </label>
+        <label style={{ flex: "0 0 150px" }}>
+          <span className="bdl-label">Counts as</span>
+          <select className="bdl-sel" value={ptype} onChange={(e) => setPtype(e.target.value)}>
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+            <option value="custom">Something else</option>
+          </select>
+        </label>
+      </div>
+      <p className="bdl-note" style={{ fontSize: 12, marginBottom: 9 }}>
+        Marking it a minor turns on the overlap rules: one shared course with each major, one course from your
+        major's department, letter grades throughout.
+      </p>
+
+      <div className="bdl-switch" style={{ marginBottom: 11 }}>
+        <button className={mode === "paste" ? "sel" : ""} onClick={() => setMode("paste")}>Paste from the Guide</button>
+        <button className={mode === "build" ? "sel" : ""} onClick={() => setMode("build")}>Build blocks by hand</button>
+      </div>
+
+      {mode === "paste" ? (
+        <>
+          <p className="bdl-note" style={{ fontSize: 12.5 }}>
+            Open your program in the{" "}
+            <a href="https://guide.berkeley.edu/undergraduate/degree-programs/" target="_blank" rel="noopener noreferrer">
+              Berkeley Academic Guide
+            </a>, go to its Requirements tab, select the requirement blocks and paste them below. Block headings,
+            course lists and OR cross-listings are read straight out of the text.
+          </p>
+          <textarea className="bdl-ta" value={paste}
+            placeholder={"Lower Division\nComplete at least 1 of the following Courses:\nPSYCH 1 - General Psychology\nOR PSYCH N1 - General Psychology\n\nUpper Division\nComplete at least 2 of the following Courses:\nPSYCH 101 - Research Methods"}
+            onChange={(e) => setPaste(e.target.value)} />
+          <div className="bdl-row" style={{ marginTop: 9 }}>
+            <button className="bdl-btn" onClick={addPasted} disabled={!paste.trim()}>Add program</button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="bdl-note" style={{ fontSize: 12.5 }}>
+            One block per requirement: what it is called, how many courses close it, and which courses count.
+            Codes can be typed however you like — <span style={{ fontFamily: "var(--mono)" }}>psych 101</span>,{" "}
+            <span style={{ fontFamily: "var(--mono)" }}>PSYCH101</span>, separated by spaces or commas.
+          </p>
+          <div className="bdl-row">
+            <label style={{ flex: "1 1 160px" }}>
+              <span className="bdl-label">Block name</span>
+              <input className="bdl-in" value={bf.name} placeholder="Upper-division core"
+                onChange={(e) => setBf({ ...bf, name: e.target.value })} />
+            </label>
+            <label style={{ flex: "0 0 90px" }}>
+              <span className="bdl-label">How many</span>
+              <input className="bdl-in mono" value={bf.need} inputMode="numeric"
+                onChange={(e) => setBf({ ...bf, need: e.target.value })} />
+            </label>
+          </div>
+          <label className="bdl-field" style={{ marginTop: 9 }}>
+            <span className="bdl-label">Courses that count</span>
+            <input className="bdl-in mono" value={bf.codes} placeholder="PSYCH101 PSYCH110 PSYCH114"
+              onChange={(e) => setBf({ ...bf, codes: e.target.value })} />
+          </label>
+          <div className="bdl-row">
+            <button className="bdl-btn ghost tiny" onClick={addBlock}
+              disabled={!bf.name.trim() || !bf.codes.trim()}>Add block</button>
+          </div>
+          {blocks.length > 0 && (
+            <div style={{ marginTop: 11 }}>
+              {blocks.map((b, i) => (
+                <div key={i} className="bdl-stat">
+                  <span>{b.name} <span style={{ fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--slate)" }}>
+                    {b.need} of {b.codes.length}</span></span>
+                  <button className="bdl-btn tiny danger"
+                    onClick={() => setBlocks((x) => x.filter((_, j) => j !== i))}>remove</button>
+                </div>
+              ))}
+              <div className="bdl-row" style={{ marginTop: 9 }}>
+                <button className="bdl-btn" onClick={addBuilt}>Create program</button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {msg && <p className="bdl-note" style={{ marginTop: 10, marginBottom: 0 }}>{msg}</p>}
+
+      {(state.customPrograms || []).length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <span className="bdl-label">Loaded</span>
+          {state.customPrograms.map((c) => (
+            <div key={c.id} className="bdl-stat">
+              <span>{c.name} <Chip>{c.type === "minor" ? "minor" : c.type === "major" ? "major" : "other"}</Chip></span>
+              <button className="bdl-btn tiny danger"
+                onClick={() => setState((s) => ({ ...s, customPrograms: s.customPrograms.filter((x) => x.id !== c.id) }))}>remove</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* The one-click clearances. Certification is the big one and it is real: a
+   filed IGETC or Cal-GETC closes eleven blocks at once. Everything else here is
+   a checkbox the student owns, because the College evaluates those case by
+   case and a tracker that guesses is worse than one that asks. */
+function Clearances({ p, setProfile, state, setState }) {
+  const cert = p.igetc || "none";
+  const areas = state.certAreas || {};
+  const setArea = (id, v) => setState((s) => ({ ...s, certAreas: { ...(s.certAreas || {}), [id]: v } }));
+  const areasOn = CERT_AREAS.filter((a) => areas[a.id]).length;
+
+  if (p.entry !== "transfer") {
+    return (
+      <div className="bdl-card" style={{ marginBottom: 12 }}>
+        <h3>Clearances</h3>
+        <Flag>
+          <span>
+            <b>IGETC and Cal-GETC are for transfer students.</b> You started at Berkeley, so there is no
+            certification to file — you clear Reading &amp; Composition, Quantitative Reasoning, Foreign Language
+            and the seven breadth courses one at a time, and tick them off on the Letters &amp; Science tab as
+            they land. Exam credit counts: an AP, IB or A-Level score can close Entry Level Writing,
+            Quantitative Reasoning or Foreign Language outright, and the prerequisite blocks on your major tab
+            each carry the exam scores that satisfy them.
+          </span>
+        </Flag>
+        <p className="bdl-note" style={{ marginBottom: 0 }}>
+          Berkeley expects Reading &amp; Composition Part A finished by the end of your second semester and
+          Part B by the end of your fourth, so those two are worth closing early.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bdl-card" style={{ marginBottom: 12 }}>
+      <h3>General education certification</h3>
+      <p className="bdl-note" style={{ fontSize: 12.5 }}>
+        Cal-GETC replaced IGETC for students transferring from fall 2025 onward. Either one has to be certified
+        by your community college — it is the college's filing that counts, not the coursework on its own.
+      </p>
+      <div className="bdl-big">
+        <button className={cert === "full" ? "sel" : ""} onClick={() => setProfile("igetc", "full")}>
+          <b>Fully certified</b>
+          <small>My college filed a complete IGETC or Cal-GETC certification</small>
+        </button>
+        <button className={cert === "partial" ? "sel" : ""} onClick={() => setProfile("igetc", "partial")}>
+          <b>Partially certified</b>
+          <small>Some areas done, certification not complete</small>
+        </button>
+        <button className={cert === "none" ? "sel" : ""} onClick={() => setProfile("igetc", "none")}>
+          <b>Not certified</b>
+          <small>I'll clear L&amp;S requirements course by course</small>
+        </button>
+      </div>
+
+      {cert === "full" && (
+        <div style={{ marginTop: 13 }}>
+          <Flag tone="ok">
+            <span><b>Eleven blocks just closed.</b> They show a <em>certified</em> tag on the Letters &amp; Science
+              and University tabs, and they cannot be un-ticked by hand while certification is set to full.</span>
+          </Flag>
+          <span className="bdl-label">Certification covers</span>
+          <ul className="bdl-ledgerlist">{CERT_CLEARS.map((c) => <li key={c}>{c}</li>)}</ul>
+          <span className="bdl-label" style={{ marginTop: 11, display: "block" }}>You still owe</span>
+          <ul className="bdl-ledgerlist no">{CERT_LEAVES.map((c) => <li key={c}>{c}</li>)}</ul>
+        </div>
+      )}
+
+      {cert === "partial" && (
+        <div style={{ marginTop: 13 }}>
+          <Flag>
+            <span>
+              <b>Partial certification is read course by course.</b> L&amp;S decides which of its own requirements
+              your finished areas satisfy, and the answer depends on the specific courses — so ticking an area
+              here records what you have done rather than closing an L&amp;S block on your behalf. Close the
+              blocks themselves on the Letters &amp; Science tab once your adviser confirms them.
+            </span>
+          </Flag>
+          <span className="bdl-label">Areas completed {areasOn ? `— ${areasOn} of ${CERT_AREAS.length}` : ""}</span>
+          {CERT_AREAS.map((a) => (
+            <label key={a.id} className="bdl-check">
+              <input type="checkbox" checked={!!areas[a.id]} onChange={(e) => setArea(a.id, e.target.checked)} />
+              <span>{a.label}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
+      <p className="bdl-note" style={{ marginTop: 13, marginBottom: 0 }}>
+        Add your community college work under <b>My courses</b> with the source set to Transfer, so the 70-unit
+        ceiling and the unit totals come out right.
+      </p>
+    </div>
+  );
+}
+
+function SetupView({ p, setProfile, state, setState }) {
+  const majors = p.majors || [];
+  const minors = p.minors || [];
+  const setList = (k, i, v) => {
+    const next = [...(p[k] || [])];
+    if (v) next[i] = v; else next.splice(i, 1);
+    setProfile(k, next.filter(Boolean));
+  };
+
   return (
     <div>
       <p className="bdl-eyebrow">Step one</p>
@@ -824,50 +1151,33 @@ function SetupView({ p, setProfile, state, setState }) {
         </div>
       </div>
 
-      {p.entry === "transfer" && (
-        <div className="bdl-card" style={{ marginBottom: 12 }}>
-          <h3>Transfer credit</h3>
-          <label className="bdl-field">
-            <span className="bdl-label">General education certification</span>
-            <select className="bdl-sel" value={p.igetc} onChange={(e) => setProfile("igetc", e.target.value)}>
-              <option value="none">None — I'll clear L&S requirements course by course</option>
-              <option value="partial">Partially certified — I'll tick the areas I finished</option>
-              <option value="full">Fully certified (IGETC or Cal-GETC)</option>
-            </select>
-          </label>
-          <Flag>
-            <span>
-              <b>What certification covers.</b> Full IGETC or Cal-GETC certification satisfies L&S Reading &amp; Composition,
-              Quantitative Reasoning, Foreign Language, and all seven breadth courses. It does <b>not</b> satisfy American Cultures,
-              and it does not cover major or minor prerequisites — those still have to match course for course.
-              Cal-GETC replaced IGETC for students transferring from fall 2025 onward; either way, the certification has to be
-              filed by your community college.
-            </span>
-          </Flag>
-          <p className="bdl-note" style={{ marginBottom: 0 }}>
-            Add transfer coursework under My courses and mark the source as Transfer so the 70-unit community college
-            ceiling and the unit totals come out right.
-          </p>
-        </div>
-      )}
+      <Clearances p={p} setProfile={setProfile} state={state} setState={setState} />
 
       <div className="bdl-card" style={{ marginBottom: 12 }}>
         <h3>Programs</h3>
-        <label className="bdl-field">
-          <span className="bdl-label">Major</span>
-          <select className="bdl-sel" value={p.majors[0] || ""} onChange={(e) => setProfile("majors", e.target.value ? [e.target.value] : [])}>
-            <option value="">No major loaded</option>
-            {CATALOG.majors.map((m) => <option key={m.id} value={m.id}>{m.name}, {m.degree}</option>)}
-          </select>
-        </label>
-        <label className="bdl-field">
-          <span className="bdl-label">Minor</span>
-          <select className="bdl-sel" value={p.minors[0] || ""} onChange={(e) => setProfile("minors", e.target.value ? [e.target.value] : [])}>
-            <option value="">No minor</option>
-            {CATALOG.minors.map((m) => <option key={m.id} value={m.id}>{m.name} minor — {m.college}</option>)}
-          </select>
-        </label>
-        {p.minors.includes("dsminor") && (
+        {majors.concat([""]).map((id, i) => (
+          <label className="bdl-field" key={"maj" + i}>
+            <span className="bdl-label">{i === 0 ? "Major" : "Second major"}</span>
+            <select className="bdl-sel" value={id} onChange={(e) => setList("majors", i, e.target.value)}>
+              <option value="">{i === 0 ? "No major loaded" : "Add another major…"}</option>
+              {CATALOG.majors.map((m) => <option key={m.id} value={m.id}>{m.name}, {m.degree}</option>)}
+            </select>
+          </label>
+        )).slice(0, Math.min(majors.length + 1, 3))}
+        {minors.concat([""]).map((id, i) => (
+          <label className="bdl-field" key={"min" + i}>
+            <span className="bdl-label">{i === 0 ? "Minor" : "Second minor"}</span>
+            <select className="bdl-sel" value={id} onChange={(e) => setList("minors", i, e.target.value)}>
+              <option value="">{i === 0 ? "No minor" : "Add another minor…"}</option>
+              {CATALOG.minors.map((m) => <option key={m.id} value={m.id}>{m.name} minor — {m.college}</option>)}
+            </select>
+          </label>
+        )).slice(0, Math.min(minors.length + 1, 3))}
+        <p className="bdl-note" style={{ fontSize: 12, marginTop: -4 }}>
+          Only these two are typed in and checked against the Academic Guide. Load any other major or minor below —
+          it gets its own tab and the same rules engine.
+        </p>
+        {minors.includes("dsminor") && (
           <label className="bdl-field">
             <span className="bdl-label">Data Science upper-division pathway</span>
             <div className="bdl-switch">
@@ -890,39 +1200,11 @@ function SetupView({ p, setProfile, state, setState }) {
         )}
       </div>
 
-      <div className="bdl-card">
-        <h3>Load another program</h3>
-        <p className="bdl-note">
-          Open any Berkeley Academic Guide page, go to its Requirements tab, select the requirement blocks and paste them below.
-          The blocks, the course lists, and the OR cross-listings get read straight out of the text — the same way the
-          Cognitive Science and Data Science pages already loaded here.
-        </p>
-        <label className="bdl-field">
-          <span className="bdl-label">Program name</span>
-          <input className="bdl-in" value={pname} placeholder="e.g. Psychology, B.A."
-            onChange={(e) => setPname(e.target.value)} />
-        </label>
-        <textarea className="bdl-ta" value={paste} placeholder={"Lower Division\nComplete at least 1 of the following Courses:\nPSYCH1 - General Psychology\n..."}
-          onChange={(e) => setPaste(e.target.value)} />
-        <div className="bdl-row" style={{ marginTop: 9 }}>
-          <button className="bdl-btn" onClick={addProgram} disabled={!paste.trim()}>Add program</button>
-          {msg && <span style={{ fontSize: 12.5, color: "var(--slate)" }}>{msg}</span>}
-        </div>
-        {(state.customPrograms || []).length > 0 && (
-          <div style={{ marginTop: 12 }}>
-            {state.customPrograms.map((c) => (
-              <div key={c.id} className="bdl-stat">
-                <span>{c.name}</span>
-                <button className="bdl-btn tiny danger"
-                  onClick={() => setState((s) => ({ ...s, customPrograms: s.customPrograms.filter((x) => x.id !== c.id) }))}>remove</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <AddProgram state={state} setState={setState} />
     </div>
   );
 }
+
 
 function CoursesView({ courses, setState, audits }) {
   const [f, setF] = useState({ code: "", title: "", units: "4", grade: "", term: "", source: "berkeley" });
@@ -1437,9 +1719,11 @@ export default function App() {
       </main>
 
       <footer className="bdl-foot">
-        Requirement text follows the Berkeley Academic Guide for Cognitive Science, B.A. and the Data Science minor.
-        Requirements change between catalog years, and this ledger is a planning aid — check your Academic Progress
-        Report in CalCentral and talk to your major and college advisers before you file to graduate.
+        University, campus and Letters &amp; Science requirements follow the Berkeley Academic Guide and apply to every
+        L&amp;S student. Cognitive Science and the Data Science minor ship with their course lists typed in; every other
+        program is whatever you loaded from the Guide, so it is only as current as the text you pasted. Requirements
+        change between catalog years, and this ledger is a planning aid — check your Academic Progress Report in
+        CalCentral and talk to your major and college advisers before you file to graduate.
       </footer>
     </div>
   );
