@@ -149,6 +149,29 @@ const CSS = `
 .bdl-empty { text-align:center; padding:32px 16px; color:var(--slate); font-size:13.5px;
   border:1px dashed var(--line); border-radius:2px; background:#fff; }
 
+/* ---- searching a long option list ---- */
+.bdl-find { width:100%; padding:6px 9px; border:1px solid var(--line); border-radius:2px;
+  font-size:12.5px; margin:9px 0 2px; }
+.bdl-optbar { display:flex; gap:7px; align-items:center; flex-wrap:wrap; margin:9px 0 3px;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--slate); }
+.bdl-optbar button { background:none; border:1px solid var(--line); border-radius:2px; padding:2px 7px;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--slate); }
+.bdl-optbar button.sel { background:var(--blue); border-color:var(--blue); color:#fff; }
+.bdl-code { min-width:96px; }
+.bdl-ud { font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; color:var(--slate);
+  border:1px solid var(--line); border-radius:2px; padding:1px 4px; flex:0 0 auto; }
+/* second line inside an option row, naming everywhere else the course counts */
+.bdl-where { flex:1 0 100%; font-size:11.5px; color:var(--slate); margin-top:3px; padding-left:2px; }
+.bdl-where b { font-weight:600; color:var(--blue); }
+.bdl-none { font-size:12.5px; color:var(--slate); padding:10px 2px; }
+
+/* ---- overlap ledger ---- */
+.bdl-ovl { display:flex; align-items:baseline; gap:9px; padding:7px 0; border-bottom:1px dotted var(--line);
+  flex-wrap:wrap; font-size:13px; }
+.bdl-ovl:last-child { border-bottom:0; }
+.bdl-ovl .c { font-family:var(--mono); font-size:12.5px; font-weight:500; min-width:96px; }
+.bdl-ovl .w { flex:1 1 200px; color:var(--slate); font-size:12.5px; }
+
 /* ---- one-click clearance buttons ---- */
 .bdl-big { display:flex; gap:8px; flex-wrap:wrap; }
 .bdl-big > button { flex:1 1 165px; text-align:left; padding:11px 13px; border:1px solid var(--line);
@@ -739,9 +762,14 @@ function CheckBlock({ group, state, setChecks, auto, igetcFull, entry }) {
   );
 }
 
-function CourseBlock({ group, courses, assigned, used, onPin, onRelease, onQuickAdd, checks, setChecks }) {
+/* One requirement block: what closes it, and which of those courses you have.
+   Long lists (the Cognitive Science electives run past two hundred) get a
+   search box and a filter rather than a "show all" that dumps the lot. */
+function CourseBlock({ group, courses, assigned, used, usage, onPin, onRelease, onQuickAdd, checks, setChecks }) {
   const [open, setOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [q, setQ] = useState("");
+  const [mineOnly, setMineOnly] = useState(false);
   const examOn = !!checks["exam:" + group.id];
   const done = Math.min(assigned.length + (examOn ? 1 : 0), group.need);
   const cls = done >= group.need ? "done" : done ? "part" : "";
@@ -749,6 +777,8 @@ function CourseBlock({ group, courses, assigned, used, onPin, onRelease, onQuick
   const takenFor = (o) => courses.find((c) => o.codes.includes(c.norm));
 
   const opts = group.options || [];
+  /* Options you have taken first, then ones on your record counting elsewhere,
+     then everything you have not taken. */
   const ranked = useMemo(() => {
     const score = (o) => {
       const c = takenFor(o);
@@ -757,7 +787,31 @@ function CourseBlock({ group, courses, assigned, used, onPin, onRelease, onQuick
     };
     return [...opts].sort((a, b) => score(a) - score(b));
   }, [opts, courses, assigned]);
-  const shown = showAll ? ranked : ranked.slice(0, 8);
+
+  const onRecord = useMemo(() => ranked.filter((o) => takenFor(o)).length, [ranked, courses]);
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    let list = ranked;
+    if (mineOnly) list = list.filter((o) => takenFor(o));
+    if (needle) list = list.filter((o) =>
+      o.codes.some((c) => c.includes(needle)) ||
+      (titleOf(o.codes[0]) || "").toUpperCase().includes(q.trim().toUpperCase()));
+    return list;
+  }, [ranked, q, mineOnly, courses]);
+
+  const searching = !!q.trim() || mineOnly;
+  const shown = showAll || searching ? filtered : filtered.slice(0, 8);
+  const searchable = ranked.length > 12;
+  /* An upper-division tag on a list where everything is upper division is just
+     noise on every row, so it only appears where the list actually mixes. */
+  const mixedUD = useMemo(() => {
+    const ud = shown.filter((o) => isUpperDiv(o.codes[0])).length;
+    return ud > 0 && ud < shown.length;
+  }, [shown]);
+
+  /* Everywhere this course counts other than the block being drawn. */
+  const elsewhere = (cid) => (usage && usage.get(cid) ? usage.get(cid) : []).filter((u) => u.groupId !== group.id);
 
   return (
     <div className={"bdl-block " + cls} id={"blk-" + group.id}>
@@ -775,7 +829,8 @@ function CourseBlock({ group, courses, assigned, used, onPin, onRelease, onQuick
         <div className="bdl-body">
           <p className="bdl-hint">
             {group.all ? "All of these are required." : `Pick ${group.need} of ${opts.length}.`}
-            {" Tap a course you've taken to lock it into this block, or tap one you haven't to add it to your record."}
+            {onRecord > 0 && ` ${onRecord} ${onRecord === 1 ? "is" : "are"} on your record.`}
+            {" Tap one to count it here; tap again to release it."}
           </p>
           {group.exams && group.exams.map((x, k) => (
             <label key={k} className="bdl-check">
@@ -784,27 +839,60 @@ function CourseBlock({ group, courses, assigned, used, onPin, onRelease, onQuick
               <span>{x}</span>
             </label>
           ))}
+
+          {searchable && (
+            <>
+              <input className="bdl-find" value={q} placeholder={`Search ${ranked.length} courses — code or title`}
+                onChange={(e) => setQ(e.target.value)} />
+              <div className="bdl-optbar">
+                <button className={mineOnly ? "sel" : ""} onClick={() => setMineOnly(!mineOnly)}>
+                  On my record{onRecord ? ` · ${onRecord}` : ""}
+                </button>
+                <span>{filtered.length} showing</span>
+              </div>
+            </>
+          )}
+
           <div className="bdl-opts">
             {shown.map((o, k) => {
               const c = takenFor(o);
               const isHit = c && assigned.includes(c.id);
-              const otherGroup = c && used.get(c.id) && used.get(c.id) !== group.id;
+              const others = c ? elsewhere(c.id) : [];
+              const ud = isUpperDiv(o.codes[0]);
+              /* Built-in lists carry titles for only the courses worth naming;
+                 anything the student typed in themselves fills the rest. */
+              const title = titleOf(o.codes[0]) || (c && c.title) || "";
               return (
                 <button key={k}
                   className={"bdl-opt " + (isHit ? "hit" : "")}
                   onClick={() => (isHit ? onRelease(group.id, c.id) : c ? onPin(group.id, c.id) : onQuickAdd(o.codes[0]))}>
                   <span className="bdl-code">{o.codes.map(pretty).join(" / ")}</span>
-                  <span className="bdl-ctitle">{titleOf(o.codes[0])}</span>
+                  {title && <span className="bdl-ctitle">{title}</span>}
+                  {!title && <span className="bdl-ctitle" />}
+                  {ud && mixedUD && <span className="bdl-ud">UD</span>}
                   {isHit && <span className="bdl-mark">✓ {c.grade || "in progress"}</span>}
-                  {!isHit && c && <Chip tone="warn">{otherGroup ? "used elsewhere" : "on record"}</Chip>}
+                  {!isHit && c && <Chip tone="warn">{others.length ? "counting elsewhere" : "on record"}</Chip>}
                   {!c && <span className="bdl-mark" style={{ color: "var(--slate)" }}>+ add</span>}
+                  {others.length > 0 && (
+                    <span className="bdl-where">
+                      Also counting for {others.map((u, j) => (
+                        <span key={j}>{j > 0 ? ", " : ""}<b>{u.progName}</b> · {u.groupName}</span>
+                      ))}
+                    </span>
+                  )}
                 </button>
               );
             })}
+            {shown.length === 0 && (
+              <p className="bdl-none">
+                Nothing matches{q.trim() ? ` “${q.trim()}”` : ""}{mineOnly ? " on your record" : ""}.
+              </p>
+            )}
           </div>
-          {ranked.length > 8 && (
+
+          {!searching && filtered.length > 8 && (
             <button className="bdl-more" onClick={() => setShowAll(!showAll)}>
-              {showAll ? "Show fewer" : `Show all ${ranked.length} courses`}
+              {showAll ? "Show fewer" : `Show all ${filtered.length} courses`}
             </button>
           )}
         </div>
@@ -1321,7 +1409,90 @@ function CoursesView({ courses, setState, audits }) {
   );
 }
 
-function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry, onPin, onRelease, onQuickAdd, warnings }) {
+/* What is double counting, and how much of each allowance it has spent.
+   The warnings above only fire once a rule is already broken; this shows the
+   ledger the whole time, so "one more overlap and I'm over" is visible before
+   it happens rather than after. */
+function OverlapPanel({ audit, audits, courses, usage }) {
+  const { prog, groups, byGroup } = audit;
+  const byId = (id) => courses.find((c) => c.id === id);
+  const majors = audits.filter((a) => a.prog.type === "major" && a.prog.id !== prog.id);
+
+  /* Upper-division blocks are the ones the minor's overlap allowance is about. */
+  const udGroupIds = new Set(groups.filter((g) => String(g.sectionId).startsWith("upper")).map((g) => g.id));
+  const mine = [];
+  for (const g of groups)
+    for (const cid of byGroup[g.id] || [])
+      mine.push({ cid, groupName: g.name, ud: udGroupIds.has(g.id) });
+
+  const shared = mine
+    .map((m) => ({ ...m, others: (usage.get(m.cid) || []).filter((u) => u.progId !== prog.id) }))
+    .filter((m) => m.others.length > 0);
+
+  const isMinor = prog.type === "minor";
+  if (!isMinor && shared.length === 0) return null;
+
+  /* Allowances, counted the way the minor states them. */
+  const rows = majors.map((maj) => ({
+    name: maj.prog.name,
+    used: shared.filter((m) => m.ud && m.others.some((u) => u.progId === maj.prog.id)).length,
+  }));
+  const deptUsed = isMinor && prog.dept && prog.dept.length
+    ? mine.filter((m) => m.ud && prog.dept.includes(splitCode((byId(m.cid) || {}).code || "").subject)).length
+    : 0;
+
+  return (
+    <div className="bdl-card" style={{ marginBottom: 16 }}>
+      <h3>Where courses are double counting</h3>
+
+      {isMinor && rows.length > 0 && rows.map((r) => (
+        <div key={r.name} className="bdl-stat">
+          <span>Upper-division overlap with {r.name}</span>
+          <b>
+            {r.used} of 1{" "}
+            {r.used > 1 ? <Chip tone="bad">over</Chip> : r.used === 1 ? <Chip tone="warn">spent</Chip> : <Chip tone="ok">free</Chip>}
+          </b>
+        </div>
+      ))}
+      {isMinor && prog.dept && prog.dept.length > 0 && (
+        <div className="bdl-stat">
+          <span>Upper-division courses from {prog.dept.join(" / ")}</span>
+          <b>
+            {deptUsed} of 1{" "}
+            {deptUsed > 1 ? <Chip tone="bad">over</Chip> : deptUsed === 1 ? <Chip tone="warn">spent</Chip> : <Chip tone="ok">free</Chip>}
+          </b>
+        </div>
+      )}
+
+      <div style={{ marginTop: shared.length ? 11 : 0 }}>
+        {shared.length === 0 ? (
+          <p className="bdl-note" style={{ margin: 0, fontSize: 12.5 }}>
+            Nothing is counting in two places yet. A course may count for this {prog.type} and for one major —
+            beyond that the College stops allowing it.
+          </p>
+        ) : (
+          shared.map((m) => {
+            const c = byId(m.cid);
+            return (
+              <div key={m.cid} className="bdl-ovl">
+                <span className="c">{pretty(c ? c.code : "")}</span>
+                <span className="w">
+                  {m.groupName}
+                  {m.ud ? " (upper division)" : ""} — also{" "}
+                  {m.others.map((u, i) => (
+                    <span key={i}>{i > 0 ? ", " : ""}<b style={{ color: "var(--blue)" }}>{u.progName}</b> · {u.groupName}</span>
+                  ))}
+                </span>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry, onPin, onRelease, onQuickAdd, warnings, usage, audits }) {
   const { prog, groups, byGroup, used } = audit;
   const sections = [];
   for (const g of groups) {
@@ -1345,6 +1516,8 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
 
       {warnings.map((w, i) => <Flag key={i} tone={w.tone}><span>{w.text}</span></Flag>)}
 
+      <OverlapPanel audit={audit} audits={audits} courses={courses} usage={usage} />
+
       {sections.map((s) => (
         <section key={s.id} style={{ marginBottom: 26 }}>
           <p className="bdl-eyebrow" style={{ marginTop: 18 }}>{s.name}</p>
@@ -1358,7 +1531,7 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
                 onPin={onPin} onRelease={onRelease} />
             ) : (
               <CourseBlock key={g.id} group={g} courses={courses} assigned={byGroup[g.id] || []}
-                used={used} onPin={onPin} onRelease={onRelease} onQuickAdd={onQuickAdd}
+                used={used} usage={usage} onPin={onPin} onRelease={onRelease} onQuickAdd={onQuickAdd}
                 checks={checks} setChecks={setChecks} />
             )
           )}
@@ -1494,6 +1667,22 @@ export default function App() {
     const { byGroup, used } = assignCourses(groups, courses, pins, excl);
     return { prog, groups, byGroup, used };
   }), [programs, courses, state.pins, state.excl, p.dsPath]);
+
+  /* Every place a course is currently counting, across every program on the
+     ledger. This is what makes double counting legible: a course row can say
+     which other block is already claiming it instead of a bare "used
+     elsewhere", and the overlap panel below is built from the same map. */
+  const usage = useMemo(() => {
+    const m = new Map();
+    for (const a of audits)
+      for (const g of a.groups)
+        for (const cid of a.byGroup[g.id] || []) {
+          if (!m.has(cid)) m.set(cid, []);
+          m.get(cid).push({ progId: a.prog.id, progName: a.prog.name, progType: a.prog.type,
+            groupId: g.id, groupName: g.name, sectionId: g.sectionId });
+        }
+    return m;
+  }, [audits]);
 
   /* ---- unit stats ---- */
   const stats = useMemo(() => {
@@ -1656,7 +1845,7 @@ export default function App() {
               igetcFull={igetcFull} p={p} stats={stats} warnings={allWarnings} />}
             {current && (
               <ProgramView audit={current} courses={courses} checks={state.checks} setChecks={setChecks}
-                auto={auto} igetcFull={igetcFull} entry={p.entry}
+                auto={auto} igetcFull={igetcFull} entry={p.entry} usage={usage} audits={audits}
                 onPin={(gid, cid) => pin(current.prog.id, gid, cid)}
                 onRelease={(gid, cid) => release(current.prog.id, gid, cid)}
                 onQuickAdd={quickAdd}
