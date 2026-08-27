@@ -88,15 +88,38 @@ step and no network calls beyond the Google Fonts stylesheet. Everything runs in
 the visitor's browser and saves to their own device; no transcript data reaches a
 server, and the page says so.
 
-The readable source is `src/berkeley-degree-ledger.jsx`. Editing the JSX does
-**not** change the live page — the bundle has to be rebuilt from it (any
-JSX-aware bundler will do; the current file was built with esbuild). Don't hand-edit
-the minified bundle: the two would drift and the JSX would stop being the source of
-truth. The only things added to the built file by hand are the canonical/`og:url`
-tags and the `.site-back` link in the head, both marked in place.
+```
+src/berkeley-degree-ledger.jsx   the app
+src/main.jsx                     entry point; backs `window.storage` with localStorage
+src/page.html                    the HTML shell, with __BUNDLE__ where the script lands
+tools/build-ledger.mjs           esbuild -> degree-ledger/index.html
+```
 
-Requirement text follows the Berkeley Academic Guide, which changes between
-catalog years — the page carries that caveat in its footer.
+Rebuild after any change to `src/`, or the live page will not move:
+
+```
+npm i                 # esbuild + react, build-time only
+node tools/build-ledger.mjs
+```
+
+Never hand-edit `degree-ledger/index.html` — it is generated, and the JSX would
+stop being the source of truth.
+
+**On requirement data.** University, campus and L&S requirements apply to every
+L&S student and are encoded once. Only Cognitive Science and the Data Science
+minor have their course lists typed in and checked against the Academic Guide.
+Every other major and minor is loaded by the student from the Guide — pasted and
+parsed, or built block by block — which is deliberate: hand-encoding eighty
+majors would guarantee errors, and a wrong requirement list in a graduation
+tracker is worse than no list at all.
+
+Known gap, inherited from the original file: the Cognitive Science upper-division
+section describes seven areas and encodes six. The note on that section now says
+so rather than asserting a count the data doesn't deliver. Confirm against the
+Guide before trusting it.
+
+Requirements change between catalog years — the page carries that caveat in its
+footer.
 
 ## Notes
 
