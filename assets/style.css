@@ -411,10 +411,11 @@ a:hover { color: var(--blue-dk); }
 .proj-link:hover { text-decoration: underline; }
 
 /* ── Background grid ───────────────────────────────────────────────── */
-.bg-grid {
-  display: grid; gap: 3rem 3.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-}
+/* Four columns of real prose go ragged at auto-fit widths (three across, one
+   orphaned below). A balanced 2x2 reads better and keeps the measure sane. */
+.bg-grid { display: grid; gap: 3rem 3.5rem; }
+@media (min-width: 820px)  { .bg-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1240px) { .bg-grid { grid-template-columns: repeat(4, 1fr); gap: 3rem 2.5rem; } }
 .bg-title {
   margin: 0 0 1.25rem; padding-bottom: .75rem;
   border-bottom: 1px solid var(--line);
