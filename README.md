@@ -106,17 +106,25 @@ Never hand-edit `degree-ledger/index.html` — it is generated, and the JSX woul
 stop being the source of truth.
 
 **On requirement data.** University, campus and L&S requirements apply to every
-L&S student and are encoded once. Only Cognitive Science and the Data Science
-minor have their course lists typed in and checked against the Academic Guide.
+L&S student and are encoded once. Three programs have their full course lists
+typed in and checked line by line against the Berkeley Academic Guide:
+
+| Program | Notes |
+| --- | --- |
+| Cognitive Science, B.A. | Six upper-division areas plus three electives from a 249-course list |
+| Data Science, B.A. | Core requirements plus all 28 domain emphases; the depth requirement is counted in units, not courses |
+| Data Science minor | Both upper-division pathways, and the Guide's ten general guidelines |
+
 Every other major and minor is loaded by the student from the Guide — pasted and
 parsed, or built block by block — which is deliberate: hand-encoding eighty
 majors would guarantee errors, and a wrong requirement list in a graduation
 tracker is worse than no list at all.
 
-Known gap, inherited from the original file: the Cognitive Science upper-division
-section describes seven areas and encodes six. The note on that section now says
-so rather than asserting a count the data doesn't deliver. Confirm against the
-Guide before trusting it.
+Two places where the Guide's own text is internally inconsistent are marked on
+the block itself rather than silently "corrected" — the Aerospace emphasis reads
+"complete at least 0", and the Education emphasis reads "complete ALL" over
+eighteen courses. Both are treated as 2, matching every other emphasis, and both
+say so on the page.
 
 Requirements change between catalog years — the page carries that caveat in its
 footer.

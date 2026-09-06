@@ -307,6 +307,12 @@ const opt = (s) => ({ codes: s.split("/").map(norm) });
 const G = (id, name, need, list, extra = {}) => ({
   kind: "courses", id, name, need, options: (list || []).map(opt), ...extra,
 });
+/* Some requirements are stated in units rather than course counts ("earn at
+   least 7 credits"). `need` still caps how many courses may be pinned; the
+   block is closed on units. */
+const GU = (id, name, units, list, extra = {}) =>
+  G(id, name, 99, list, { needUnits: units, ...extra });
+const unitsOf = (c) => parseFloat(c && c.units) || 0;
 const CK = (id, name, checks, extra = {}) => ({
   kind: "check", id, name, need: checks.length, checks, ...extra,
 });
@@ -434,8 +440,10 @@ const COGSCI = {
     { id: "prereq", name: "Prerequisites", groups: [
       G("cs", "Computer Science", 1, ["COMPSCI61A", "COMPSCIC88C/DATAC88C", "ENGIN7"]),
       G("math", "Mathematics", 1, ["MATH51/XMATH51", "MATH16A/XMATH16A", "MATH1A/MATHN1A"], {
-        exams: ["AP Calculus BC, score 3+", "AP Calculus AB, score 3+", "IB HL Math: Analysis & Approaches, score 5+",
-          "IB HL Mathematics, score 5+", "IB HL Further Mathematics, score 6+", "A-Level Mathematics", "A-Level Further Mathematics"],
+        exams: ["AP: Mathematics: Calculus BC, score 3+", "AP: Mathematics: Calculus AB, score 3+",
+          "IB: HL Math: Analysis & Approaches, score 5+", "IB: HL Mathematics, score 5+",
+          "IB: HL Further Mathematics, score 6+", "A-Level: Mathematics, score 1-2",
+          "A-Level: Further Mathematics, score 1-2", "A-Level: Mathematics H2, score 1-2"],
       }),
       G("statthink", "Statistical Thinking", 1, ["COMPSCIC8/DATAC8/INFOC8/STATC8", "STAT2", "STAT20"], {
         exams: ["AP Statistics, score 3+"],
@@ -446,7 +454,7 @@ const COGSCI = {
       G("bio", "Biology", 1, ["MCELLBI61/NEU61/NEUC61/PSYCHC61", "NEUC64/PSYCHC64", "PSYCH110/PSYCHN110"]),
       G("intro", "Cognitive Science", 1, ["COGSCIN1", "COGSCI1", "COGSCI1B"]),
     ]},
-    { id: "upper", name: "Upper division areas", note: "One course from each area below, and a single course can only close one area. Six areas are encoded here; confirm the list against the Academic Guide for your catalog year before you count on it.", groups: [
+    { id: "upper", name: "Upper division areas", note: "One course from each of the six areas. A single course can only close one area.", groups: [
       G("area_cn", "Cognitive Neuroscience", 1, ["ANTHRO107","COGSCI132","COGSCI170","COGSCI171","COGSCI172",
         "COGSCIC126/PSYCHC126","COGSCIC127/PSYCHC127","NEU128","NEU162","NEU164","PSYCH114",
         "PSYCH117/PSYCHN117","PSYCH133/PSYCHN133"]),
@@ -517,12 +525,16 @@ const DATASCI_MINOR = {
   pathways: { id: "dsPath", label: "Upper division pathway",
     options: [{ id: "data", label: "Data 100 pathway" }, { id: "stats", label: "Statistics pathway" }] },
   rules: [
-    "All minor courses must be taken for a letter grade, with a C- or better in each and a 2.0 GPA across the minor.",
+    "Declare the minor before the first day of classes of your expected graduation term. If that term is a summer one, the deadline is the first day of Summer Session A.",
+    "All minor courses must be taken for a letter grade.",
+    "A C- or better in every course, and at least a 2.0 GPA across the minor.",
     "At most one upper-division course may overlap with each of your majors.",
     "At most one course offered by or cross-listed with your major department may count toward the upper-division minor requirements, including any overlapping course.",
     "An upper-division course used to satisfy a lower-division requirement (say, STAT 134 for probability) does not count toward the four upper-division courses and does not use up your overlap.",
+    "There is no restriction on overlap with another minor.",
+    "Courses used for the minor may also count toward the Seven-Course Breadth requirement.",
     "At most one course total between STAT 20, ENGIN 7, and ENGIN W7 may count.",
-    "Declare the minor before the first day of classes of your expected graduation term.",
+    "All minor requirements must be finished by the last day of finals in the term you graduate.",
   ],
   sections: [
     { id: "lower", name: "Lower division", groups: [
@@ -544,7 +556,225 @@ const DATASCI_MINOR = {
   ],
 };
 
-const CATALOG = { majors: [COGSCI], minors: [DATASCI_MINOR] };
+/* ============ Data Science, B.A. (CDSS) ============
+   Transcribed from the Berkeley Academic Guide. Two places where the catalog
+   text is internally inconsistent are marked `catalogNote` and shown on the
+   block rather than silently "corrected". */
+
+/* Each emphasis is one lower-division block and one upper-division block.
+   `lowNeed`/`upNeed` follow the catalog; -1 means "all of these". */
+const DS_EMPHASES = [
+  { id: "aero", label: "Aerospace",
+    low: ["AEROENG10"], lowNeed: -1,
+    up: ["ASTRON160","ASTRONC162/EPSC162","CIVENG126","COMPSCI168","EECS149","ELENG117","ELENG120","ELENG121",
+      "ELENG122","ELENG142","MECENG100","MECENG103","MECENG104","MECENG106","MECENG109","MECENG132","MECENG140",
+      "MECENG151A","MECENG151B","MECENG154","MECENG163","MECENGC134"], upNeed: 2,
+    catalogNote: "The Guide reads “Complete at least 0 of the following” for this block, which cannot be right; it is treated as 2, matching every other emphasis. It also allows any 3-unit AEROENG 1–199 course, which is not in the list below. Confirm with your adviser." },
+  { id: "appmath", label: "Applied Mathematics and Modeling",
+    low: ["MATH53/MATHH53/MATHW53","MATH55/MATHN55"], lowNeed: 1,
+    up: ["EECS127","ENGIN150","INDENG160","INDENG162","MATH104/MATHH104","MATH110","MATH113","MATH118",
+      "MATH128A","MATH128B","MATH156","MECENGC180/CIVENGC133"], upNeed: 2 },
+  { id: "busind", label: "Business and Industrial Analytics",
+    low: ["ECON1","ECON2","MATH53/MATHH53/MATHW53"], lowNeed: 1,
+    up: ["ENGIN120","INDENG115","INDENG120","INDENG130","INDENG153","INDENG156","INDENG166","LEGALST122",
+      "UGBA104","UGBA134","UGBA141","UGBA142","UGBA161"], upNeed: 2 },
+  { id: "cognition", label: "Cognition",
+    low: ["COGSCI1/COGSCIN1/COGSCI1B","NEUC61/NEU61","NEUC64/PSYCHC64","NEU61/PSYCHC61"], lowNeed: 1,
+    up: ["COGSCIC100/PSYCHC120","COGSCIC101/LINGUISC105","COGSCIC126/PSYCHC126","COGSCIC127/PSYCHC127",
+      "COGSCIC131/COGSCI131/PSYCHC123","COGSCI132","COGSCI150","COGSCI180","COMPSCI188","LINGUISC146/PSYCHC143",
+      "MUSIC108/MUSIC108M","PSYCH114","PSYCH117","PSYCH131"], upNeed: 2 },
+  { id: "cmpbio", label: "Computational Methods in Molecular and Genomic Biology",
+    low: ["BIOLOGY1A","BIOLOGY1B","MATH53/MATHH53/MATHW53"], lowNeed: 1,
+    up: ["BIOENG131/BIOENGC131/CMPBIOC131","BIOENG134","BIOENG145","CHEM135","CMPBIO156","COMPSCI176",
+      "INTEGBI161","MATH127","MCELLBI137L","PLANTBI160"], upNeed: 2 },
+  { id: "arts", label: "Data Arts and Humanities",
+    low: ["ART23AC","HISTORY88","ISF50","MUSIC29","MUSIC30","RHETOR10"], lowNeed: 1,
+    up: ["ART172","ART173","DIGHUM100","DIGHUM101","DIGHUM150A","DIGHUM150B","DIGHUM150C","DIGHUM160",
+      "ENGLISHC181","HISTARTC109","HISTART192DH","HISTORY104","INFO103","INFO159","MELC110","MUSIC107",
+      "MUSIC158A","MUSIC158B","MUSIC159","RHETOR107","RHETOR114","RHETOR115","RHETOR136","RHETOR137",
+      "RHETOR145","RHETOR170"], upNeed: 2 },
+  { id: "ecology", label: "Ecology and the Environment",
+    low: ["EPS80","ESPM2","ESPM6","ESPM15","ESPMC46","ESPM88B","GEOG40","LSC46"], lowNeed: 1,
+    up: ["CIVENGC106","ENERES102","EPSC129","EPSC180","EPSC183","ESPMC103","ESPMC129","ESPMC153","ESPMC170",
+      "ESPMC180","ESPM111","ESPM130A","ESPM157","ESPM174A","INTEGBIC153","INTEGBIC156","INTEGBI170LF",
+      "ESPM102B","ESPM102BL"], upNeed: 2,
+    catalogNote: "The Guide splits the second upper-division course into two options: ESPM 102B together with its lab ESPM 102BL, or one more course from the same list. Both are folded into one block here, so check the pairing if you take 102B." },
+  { id: "econ", label: "Economics",
+    low: ["DATA88E","ECON1","ECON2"], lowNeed: 1,
+    up: ["COMPSCIC177","DEMOGC175","ECONC103","ECONC110","ECONC125","ECONC142","ECONC147","ECONC175","ECONC184",
+      "ECON100A","ECON100B","ECON101A","ECON101B","ECON104","ECON119","ECON121","ECON127","ECON131","ECON134",
+      "ECON136","ECON139","ECON140","ECON141","ECON143","ECON144","ECON148","ECON151","ECON157","ECON165",
+      "ECON152","ECON172","ECON174","ENVECONC101","ENVECONC118","ENVECONC132","IASC118","MATHC103",
+      "POLSCIC131A","POLSCIC135","PUBPOLC142"], upNeed: 2 },
+  { id: "educ", label: "Education",
+    low: ["EDUC40AC/EDUCN40AC","EDUCW161"], lowNeed: 1,
+    up: ["DATA144","EDUCC122/EDSTEMC122","EDUCC130","EDUCC142/EDUC142/GLOBALC129","EDUCW161","EDUC153",
+      "EDUC161C","EDUC168","EDUC244","EDUC260","EDUC274A","EDUC274B","EDUC275B","EDUC275G","EDUC276A",
+      "EDUC293A","SOCIOL113/SOCIOL113AC","SOCIOL180E"], upNeed: 2,
+    catalogNote: "The Guide reads “Complete ALL of the following Courses” over eighteen courses, which cannot be right; it is treated as 2, matching every other emphasis. Confirm with your adviser." },
+  { id: "envres", label: "Environment, Resource Management, and Society",
+    low: ["ECONC3","ENVECONC1","ESPM50AC"], lowNeed: 1,
+    up: ["ECONC102/ENVECONC102","ECONC125/ENVECONC101","ENERESC100/ENERESW100","ENERES131",
+      "ENERESC176/ENVECONC176","ENERES190C","ENVECON100","ENVECONC115","ESPMC104","ENVECON141","ENVECON142",
+      "ENVECON145","ENVECON147","ENVECON153","ESPM102C","ESPM102D","ESPM151","ESPM155AC","ESPM157","ESPMC167",
+      "ESPM168","ESPM186","IASC176","PBHLTHC160","PUBPOLC184","PUBPOLW184"], upNeed: 2 },
+  { id: "evo", label: "Evolution and Biodiversity",
+    low: ["BIOLOGY1A","BIOLOGY1B"], lowNeed: 1,
+    up: ["ESPM108B","ESPM152","ESPMC105","ESPMC125/GEOGC148/INTEGBIC166","INTEGBI113L","INTEGBIC105",
+      "INTEGBIC109/PLANTBIC109","INTEGBI117","INTEGBI117LF","INTEGBI141","INTEGBI160","INTEGBI161","INTEGBI162",
+      "INTEGBI164L","INTEGBI167","INTEGBI169","INTEGBI172"], upNeed: 2,
+    catalogNote: "INTEGBI 117 must be taken with its laboratory, INTEGBI 117LF." },
+  { id: "gist", label: "Geospatial Information and Technology",
+    low: ["CIVENGC88/CYPLANC88","EPS50","EPS88","ESPM72","ESPM88A","GEOG80","GEOGN80"], lowNeed: 1,
+    up: ["EPS101","EPS115","ESPM137","ESPM164","ESPM172/ESPMC172/CIVENGC172","ESPM173","ESPMC177/LDARCHC177",
+      "GEOGC188/LDARCHC188","GEOG183","GEOG185","GEOG186","GEOG187","PBHLTH177A"], upNeed: 2 },
+  { id: "health", label: "Human and Population Health",
+    low: ["BIOLOGY1A","BIOLOGY1B","MCELLBI50"], lowNeed: 1,
+    up: ["DEMOG110","ESPMC159","INTEGBI114","INTEGBI116L","INTEGBI132","INTEGBI137","INTEGBI140","MBN160",
+      "MCELLBI132","NUSCTX110","NUSCTX121","NUSCTXC159","PBHLTH132","PBHLTH150A","PBHLTH150B","PBHLTH162A",
+      "PBHLTH181"], upNeed: 2 },
+  { id: "behav", label: "Human Behavior and Psychology",
+    low: ["COGSCI1/COGSCI1B/COGSCIN1","PSYCH1/PSYCHN1/XPSYCH1","PSYCH2"], lowNeed: 1,
+    up: ["COGSCI131","ECON119","POLSCIC135","PSYCH101D","PSYCH110/PSYCHN110","PSYCH124","PSYCH130/PSYCHN130",
+      "PSYCH134/PSYCHN134","PSYCH140/PSYCHN140","PSYCH150/PSYCHN150","PSYCH156","PSYCH160/PSYCHN160",
+      "PSYCH167AC","SOCIOL150","UGBA160"], upNeed: 2 },
+  { id: "ineq", label: "Inequalities in Society",
+    low: ["DATAC4AC/STSC4AC","SOCIOL1","SOCIOL3AC/XSOCIOL3AC"], lowNeed: 1,
+    up: ["AFRICAM101","AFRICAM111","AFRICAMC156/GEOGC155","DIGHUM100","ETHSTD101A","GWS131","LSC180U",
+      "PHILOS117AC","POLSCI132C","POLSCI167","PSYCH167AC","PUBPOLC103","PUBPOL117AC","SOCIOL111/SOCIOL111AC",
+      "SOCIOL113/SOCIOL113AC","SOCIOL124","SOCIOL127","SOCIOL130/SOCIOL130AC","SOCIOL131","SOCIOL133",
+      "SOCIOL180E","SOCIOL180I","SOCIOL182"], upNeed: 2 },
+  { id: "ling", label: "Linguistic Sciences",
+    low: ["LINGUIS100/LINGUISW100","PHILOS12A/PHILOSW12A"], lowNeed: 1,
+    up: ["COGSCI144","INFO159","LINGUIS100","LINGUIS108","LINGUIS110","LINGUIS111","LINGUIS113","LINGUIS115",
+      "LINGUIS120","LINGUIS121","LINGUISC142/COGSCIC142","LINGUIS150A","LINGUISC160/COGSCIC140","LINGUIS188",
+      "LINGUISC189/COGSCIC133","PHILOS133"], upNeed: 2 },
+  { id: "neuro", label: "Neurosciences",
+    low: ["NEUC61/PSYCHC61","NEUC64/PSYCHC64"], lowNeed: 1,
+    up: ["ANTHRO107","COGSCIC127","INTEGBI139","INTEGBIC143A","NEU100A","NEU100B","NEUC124/BIOENGC171","NEU128",
+      "NEU151","NEU165","PSYCHC113","PSYCH117/PSYCHN117","PSYCH125","PSYCHC127"], upNeed: 2 },
+  { id: "orgecon", label: "Organizations and the Economy",
+    low: ["DATAC4AC/STSC4AC","SOCIOL1","SOCIOL3AC/XSOCIOL3AC"], lowNeed: 1,
+    up: ["ECON121","ECON131","ENVECON142","GEOG110","GWS139","POLSCI132C","SOCIOL110","SOCIOL116","SOCIOL119S",
+      "SOCIOL120","SOCIOL121","UGBA105","UGBA107"], upNeed: 2 },
+  { id: "philev", label: "Philosophical Foundations: Evidence and Inference",
+    low: ["MATH55/MATHN55","PHILOS4","PHILOS5","PHILOS12A"], lowNeed: 1,
+    up: ["MATH125A","MATH135","MATH136","PHILOS122","PHILOS125","PHILOS128","PHILOS134","PHILOS140A","PHILOS140B",
+      "PHILOS142","PHILOS143","PHILOS146","PHILOS148","PHILOS149","RHETOR107"], upNeed: 2 },
+  { id: "philmind", label: "Philosophical Foundations: Minds, Morals, and Machines",
+    low: ["COGSCI1","PHILOS2","PHILOS3","PHILOS14"], lowNeed: 1,
+    up: ["COGSCIC100/COGSCIN100/PSYCHC120/PSYCHN120","COGSCIC101/LINGUISC105","COGSCI131",
+      "COGSCIC142/LINGUISC142","ECONC110","PHILOS104","PHILOS115","PHILOS132","PHILOS133","PHILOS135",
+      "PHILOS136","PHILOS141","POLSCIC135","STAT155"], upNeed: 2 },
+  { id: "physci", label: "Physical Science Analytics",
+    low: ["PHYSICS5BL","PHYSICS5CL","PHYSICS7A/PHYSICSH7A","PHYSICS77"], lowNeed: 1,
+    up: ["ASTRON120","ASTRON121","ASTRON128","ASTRONC161","ASTRONC162","CIVENGC103N","CIVENGC133","ENGIN150",
+      "EPS108","EPS109","EPS122","ESPMC130","EPSC162","ESPMC170","EPSC181","EPSC183","GEOGC136","GEOGC139",
+      "MECENGC180","NUCENG101","NUCENG130","NUCENG155","PHYSICS105","PHYSICS111A","PHYSICS112","PHYSICS129",
+      "PHYSICS151","PHYSICSC161","PHYSICS188"], upNeed: 2 },
+  { id: "quantsoc", label: "Quantitative Social Science",
+    low: ["ECON1","ECON2","POLSCIN3","POLSCI3/POLSCIN3/POLSCIW3","POLSCI5","POLSCI88","SOCIOL1",
+      "SOCIOL3AC/XSOCIOL3AC"], lowNeed: 1,
+    up: ["DEMOG110","DEMOGC126","DEMOG130","DEMOGC175/ECONC175","DEMOG180","ENVECONC118/IASC118","IASC118",
+      "LEGALST123","MEDIAST130","POLSCI132B","POLSCI132C","POLSCI133","POLSCIC135/ECONC110","SOCIOL106",
+      "SOCIOLC126"], upNeed: 2 },
+  { id: "robotics", label: "Robotics",
+    low: ["MATH53/MATHH53/MATHW53"], lowNeed: -1,
+    up: ["BIOENG101","BIOENG105","BIOENGC106A/EECSC106A/MECENGC106A","BIOENGC106B/EECSC106B/MECENGC106B",
+      "BIOENGC136L","COMPSCI185","COMPSCI188","EECS149","ELENG143","ELENGC145O","ELENG147","ELENG192",
+      "INTEGBIC135L","MECENG100","MECENG102B","MECENG119","MECENG131","MECENG132","MECENGC134","MECENG135",
+      "MECENG139","MECENG150"], upNeed: 2 },
+  { id: "sts", label: "Science, Technology, and Society",
+    low: ["DATAC4AC/STSC4AC","GEOG80","HISTORY30","ISF60"], lowNeed: 1,
+    up: ["ANTHRO115","ANTHRO119","ANTHRO168","DISSTD110","ENGIN157AC","ENGLISH180Z","ENVECON143","ESPM161",
+      "ESPM162","ESPM163AC","FILM155","GEOG130","GWS130AC","HISTORY100S","HISTORY100ST","HISTORY103S",
+      "HISTORY138","HISTORY138T","HISTORY180","HISTORY180T","HISTORYC182A","HISTORY182AT","HISTORYC182C",
+      "IAS157AC","INFO103","ISF100D","ISF100G","ISFC100G","PBHLTHC155","POLSCI132C","RHETOR107","RHETOR115",
+      "RHETOR145","SOCIOLC115","SOCIOL137AC","SOCIOL166","SOCIOL167","STSC100","STSC101",
+      "AFRICAM134/AFRICAMC134","BIOENG100","CYPLAN101","DATAC104","DIGHUM100","ESPMC167","HISTORYC184D",
+      "INFO188","ISF100J","NWMEDIA151AC","PBHLTHC160","PHILOS121","POLECON159"], upNeed: 2,
+    catalogNote: "The Guide lists two separate upper-division blocks with overlapping lists; they are merged here, so confirm that your two courses satisfy both as written." },
+  { id: "swhp", label: "Social Welfare, Health, and Poverty",
+    low: ["DATAC4AC/STSC4AC","SOCIOL1","SOCIOL3AC/XSOCIOL3AC","SOCIOL5"], lowNeed: 1,
+    up: ["ENVECON153","GLOBAL102","GPP105","GPP115","GWS130AC","PBHLTH112","PBHLTH126","PBHLTH150D",
+      "PBHLTHC155/SOCIOLC115","PBHLTHC160/ESPMC167","PBHLTH181","POLSCI132C","SOCWEL112","SOCIOL115G",
+      "SOCIOL127"], upNeed: 2 },
+  { id: "policy", label: "Social Policy and Law",
+    low: ["SOCIOL1","SOCIOL3AC/XSOCIOL3AC","DATAC4AC/STSC4AC"], lowNeed: 1,
+    up: ["GWS132AC","LEGALST100","LEGALST102","LEGALST122","LEGALST123","LEGALST158","LEGALST160","PBHLTH150D",
+      "POLECON111","POLSCI132C","POLSCI186","PUBPOL101","SOCIOL114","SOCIOL148","SOCWEL112","SOCWEL181"], upNeed: 2 },
+  { id: "sustain", label: "Sustainable Development and Engineering",
+    low: ["CIVENG11","LDARCH12"], lowNeed: 1,
+    up: ["ARCH140","CIVENG107","CIVENG110","CIVENG111","CIVENG119","CIVENG155","CIVENG191","ENERES131",
+      "ENERES190C","ENVDES11","ESPMC177","GEOG135","LDARCH122","LDARCHC177"], upNeed: 2 },
+  { id: "urban", label: "Urban Science",
+    low: ["CIVENGC88","CYPLANC88","ENVDES4B","GEOG70AC"], lowNeed: 1,
+    up: ["ARCH110AC","CYPLAN110","CYPLAN113A","CYPLAN114","CYPLAN119","CYPLAN140","ENERES190C","ENVDES100",
+      "ENVDES102","GEOG181","GEOG182","GEOGC188","LDARCH130","LDARCH187","LDARCHC188","SOCIOL136"], upNeed: 2 },
+];
+
+/* The major's Human Contexts list differs from the minor's: the minor allows
+   BIOENG 100 and the major does not. Kept separate rather than shared. */
+const DS_HCE_MAJOR = ["AFRICAMC134/AFRICAM134/AMERSTDC134", "CYPLAN101",
+  "DATAC104/HISTORYC184D/STSC104D", "DIGHUM100", "ESPMC167/PBHLTHC160", "INFO188", "ISF100J",
+  "NWMEDIA151AC", "PHILOS121", "POLECON159"];
+
+/* Depth: "Earn at least 7 credits from the following". */
+const DS_DEPTH = ["ASTRON128","BIOENGC142/CHEMC142","CHEMC191/COMPSCIC191","COMPSCIC187/DATAC101","COMPSCI161",
+  "COMPSCI162","COMPSCI164","COMPSCI168","COMPSCI169","COMPSCI169A","COMPSCI170","COMPSCI186","COMPSCI188",
+  "DATA144","ECON140/ECON141","EECS127","ELENG120","ELENG122","ELENG123","ENVECONC118/IASC118","ESPM174",
+  "INDENG115","INDENG135","INDENG142B","INDENG160","INDENG162","INDENG164","INDENG165","INDENG166","INDENG173",
+  "INDENG174","INFO154","INFO159","MATH156","NUCENG175","PHYSICSC191","PHYSICS188","STAT135","STAT150",
+  "STAT151A","STAT152","STAT153","STAT158","STAT159","STAT165","UGBA142"];
+
+const DATASCI_MAJOR = {
+  id: "dsmajor", type: "major", name: "Data Science", degree: "B.A.",
+  dept: ["DATA", "COMPSCI", "STAT", "INFO"], college: "Computing, Data Science, and Society",
+  note: "Lower division needs a C- or better with no P grades, and AP/IB or other high school exam credit is not accepted for it. Every student also picks one domain emphasis, which adds its own lower- and upper-division courses.",
+  pathways: {
+    id: "dsDomain", label: "Domain emphasis",
+    note: "Every Data Science major completes one. Changing it swaps the two emphasis blocks below; nothing else on the tab moves.",
+    options: DS_EMPHASES.map((e) => ({ id: e.id, label: e.label })),
+  },
+  rules: [
+    "A minimum grade of C- is required for all lower division and all upper division courses. No P grades are allowed.",
+    "AP/IB or other high school exam credit is not accepted for the lower division requirements.",
+    "Linear algebra can instead be satisfied by taking both ELENG 66 and ELENG 64.",
+  ],
+  sections: [
+    { id: "lower", name: "Lower division", groups: [
+      G("ds_found", "Data Science", 1, ["DATAC8/COMPSCIC8/INFOC8/STATC8", "STAT20"]),
+      G("ds_calc1", "Calculus: Part 1", 1, ["MATHN1A", "MATH10A/MATHN10A", "MATH16A/XMATH16A", "MATH51/XMATH51"]),
+      G("ds_calc2", "Calculus: Part 2", 1, ["MATH52/XMATH52", "MATHN1B/MATHH1B", "DATA89"]),
+      G("ds_linalg", "Linear Algebra", 1, ["MATH54/MATHN54/MATHH54/MATHW54", "MATH56", "STAT89A",
+        "PHYSICS89/PHYSICSW89", "ELENG66", "ELENG64"], {
+        hint: "One of these, or both ELENG 66 and ELENG 64 together — the Guide's second option. The ledger counts one course here, so if you take the ELENG pair, add both and pin one." }),
+      G("ds_prog", "Program Structures", 1, ["COMPSCI61A", "DATAC88C/COMPSCIC88C"]),
+      G("ds_struct", "Data Structures", 1, ["COMPSCI61B", "COMPSCI61BL"]),
+    ]},
+    { id: "upper", name: "Upper division", groups: [
+      G("ds_gateway", "Principles of Data Science", 1, ["DATAC100/COMPSCIC100/STATC100"]),
+      GU("ds_depth", "Computational & Inferential Depth", 7, DS_DEPTH, {
+        hint: "Seven units, not a course count — most of these are 3 or 4 units, so it is usually two courses. Set the units on each course under My courses and this block counts them." }),
+      G("ds_prob", "Probability", 1, ["DATAC140/STATC140", "EECS126", "ELENG126", "INDENG172", "MATH106", "STAT134"]),
+      G("ds_model", "Modeling, Learning, and Decision-Making", 1, ["COMPSCI189", "DATAC102",
+        "DATAC182/COMPSCIC182", "INDENG142/INDENG142A", "STATC102", "STAT154"]),
+      G("ds_hce", "Human Contexts and Ethics", 1, DS_HCE_MAJOR),
+    ]},
+    ...DS_EMPHASES.flatMap((e) => [
+      { id: "emph_low_" + e.id, name: e.label + " — lower division", pathway: e.id,
+        note: e.catalogNote, groups: [
+          G("dse_low_" + e.id, e.lowNeed === -1 ? "Required" : "Lower division",
+            e.lowNeed === -1 ? e.low.length : e.lowNeed, e.low, { all: e.lowNeed === -1 }),
+        ]},
+      { id: "emph_up_" + e.id, name: e.label + " — upper division", pathway: e.id, groups: [
+          G("dse_up_" + e.id, "Upper division", e.upNeed, e.up),
+        ]},
+    ]),
+  ],
+};
+
+const CATALOG = { majors: [COGSCI, DATASCI_MAJOR], minors: [DATASCI_MINOR] };
 
 /* ============================================================
    Parser: paste a Berkeley Academic Guide requirements page
@@ -623,6 +853,16 @@ function parseGuide(text, name) {
 /* ============================================================
    Assignment engine
    ============================================================ */
+/* Which pathway or emphasis a program is set to. Kept per program id, with a
+   fallback to the profile's old single `dsPath` so ledgers saved before the
+   Data Science major existed still open on the right minor pathway. */
+function pathwayFor(profile, program) {
+  const sel = (profile.pathways || {})[program.id];
+  if (sel) return sel;
+  if (program.id === "dsminor" && profile.dsPath) return profile.dsPath;
+  return program.pathways ? program.pathways.options[0].id : undefined;
+}
+
 function programGroups(program, pathway) {
   const out = [];
   for (const s of program.sections || []) {
@@ -632,6 +872,15 @@ function programGroups(program, pathway) {
   return out;
 }
 const eligible = (g, c) => g.options && g.options.some((o) => o.codes.includes(c.norm));
+/* A block is full when it has enough courses, or — for unit-based blocks —
+   enough units among the courses already assigned to it. */
+function groupFull(g, ids, courses) {
+  if (g.needUnits) {
+    const have = ids.reduce((n, id) => n + unitsOf(courses.find((c) => c.id === id)), 0);
+    return have >= g.needUnits;
+  }
+  return ids.length >= g.need;
+}
 
 function assignCourses(groups, courses, pins, excl) {
   const used = new Map();
@@ -642,19 +891,19 @@ function assignCourses(groups, courses, pins, excl) {
   for (const g of cg) {
     for (const cid of pins[g.id] || []) {
       const c = courses.find((x) => x.id === cid);
-      if (!c || used.has(cid) || byGroup[g.id].length >= g.need) continue;
+      if (!c || used.has(cid) || groupFull(g, byGroup[g.id], courses)) continue;
       if (!g.open && !eligible(g, c)) continue;
       byGroup[g.id].push(cid); used.set(cid, g.id);
     }
   }
   const rest = cg
-    .filter((g) => !g.open && byGroup[g.id].length < g.need)
+    .filter((g) => !g.open && !groupFull(g, byGroup[g.id], courses))
     .map((g) => ({ g, pool: courses.filter((c) => eligible(g, c)).length }))
     .sort((a, b) => a.pool - b.pool)
     .map((x) => x.g);
   for (const g of rest) {
     for (const c of courses) {
-      if (byGroup[g.id].length >= g.need) break;
+      if (groupFull(g, byGroup[g.id], courses)) break;
       if (used.has(c.id) || skipped(g, c.id) || !isPassing(c.grade) || !eligible(g, c)) continue;
       byGroup[g.id].push(c.id); used.set(c.id, g.id);
     }
@@ -662,11 +911,15 @@ function assignCourses(groups, courses, pins, excl) {
   return { byGroup, used };
 }
 
-function groupProgress(g, byGroup, checkState, auto, igetcFull, entry) {
+function groupProgress(g, byGroup, checkState, auto, igetcFull, entry, courses) {
   if (g.kind === "check") {
     const items = g.checks.filter((c) => !c.transferOnly || entry === "transfer");
     const done = items.filter((c) => checkOn(c, checkState, auto, igetcFull)).length;
     return { done, need: items.length };
+  }
+  if (g.needUnits) {
+    const have = (byGroup[g.id] || []).reduce((n, id) => n + unitsOf((courses || []).find((c) => c.id === id)), 0);
+    return { done: Math.min(have, g.needUnits), need: g.needUnits, units: true };
   }
   const n = (byGroup[g.id] || []).length + (checkState["exam:" + g.id] ? 1 : 0);
   return { done: Math.min(n, g.need), need: g.need };
@@ -683,7 +936,7 @@ function checkOn(item, checkState, auto, igetcFull) {
 const KEY = "berkeley-degree-ledger:v1";
 const BLANK = {
   profile: { name: "", entry: "freshman", gpa: "", igetc: "none", simultaneous: false,
-    secondCollege: "", dsPath: "data", majors: ["cogsci"], minors: ["dsminor"] },
+    secondCollege: "", dsPath: "data", pathways: {}, majors: ["cogsci"], minors: ["dsminor"] },
   courses: [], pins: {}, excl: {}, checks: {}, customPrograms: [], certAreas: {},
 };
 
@@ -771,9 +1024,15 @@ function CourseBlock({ group, courses, assigned, used, usage, onPin, onRelease, 
   const [q, setQ] = useState("");
   const [mineOnly, setMineOnly] = useState(false);
   const examOn = !!checks["exam:" + group.id];
-  const done = Math.min(assigned.length + (examOn ? 1 : 0), group.need);
-  const cls = done >= group.need ? "done" : done ? "part" : "";
   const byId = (id) => courses.find((c) => c.id === id);
+  /* Unit-based blocks report units; everything else reports a course count. */
+  const isUnits = !!group.needUnits;
+  const target = isUnits ? group.needUnits : group.need;
+  const have = isUnits
+    ? assigned.reduce((n, id) => n + unitsOf(byId(id)), 0)
+    : assigned.length + (examOn ? 1 : 0);
+  const done = Math.min(have, target);
+  const cls = done >= target ? "done" : done ? "part" : "";
   const takenFor = (o) => courses.find((c) => o.codes.includes(c.norm));
 
   const opts = group.options || [];
@@ -816,19 +1075,21 @@ function CourseBlock({ group, courses, assigned, used, usage, onPin, onRelease, 
   return (
     <div className={"bdl-block " + cls} id={"blk-" + group.id}>
       <button className="bdl-bhead" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <span className="bdl-glyph">{done >= group.need ? "■" : done ? "◪" : "□"}</span>
+        <span className="bdl-glyph">{done >= target ? "■" : done ? "◪" : "□"}</span>
         <span className="bdl-bname">{group.name}</span>
         {assigned.length > 0 && !open && (
           <span className="bdl-ctitle" style={{ flex: "0 1 auto", fontFamily: "var(--mono)", fontSize: 11.5 }}>
             {assigned.map((id) => pretty(byId(id) ? byId(id).code : "")).join(" · ")}
           </span>
         )}
-        <span className="bdl-count">{done}/{group.need} {open ? "▴" : "▾"}</span>
+        <span className="bdl-count">{done}/{target}{isUnits ? " units" : ""} {open ? "▴" : "▾"}</span>
       </button>
       {open && (
         <div className="bdl-body">
           <p className="bdl-hint">
-            {group.all ? "All of these are required." : `Pick ${group.need} of ${opts.length}.`}
+            {isUnits
+              ? `Earn ${group.needUnits} units from these ${opts.length} courses.`
+              : group.all ? "All of these are required." : `Pick ${group.need} of ${opts.length}.`}
             {onRecord > 0 && ` ${onRecord} ${onRecord === 1 ? "is" : "are"} on your record.`}
             {" Tap one to count it here; tap again to release it."}
           </p>
@@ -1204,6 +1465,10 @@ function Clearances({ p, setProfile, state, setState }) {
 function SetupView({ p, setProfile, state, setState }) {
   const majors = p.majors || [];
   const minors = p.minors || [];
+  const selected = [
+    ...majors.map((id) => CATALOG.majors.find((m) => m.id === id)),
+    ...minors.map((id) => CATALOG.minors.find((m) => m.id === id)),
+  ].filter(Boolean);
   const setList = (k, i, v) => {
     const next = [...(p[k] || [])];
     if (v) next[i] = v; else next.splice(i, 1);
@@ -1262,18 +1527,35 @@ function SetupView({ p, setProfile, state, setState }) {
           </label>
         )).slice(0, Math.min(minors.length + 1, 3))}
         <p className="bdl-note" style={{ fontSize: 12, marginTop: -4 }}>
-          Only these two are typed in and checked against the Academic Guide. Load any other major or minor below —
+          These are typed in and checked against the Academic Guide. Load any other major or minor below —
           it gets its own tab and the same rules engine.
         </p>
-        {minors.includes("dsminor") && (
-          <label className="bdl-field">
-            <span className="bdl-label">Data Science upper-division pathway</span>
-            <div className="bdl-switch">
-              <button className={p.dsPath === "data" ? "sel" : ""} onClick={() => setProfile("dsPath", "data")}>Data 100 pathway</button>
-              <button className={p.dsPath === "stats" ? "sel" : ""} onClick={() => setProfile("dsPath", "stats")}>Statistics pathway</button>
-            </div>
-          </label>
-        )}
+
+        {/* A program that branches — the minor's two pathways, the Data Science
+            major's domain emphasis — picks its branch here. Two or three
+            options read as buttons; a long list belongs in a select. */}
+        {selected.filter((prog) => prog.pathways).map((prog) => {
+          const pw = prog.pathways;
+          const cur = pathwayFor(p, prog);
+          const pick = (v) => setProfile("pathways", { ...(p.pathways || {}), [prog.id]: v });
+          return (
+            <label className="bdl-field" key={prog.id}>
+              <span className="bdl-label">{prog.name} — {pw.label}</span>
+              {pw.options.length <= 3 ? (
+                <div className="bdl-switch">
+                  {pw.options.map((o) => (
+                    <button key={o.id} className={cur === o.id ? "sel" : ""} onClick={() => pick(o.id)}>{o.label}</button>
+                  ))}
+                </div>
+              ) : (
+                <select className="bdl-sel" value={cur} onChange={(e) => pick(e.target.value)}>
+                  {pw.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                </select>
+              )}
+              {pw.note && <p className="bdl-note" style={{ fontSize: 12, margin: "6px 0 0" }}>{pw.note}</p>}
+            </label>
+          );
+        })}
         <label className="bdl-check" style={{ borderBottom: 0 }}>
           <input type="checkbox" checked={p.simultaneous} onChange={(e) => setProfile("simultaneous", e.target.checked)} />
           <span>I'm pursuing a simultaneous degree
@@ -1501,7 +1783,7 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
     s.groups.push(g);
   }
   const totals = groups.reduce((acc, g) => {
-    const p = groupProgress(g, byGroup, checks, auto, igetcFull, entry);
+    const p = groupProgress(g, byGroup, checks, auto, igetcFull, entry, courses);
     acc.done += p.done; acc.need += p.need; return acc;
   }, { done: 0, need: 0 });
 
@@ -1550,11 +1832,11 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
   );
 }
 
-function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings }) {
+function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings, courses }) {
   const rows = [];
   for (const a of audits) {
     const t = a.groups.reduce((acc, g) => {
-      const pr = groupProgress(g, a.byGroup, checks, auto, igetcFull, p.entry);
+      const pr = groupProgress(g, a.byGroup, checks, auto, igetcFull, p.entry, courses);
       acc.done += pr.done; acc.need += pr.need;
       if (pr.done < pr.need) acc.open.push(g.name);
       return acc;
@@ -1658,7 +1940,7 @@ export default function App() {
   }, [p.majors, p.minors, state.customPrograms]);
 
   const audits = useMemo(() => programs.map((prog) => {
-    const groups = programGroups(prog, p.dsPath);
+    const groups = programGroups(prog, pathwayFor(p, prog));
     const pins = {}, excl = {};
     for (const g of groups) {
       pins[g.id] = state.pins[prog.id + ":" + g.id] || [];
@@ -1666,7 +1948,7 @@ export default function App() {
     }
     const { byGroup, used } = assignCourses(groups, courses, pins, excl);
     return { prog, groups, byGroup, used };
-  }), [programs, courses, state.pins, state.excl, p.dsPath]);
+  }), [programs, courses, state.pins, state.excl, p.pathways, p.dsPath]);
 
   /* Every place a course is currently counting, across every program on the
      ledger. This is what makes double counting legible: a course row can say
@@ -1774,11 +2056,11 @@ export default function App() {
 
   /* ---- spine ---- */
   const spine = useMemo(() => audits.flatMap((a) => a.groups.map((g) => {
-    const pr = groupProgress(g, a.byGroup, state.checks, auto, igetcFull, p.entry);
+    const pr = groupProgress(g, a.byGroup, state.checks, auto, igetcFull, p.entry, courses);
     return { key: a.prog.id + g.id, tab: a.prog.id, id: g.id,
       label: `${a.prog.name} · ${g.name} — ${pr.done}/${pr.need}`,
       cls: pr.done >= pr.need ? "on" : pr.done ? "part" : "" };
-  })), [audits, state.checks, auto, igetcFull, p.entry]);
+  })), [audits, state.checks, auto, igetcFull, p.entry, courses]);
   const closed = spine.filter((t) => t.cls === "on").length;
 
   const jump = (t) => {
@@ -1842,7 +2124,7 @@ export default function App() {
             {tab === "setup" && <SetupView p={p} setProfile={setProfile} state={state} setState={setState} />}
             {tab === "courses" && <CoursesView courses={courses} setState={setState} audits={audits} />}
             {tab === "grad" && <GraduationView audits={audits} checks={state.checks} auto={auto}
-              igetcFull={igetcFull} p={p} stats={stats} warnings={allWarnings} />}
+              igetcFull={igetcFull} p={p} stats={stats} warnings={allWarnings} courses={courses} />}
             {current && (
               <ProgramView audit={current} courses={courses} checks={state.checks} setChecks={setChecks}
                 auto={auto} igetcFull={igetcFull} entry={p.entry} usage={usage} audits={audits}
@@ -1866,7 +2148,7 @@ export default function App() {
 
             {audits.filter((a) => a.prog.type === "major" || a.prog.type === "minor").map((a) => {
               const t = a.groups.reduce((acc, g) => {
-                const pr = groupProgress(g, a.byGroup, state.checks, auto, igetcFull, p.entry);
+                const pr = groupProgress(g, a.byGroup, state.checks, auto, igetcFull, p.entry, courses);
                 acc.done += pr.done; acc.need += pr.need; return acc;
               }, { done: 0, need: 0 });
               return (
