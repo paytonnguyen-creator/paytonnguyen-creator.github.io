@@ -31,8 +31,8 @@ for (const prog of programs) {
       seen.add(g.id);
       if (g.kind !== "courses" || g.open) continue;
       const n = (g.options || []).length;
-      if (!n) { note(`no options at all — ${where}`); continue; }
-      if (!g.needUnits && g.need > n) note(`needs ${g.need} but only lists ${n} — ${where}`);
+      if (!n && !g.match) { note(`no options at all — ${where}`); continue; }
+      if (!g.needUnits && !g.match && g.need > n) note(`needs ${g.need} but only lists ${n} — ${where}`);
       const codes = new Map();
       for (const o of g.options)
         for (const c of o.codes) {

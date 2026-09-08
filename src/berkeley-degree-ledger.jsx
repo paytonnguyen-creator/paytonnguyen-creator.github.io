@@ -318,6 +318,20 @@ const G = (id, name, need, list, extra = {}) => ({
 const GU = (id, name, units, list, extra = {}) =>
   G(id, name, 99, list, { needUnits: units, ...extra });
 const unitsOf = (c) => parseFloat(c && c.units) || 0;
+/* Some blocks are stated as a range rather than a list — "any ECON 100–196
+   level course, not including 100A, 100B, 140, 141…". A matcher lets the block
+   accept a course by its code, so those requirements behave like every other
+   one instead of becoming a manual checkbox. */
+const inRange = (subjects, lo, hi, exclude = []) => {
+  const ex = exclude.map(norm);
+  return (code) => {
+    const c = norm(code);
+    if (ex.includes(c)) return false;
+    if (!subjects.includes(splitCode(c).subject)) return false;
+    const n = courseNum(c);
+    return n >= lo && n <= hi;
+  };
+};
 const CK = (id, name, checks, extra = {}) => ({
   kind: "check", id, name, need: checks.length, checks, ...extra,
 });
@@ -941,8 +955,135 @@ const STAT_MINOR = {
   ],
 };
 
+/* ============ Economics, B.A. (L&S) ============ */
+const ECON_ELECTIVES = ["CYPLAN113A","CYPLAN160","ENERESC176/ENVECONC176/IASC176","ENVECON131","ENVECON141",
+  "ENVECON143","ENVECON145","ENVECON152","ENVECON153","ENVECON162","GEOG110","HISTORY133A",
+  "HISTORYC159A/POLECONC160","HISTORY159B","HISTORY160","INDENG120","LEGALST142","LEGALST145","LEGALST147",
+  "PHILOS141","POLSCIW135","PUBPOL141","UGBA118","UGBA131","UGBA132","UGBA133","UGBA136F","UGBA180"];
+
+const ECONOMICS = {
+  id: "econ", type: "major", name: "Economics", degree: "B.A.",
+  dept: ["ECON"], college: "Letters & Science",
+  note: "Every course counted toward the major must be taken for a letter grade.",
+  rules: [
+    "Every course for the major must be taken for a letter grade.",
+    "At most two approved upper-division courses — the macro and micro theory courses included — may come from outside the department. That covers transfer work, UCEAP, and other Berkeley departments. Courses officially cross-listed with upper-division Economics do not count against the two.",
+    "At most two of the five electives may come from outside ECON.",
+    "ECON H195B counts only if taken for a letter grade and for 3 or more units.",
+  ],
+  sections: [
+    { id: "prereq", name: "Prerequisites", groups: [
+      G("ec_mathA", "Mathematics A", 1, ["MATH16A", "MATH51"]),
+      G("ec_mathB", "Mathematics B", 1, ["MATH16B", "MATH52"]),
+      G("ec_stat", "Statistics", 1, ["STAT20", "STAT21/STATW21", "STAT88/DATAC88S", "DATA89",
+        "STATC131A", "STAT135", "STATC140/DATAC140"]),
+      G("ec_intro", "Economics", 1, ["ECON1", "ECON2"]),
+    ]},
+    { id: "upper", name: "Upper division", groups: [
+      G("ec_micro", "Microeconomics", 1, ["ECON100A", "ECON101A"]),
+      G("ec_macro", "Macroeconomics", 1, ["ECON100B", "ECON101B", "UGBA101B"]),
+      G("ec_metrics", "Econometrics", 1, ["ECON140", "ECON141"]),
+      G("ec_elect", "Electives", 5, ECON_ELECTIVES, {
+        /* The Guide's list, plus "any ECON 100–196 level course" minus the ones
+           already required elsewhere. The range is matched rather than typed out. */
+        match: inRange(["ECON"], 100, 196,
+          ["ECON100A", "ECON100B", "ECON101A", "ECON101B", "ECON140", "ECON141",
+           "ECONH195A", "ECONH195AS", "ECONH195BS"]),
+        hint: "Five courses. Any ECON 100–196 counts except 100A, 100B, 101A, 101B, 140, 141, H195A, H195AS and H195BS — add one under My courses and it will land here on its own. At most two of the five may be non-ECON." }),
+    ]},
+  ],
+};
+
+/* ============ Applied Mathematics, B.A. (L&S) ============
+   Five lower-division blocks, five core courses, and a cluster of three. The
+   Guide writes three of the clusters as "Complete ALL" over more than three
+   courses while the section header says a cluster is three courses; those are
+   marked rather than silently resolved. */
+const AM_CLUSTERS = [
+  { id: "actuarial", label: "Actuarial Science", courses: ["DATAC140","ECON141","MATH128B",
+    "STAT134/STATC140","STAT135","STAT151A"] },
+  { id: "classical", label: "Classical Mechanics", courses: ["MATH123","MATH189","PHYSICS105","MECENG104"] },
+  { id: "cs", label: "Computer Science", courses: ["COMPSCI162","COMPSCI164","COMPSCI170","COMPSCI172",
+    "COMPSCI174","COMPSCI184","COMPSCI188","COMPSCI189","MATH124","MATH128B"] },
+  { id: "datasci", label: "Data Science", courses: ["COMPSCI188","COMPSCI189","COMPSCIC100","DATAC100",
+    "DATAC140","MATH170","STAT133"] },
+  { id: "econ", label: "Economics", courses: ["DATAC140","ECON104","ECON141","ECONC103","MATH170",
+    "MATHC103","STAT134/STATC140","STAT155"] },
+  { id: "fluid", label: "Fluid Mechanics", courses: ["CHMENG141","ENGIN115","MATH126","MATH128B",
+    "MECENG106","MECENG163"],
+    note: "At most two courses may be taken between MECENG 163, CHMENG 141, MATH 126 and MATH 128B." },
+  { id: "geophys", label: "Geophysics", courses: ["EPS104","EPS108","EPS121","EPS122","EPS130"],
+    note: "The Guide writes this cluster as “Complete ALL” over five courses while the section header says a cluster is three. Treated as three; confirm with the department." },
+  { id: "lifephys", label: "Life & Physical Science", courses: ["MATH123","MATH126","MATH128B"] },
+  /* Only two courses are named and a cluster is three, so this one cannot be
+     closed from the list alone — the Guide says the third needs a faculty
+     adviser. Open, with the two named in the hint. */
+  { id: "logic", label: "Logic", courses: [], open: true,
+    openHint: "MATH 125A and 125B are recommended and need no approval. The third course requires consultation with a faculty adviser — add all three under My courses and pin them here.",
+    note: "The Guide names only MATH 125A and MATH 125B; a third course relevant to the topic requires a faculty adviser's approval." },
+  { id: "mathbio", label: "Mathematical Biology", courses: ["MATH123","MATH126","MATH127","MATH128B",
+    "MATH170","MATH172"] },
+  { id: "numerical", label: "Numerical Analysis", courses: ["MATH123","MATH126","MATH128B"] },
+  { id: "or", label: "Operations Research", courses: ["DATAC140","INDENG130","INDENG160","INDENG161",
+    "INDENG162","STAT134/STATC140"] },
+  { id: "prob", label: "Probability Theory", courses: ["MATH105","STAT134","STAT150"] },
+  { id: "quantum", label: "Quantum Mechanics", courses: ["MATH126","MATH189","PHYSICS137A","PHYSICS137B"] },
+  { id: "relativity", label: "Relativity", courses: ["MATH126","MATH140","MATH141","PHYSICS139"] },
+  { id: "socsci", label: "Social Sciences", courses: ["DATAC140","STAT134/STATC140","STAT135","STAT150",
+    "STAT151A"],
+    note: "The Guide writes this cluster as “Complete ALL” over five courses while the section header says a cluster is three. Treated as three; confirm with the department." },
+  { id: "stats", label: "Statistics", courses: ["DATAC140","MATH128B","STAT134/STATC140","STAT135",
+    "STAT150","STAT153","STAT154","STAT155"],
+    note: "The Guide writes this cluster as “Complete ALL” over eight courses while the section header says a cluster is three. Treated as three; confirm with the department." },
+  { id: "systems", label: "Systems Theory", courses: ["ELENG120","ELENG122","ELENG123"] },
+  { id: "individual", label: "Individual (designed with an adviser)", courses: [], open: true,
+    note: "The Guide says only “See advisor to determine courses.” Add your three under My courses and pin them here." },
+];
+
+const APPLIED_MATH = {
+  id: "appmath", type: "major", name: "Applied Mathematics", degree: "B.A.",
+  dept: ["MATH"], college: "Letters & Science",
+  note: "A C- or better is required in every lower-division course. Beyond the five core courses, every student completes a cluster of three, chosen when the major is declared.",
+  pathways: {
+    id: "amCluster", label: "Cluster",
+    note: "Chosen on declaring the major. Changing it swaps the cluster block below; nothing else moves.",
+    options: AM_CLUSTERS.map((c) => ({ id: c.id, label: c.label })),
+  },
+  rules: [
+    "A minimum grade of C- is required in each lower-division course.",
+    "Students double majoring in Computer Science or EECS may take COMPSCI 70 in place of MATH 55.",
+    "Honors also requires a 3.5 GPA in upper-division and graduate major courses, 3.3 overall, either MATH 196 with a senior thesis or two graduate maths courses at A- or better, and the head major adviser's recommendation.",
+  ],
+  sections: [
+    { id: "lower", name: "Lower division", note: "A C- or better in each.", groups: [
+      G("am_c1", "Calculus I", 1, ["MATH1A", "MATHN1A", "MATH51", "XMATH51"], {
+        exams: ["AP: Mathematics: Calculus BC, score 3+", "AP: Mathematics: Calculus AB, score 3+",
+          "IB: HL Math: Analysis & Approaches, score 5+", "IB: HL Mathematics, score 5+",
+          "IB: HL Further Mathematics, score 6+", "A-Level: Mathematics, score 1-2",
+          "A-Level: Further Mathematics, score 1-2", "A-Level: Mathematics H2, score 1-2"] }),
+      G("am_c2", "Calculus II", 1, ["MATH1B", "MATHH1B", "MATHN1B", "MATH52", "XMATH52"], {
+        exams: ["AP: Mathematics: Calculus BC, score 5", "IB: HL Math: Analysis & Approaches, score 7",
+          "IB: HL Mathematics, score 7", "IB: HL Further Mathematics, score 7",
+          "A-Level: Mathematics, score 1-2", "A-Level: Mathematics H2, score 1-2"] }),
+      G("am_mv", "Multivariable Calculus", 1, ["MATH53", "MATHH53", "MATHN53", "MATHW53"]),
+      G("am_la", "Linear Algebra and Differential Equations", 1,
+        ["MATH54", "MATHH54", "MATHN54", "MATHW54", "MATH56"]),
+      G("am_disc", "Discrete Mathematics", 1, ["MATH55", "MATHN55", "COMPSCI70"]),
+    ]},
+    { id: "core", name: "Upper division core", groups: [
+      G("am_core", "Core", 5, ["MATH104", "MATHH104", "MATH110", "MATHH110", "MATH113", "MATHH113",
+        "MATH128A", "MATHW128A", "MATH185", "MATHH185"]),
+    ]},
+    ...AM_CLUSTERS.map((c) => ({
+      id: "amc_" + c.id, name: c.label + " cluster", pathway: c.id, note: c.note,
+      groups: [G("amcl_" + c.id, "Cluster courses", 3, c.courses, c.open ? { open: true,
+        hint: c.openHint || "Designed with an adviser — add your three courses under My courses and pin them here." } : {})],
+    })),
+  ],
+};
+
 const CATALOG = {
-  majors: [COGSCI, DATASCI_MAJOR, COMPSCI_MAJOR, STAT_MAJOR],
+  majors: [COGSCI, DATASCI_MAJOR, COMPSCI_MAJOR, STAT_MAJOR, ECONOMICS, APPLIED_MATH],
   minors: [DATASCI_MINOR, STAT_MINOR],
 };
 
@@ -1003,7 +1144,6 @@ const PROGRAM_INDEX = [
   ["Neuroscience", "B.A.", LS, "major"],
 
   /* --- Letters & Science: Mathematical & Physical Sciences --- */
-  ["Applied Mathematics", "B.A.", LS, "major"],
   ["Astrophysics", "B.A.", LS, "major"],
   ["Earth and Planetary Science", "B.A.", LS, "major"],
   ["Environmental Earth Science", "B.A.", LS, "major"],
@@ -1015,7 +1155,6 @@ const PROGRAM_INDEX = [
 
   /* --- Letters & Science: Social Sciences --- */
   ["Anthropology", "B.A.", LS, "major"],
-  ["Economics", "B.A.", LS, "major"],
   ["Gender and Women's Studies", "B.A.", LS, "major"],
   ["Geography", "B.A.", LS, "major"],
   ["History", "B.A.", LS, "major"],
@@ -1179,7 +1318,8 @@ function programGroups(program, pathway) {
   }
   return out;
 }
-const eligible = (g, c) => g.options && g.options.some((o) => o.codes.includes(c.norm));
+const eligible = (g, c) =>
+  (g.options && g.options.some((o) => o.codes.includes(c.norm))) || (g.match ? g.match(c.norm) : false);
 /* A block is full when it has enough courses, or — for unit-based blocks —
    enough units among the courses already assigned to it. */
 function groupFull(g, ids, courses) {
@@ -2080,15 +2220,18 @@ function CoursesView({ courses, setState, audits }) {
 }
 
 /* What is double counting, and how much of each allowance it has spent.
-   The warnings above only fire once a rule is already broken; this shows the
-   ledger the whole time, so "one more overlap and I'm over" is visible before
-   it happens rather than after. */
+   The allowances are the College's, not each program's: one upper-division
+   course in total between all majors and all minors, none between two L&S
+   minors, two between simultaneous-degree majors. */
 function OverlapPanel({ audit, audits, courses, usage }) {
   const { prog, groups, byGroup } = audit;
   const byId = (id) => courses.find((c) => c.id === id);
-  const majors = audits.filter((a) => a.prog.type === "major" && a.prog.id !== prog.id);
+  const udOf = (a) => a.groups.filter((g) => String(g.sectionId).startsWith("upper"))
+    .flatMap((g) => a.byGroup[g.id] || []);
+  const allOf = (a) => a.groups.flatMap((g) => a.byGroup[g.id] || []);
+  const majors = audits.filter((a) => a.prog.type === "major");
+  const minors = audits.filter((a) => a.prog.type === "minor");
 
-  /* Upper-division blocks are the ones the minor's overlap allowance is about. */
   const udGroupIds = new Set(groups.filter((g) => String(g.sectionId).startsWith("upper")).map((g) => g.id));
   const mine = [];
   for (const g of groups)
@@ -2100,13 +2243,28 @@ function OverlapPanel({ audit, audits, courses, usage }) {
     .filter((m) => m.others.length > 0);
 
   const isMinor = prog.type === "minor";
-  if (!isMinor && shared.length === 0) return null;
+  const isMajor = prog.type === "major";
+  if (!isMinor && !isMajor && shared.length === 0) return null;
+  if (!shared.length && !isMinor && majors.length < 2) return null;
 
-  /* Allowances, counted the way the minor states them. */
-  const rows = majors.map((maj) => ({
-    name: maj.prog.name,
-    used: shared.filter((m) => m.ud && m.others.some((u) => u.progId === maj.prog.id)).length,
-  }));
+  /* one course, total, across every major/minor pair */
+  const majMin = new Set();
+  for (const m of minors) {
+    const ud = new Set(udOf(m));
+    for (const maj of majors) for (const id of allOf(maj)) if (ud.has(id)) majMin.add(id);
+  }
+  /* two courses between any pair of majors */
+  const majMaj = new Set();
+  for (let i = 0; i < majors.length; i++)
+    for (let j = i + 1; j < majors.length; j++) {
+      const a = new Set(udOf(majors[i]));
+      udOf(majors[j]).forEach((id) => { if (a.has(id)) majMaj.add(id); });
+    }
+
+  const chip = (used, allowed) => used > allowed
+    ? <Chip tone="bad">over</Chip>
+    : used === allowed ? <Chip tone="warn">spent</Chip> : <Chip tone="ok">free</Chip>;
+
   const deptUsed = isMinor && prog.dept && prog.dept.length
     ? mine.filter((m) => m.ud && prog.dept.includes(splitCode((byId(m.cid) || {}).code || "").subject)).length
     : 0;
@@ -2115,30 +2273,30 @@ function OverlapPanel({ audit, audits, courses, usage }) {
     <div className="bdl-card" style={{ marginBottom: 16 }}>
       <h3>Where courses are double counting</h3>
 
-      {isMinor && rows.length > 0 && rows.map((r) => (
-        <div key={r.name} className="bdl-stat">
-          <span>Upper-division overlap with {r.name}</span>
-          <b>
-            {r.used} of 1{" "}
-            {r.used > 1 ? <Chip tone="bad">over</Chip> : r.used === 1 ? <Chip tone="warn">spent</Chip> : <Chip tone="ok">free</Chip>}
-          </b>
+      {minors.length > 0 && majors.length > 0 && (
+        <div className="bdl-stat">
+          <span>Upper-division overlap between majors and minors</span>
+          <b>{majMin.size} of 1 {chip(majMin.size, 1)}</b>
         </div>
-      ))}
+      )}
+      {majors.length > 1 && (
+        <div className="bdl-stat">
+          <span>Upper-division overlap between your two majors</span>
+          <b>{majMaj.size} of 2 {chip(majMaj.size, 2)}</b>
+        </div>
+      )}
       {isMinor && prog.dept && prog.dept.length > 0 && (
         <div className="bdl-stat">
           <span>Upper-division courses from {prog.dept.join(" / ")}</span>
-          <b>
-            {deptUsed} of 1{" "}
-            {deptUsed > 1 ? <Chip tone="bad">over</Chip> : deptUsed === 1 ? <Chip tone="warn">spent</Chip> : <Chip tone="ok">free</Chip>}
-          </b>
+          <b>{deptUsed} of 1 {chip(deptUsed, 1)}</b>
         </div>
       )}
 
       <div style={{ marginTop: shared.length ? 11 : 0 }}>
         {shared.length === 0 ? (
           <p className="bdl-note" style={{ margin: 0, fontSize: 12.5 }}>
-            Nothing is counting in two places yet. A course may count for this {prog.type} and for one major —
-            beyond that the College stops allowing it.
+            Nothing is counting in two places yet. The allowance is one upper-division course in total between
+            all your majors and all your minors — not one per major — and none at all between two L&amp;S minors.
           </p>
         ) : (
           shared.map((m) => {
@@ -2147,8 +2305,7 @@ function OverlapPanel({ audit, audits, courses, usage }) {
               <div key={m.cid} className="bdl-ovl">
                 <span className="c">{pretty(c ? c.code : "")}</span>
                 <span className="w">
-                  {m.groupName}
-                  {m.ud ? " (upper division)" : ""} — also{" "}
+                  {m.groupName}{m.ud ? " (upper division)" : ""} — also{" "}
                   {m.others.map((u, i) => (
                     <span key={i}>{i > 0 ? ", " : ""}<b style={{ color: "var(--blue)" }}>{u.progName}</b> · {u.groupName}</span>
                   ))}
@@ -2158,6 +2315,11 @@ function OverlapPanel({ audit, audits, courses, usage }) {
           })
         )}
       </div>
+
+      <p className="bdl-note" style={{ fontSize: 12, margin: "11px 0 0" }}>
+        Where a program's own rule is stricter than the College's, the stricter one applies — including a minor
+        hosted by another school or college.
+      </p>
     </div>
   );
 }
@@ -2415,32 +2577,80 @@ export default function App() {
     };
   }, [audits, courses, stats, p.gpa]);
 
-  /* ---- rule warnings ---- */
+  /* ---- rule warnings ----
+     The L&S overlap policy is stricter than any individual program's own
+     wording, and it is the one that binds: ONE upper-division course total may
+     overlap between all your majors and all your minors — not one per major —
+     no upper-division overlap at all is allowed between two L&S minors, and a
+     simultaneous degree allows two upper-division courses between the majors.
+     Where a program's own rule is stricter, the stricter one applies. */
   const warnings = useMemo(() => {
     const byProg = {}; const push = (id, w) => { (byProg[id] = byProg[id] || []).push(w); };
     const byId = (id) => courses.find((c) => c.id === id);
     const label = (ids) => ids.map((i) => pretty(byId(i) ? byId(i).code : "")).join(", ");
     const majorAudits = audits.filter((a) => a.prog.type === "major");
+    const minorAudits = audits.filter((a) => a.prog.type === "minor");
+    const udOf = (a) => a.groups.filter((g) => String(g.sectionId).startsWith("upper"))
+      .flatMap((g) => a.byGroup[g.id] || []);
+    const allOf = (a) => a.groups.flatMap((g) => a.byGroup[g.id] || []);
 
-    for (const m of audits.filter((a) => a.prog.type === "minor")) {
-      const udGroups = m.groups.filter((g) => String(g.sectionId).startsWith("upper"));
-      const udIds = udGroups.flatMap((g) => m.byGroup[g.id] || []);
+    /* one upper-division course, total, between every major and every minor */
+    const majMinShared = new Set();
+    for (const m of minorAudits) {
+      const udIds = new Set(udOf(m));
+      for (const maj of majorAudits)
+        for (const id of allOf(maj)) if (udIds.has(id)) majMinShared.add(id);
+    }
+    const mmList = [...majMinShared];
+    if (mmList.length > 1) {
+      const w = { tone: "bad", text: `${label(mmList)} are all counting toward a major and toward the upper-division requirements of a minor. Letters & Science allows one such course in total across every major and minor you hold — not one per major — so all but one has to be swapped out.` };
+      minorAudits.forEach((m) => push(m.prog.id, w));
+    } else if (mmList.length === 1) {
+      const w = { tone: "warn", text: `${label(mmList)} is your one allowed upper-division overlap between a major and a minor. That allowance is one course in total, so nothing else may double count between any major and any minor.` };
+      minorAudits.forEach((m) => push(m.prog.id, w));
+    }
+
+    /* none at all between two L&S minors */
+    const lsMinors = minorAudits.filter((m) => !/Computing, Data Science/.test(m.prog.college || ""));
+    for (let i = 0; i < lsMinors.length; i++)
+      for (let j = i + 1; j < lsMinors.length; j++) {
+        const a = new Set(udOf(lsMinors[i]));
+        const shared = udOf(lsMinors[j]).filter((id) => a.has(id));
+        if (shared.length) {
+          const w = { tone: "bad", text: `${label(shared)} is counting toward both the ${lsMinors[i].prog.name} and ${lsMinors[j].prog.name} minors. Letters & Science allows no upper-division overlap between two L&S minors at all.` };
+          push(lsMinors[i].prog.id, w); push(lsMinors[j].prog.id, w);
+        }
+      }
+
+    /* two upper-division courses between simultaneous-degree majors */
+    for (let i = 0; i < majorAudits.length; i++)
+      for (let j = i + 1; j < majorAudits.length; j++) {
+        const a = new Set(udOf(majorAudits[i]));
+        const shared = udOf(majorAudits[j]).filter((id) => a.has(id));
+        const both = `${majorAudits[i].prog.name} and ${majorAudits[j].prog.name}`;
+        if (shared.length > 2) {
+          const w = { tone: "bad", text: `${label(shared)} are all counting toward both ${both}. At most two upper-division courses may overlap between two majors.` };
+          push(majorAudits[i].prog.id, w); push(majorAudits[j].prog.id, w);
+        } else if (shared.length === 2) {
+          const w = { tone: "warn", text: `${label(shared)} are your two allowed upper-division overlaps between ${both}. Nothing else may double count between them.` };
+          push(majorAudits[i].prog.id, w); push(majorAudits[j].prog.id, w);
+        }
+      }
+
+    /* a minor's own department rule, where it has one */
+    for (const m of minorAudits) {
+      const udIds = udOf(m);
       for (const maj of majorAudits) {
-        const majIds = new Set(maj.groups.flatMap((g) => maj.byGroup[g.id] || []));
-        const shared = udIds.filter((id) => majIds.has(id));
-        if (shared.length > 1)
-          push(m.prog.id, { tone: "bad", text: `${label(shared)} are all counting toward ${maj.prog.name} and toward the upper-division ${m.prog.name} minor requirements. Only one course may overlap with each major — swap the others out.` });
-        else if (shared.length === 1)
-          push(m.prog.id, { tone: "warn", text: `${label(shared)} is your one allowed overlap with ${maj.prog.name}. Nothing else may double count here.` });
         const deptHits = udIds.filter((id) => (maj.prog.dept || []).includes(splitCode(byId(id).code).subject));
         if (deptHits.length > 1)
-          push(m.prog.id, { tone: "bad", text: `${label(deptHits)} all come from your major department. Only one course offered by or cross-listed with ${maj.prog.dept.join("/")} may count toward the upper-division minor requirements, including the overlap course.` });
+          push(m.prog.id, { tone: "bad", text: `${label(deptHits)} all come from your major department. Only one course offered by or cross-listed with ${maj.prog.dept.join("/")} may count toward the upper-division ${m.prog.name} minor requirements, including the overlap course.` });
       }
       const capped = ["STAT20", "ENGIN7", "ENGINW7"];
-      const cappedHits = m.groups.flatMap((g) => m.byGroup[g.id] || []).filter((id) => capped.includes(byId(id).norm));
-      if (cappedHits.length > 1)
+      const cappedHits = allOf(m).filter((id) => capped.includes(byId(id).norm));
+      if (m.prog.id === "dsminor" && cappedHits.length > 1)
         push(m.prog.id, { tone: "bad", text: `Only one course total may count between STAT 20, ENGIN 7, and ENGIN W7. Right now ${label(cappedHits)} are both counting.` });
     }
+
     if (auto.badGraded.length)
       push("ls", { tone: "bad", text: `Major and minor courses need a letter grade of C- or better. Check ${auto.badGraded.map((c) => pretty(c.code) + " (" + c.grade + ")").join(", ")}.` });
     return byProg;
