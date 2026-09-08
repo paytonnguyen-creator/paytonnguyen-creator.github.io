@@ -105,9 +105,28 @@ node tools/build-ledger.mjs
 Never hand-edit `degree-ledger/index.html` — it is generated, and the JSX would
 stop being the source of truth.
 
-**On requirement data.** University, campus and L&S requirements apply to every
-L&S student and are encoded once. Three programs have their full course lists
-typed in and checked line by line against the Berkeley Academic Guide:
+**Coverage.** Every Letters & Science major and minor and every CDSS major and
+minor can be selected. Picking one gives it its own tab, applies the right
+college's requirements, and turns on the overlap rules; its course lists are
+loaded once from the Academic Guide by the student, pasted and parsed.
+
+The index carries only a name, a degree and a college — deliberately. A name
+that has drifted costs nothing, because you would see it the moment you opened
+the Guide page; an invented course list would not announce itself. The list was
+compiled offline and is a way to find your program, not a source of
+requirements. Anything missing or renamed can be added by name.
+
+**Colleges.** L&S and CDSS are separate colleges with different requirements,
+and the tab follows your major rather than being assumed. A CDSS major sees
+Computational Reasoning, Statistical Reasoning, Human and Social Dynamics and
+CDSS Breadth; an L&S major sees Essential Skills and the seven-course breadth.
+A major in each shows both. IGETC/Cal-GETC certification auto-closes only the
+L&S blocks, where its effect is documented — what it does for CDSS's own
+requirements is left as a question for a CDSS adviser rather than guessed.
+
+**On requirement data.** University and campus requirements apply to everyone
+and are encoded once. Three programs have their full course lists typed in and
+checked line by line against the Berkeley Academic Guide:
 
 | Program | Notes |
 | --- | --- |

@@ -437,6 +437,57 @@ const CERT_AREAS = [
   { id: "a6", label: "Area 6 — Language Other Than English" },
 ];
 
+/* ============ College of Computing, Data Science & Society ============
+   CDSS is a separate college with its own requirements — a Data Science,
+   Computer Science or Statistics major clears these rather than the L&S set.
+   The requirement names are taken from the Academic Guide; the detail behind
+   each one is left to the student to confirm, because naming a requirement is
+   not the same as knowing which courses close it.
+
+   Certification deliberately does NOT auto-close anything here. Full IGETC or
+   Cal-GETC is documented against the L&S requirements; what it does for CDSS's
+   own Computational, Statistical and Human/Social Dynamics requirements is a
+   question for a CDSS adviser, and guessing would be worse than asking. */
+const CDSS_COLLEGE = {
+  id: "cdss", type: "college", name: "Computing, Data Science & Society requirements",
+  college: "Computing, Data Science, and Society",
+  note: "These replace the Letters & Science requirements — you clear your own college's list, not both. Requirement names follow the Academic Guide; open the CDSS college page for what each one takes.",
+  sections: [
+    { id: "essential", name: "Essential skills", groups: [
+      CK("cdss_rc", "Reading & Composition", [
+        { id: "cdss_rca", label: "R&C Part A", desc: "C- or better." },
+        { id: "cdss_rcb", label: "R&C Part B", desc: "C- or better, and it has to come after Part A." },
+      ]),
+      CK("cdss_comp", "CDSS Computational Reasoning", [
+        { id: "cdss_comp", label: "Computational Reasoning satisfied",
+          desc: "A CDSS-specific requirement with no Letters & Science equivalent. Check the college page for the approved list." },
+      ]),
+      CK("cdss_hsd", "Human and Social Dynamics of Data and Technology", [
+        { id: "cdss_hsd", label: "Human and Social Dynamics satisfied",
+          desc: "CDSS-specific. Distinct from the Human Contexts and Ethics course inside the major itself — confirm whether one course can do both." },
+      ]),
+      CK("cdss_stat", "CDSS Statistical Reasoning", [
+        { id: "cdss_stat", label: "Statistical Reasoning satisfied", desc: "CDSS-specific. Often cleared by the major's own statistics course." },
+      ]),
+    ]},
+    { id: "breadth", name: "Seven-course breadth", note: "CDSS runs its own breadth list. It is not identical to the L&S seven-course breadth, so do not assume a course that counts for one counts for the other.", groups: [
+      CK("cdss_b", "CDSS Breadth", [
+        { id: "cdss_breadth", label: "CDSS breadth requirement satisfied",
+          desc: "Confirm the current area list on the college page. If you transferred with a filed certification, ask a CDSS adviser what it covers here — that answer is not the same as the Letters & Science one." },
+      ]),
+    ]},
+    { id: "units", name: "Units & academic standing", groups: [
+      CK("cdss_units", "CDSS unit and academic requirements", [
+        { id: "units120", label: "120 total units earned", desc: "Tracked from My courses.", auto: "units120" },
+        { id: "cdss_ud", label: "Upper-division unit minimum met", desc: "Confirm the current figure with your adviser; the ledger tracks your upper-division total under Where you stand." },
+        { id: "cdss_gpa", label: "Minimum GPA in the major and overall", desc: "Tracked from the GPA you enter under Setup.", auto: "gpa" },
+        { id: "ccc70", label: "No more than 70 units transferred from community colleges",
+          desc: "Transfer students only.", transferOnly: true, auto: "ccc70" },
+      ]),
+    ]},
+  ],
+};
+
 /* ============ Cognitive Science, B.A. ============ */
 const COGSCI = {
   id: "cogsci", type: "major", name: "Cognitive Science", degree: "B.A.",
@@ -784,6 +835,144 @@ const DATASCI_MAJOR = {
 };
 
 const CATALOG = { majors: [COGSCI, DATASCI_MAJOR], minors: [DATASCI_MINOR] };
+
+/* ============ Every program you can pick ============
+   A finding aid, not a requirements source. Each entry carries only a name, a
+   degree and a college — enough to give the program its own tab, apply the
+   right college's requirements, and point at its Academic Guide page. The
+   requirements themselves are always loaded from the Guide by the student,
+   which is why a name here being slightly stale costs nothing: you would
+   notice when you opened the Guide page.
+
+   Compiled offline. If your program is missing or is named differently in the
+   Guide, the "Something else" option takes any name you type. */
+const LS = "Letters & Science";
+const CDSS = "Computing, Data Science, and Society";
+
+const PROGRAM_INDEX = [
+  /* --- Letters & Science: Arts & Humanities --- */
+  ["African American Studies", "B.A.", LS, "major"],
+  ["American Studies", "B.A.", LS, "major"],
+  ["Ancient Greek and Roman Studies", "B.A.", LS, "major"],
+  ["Art Practice", "B.A.", LS, "major"],
+  ["Asian American and Asian Diaspora Studies", "B.A.", LS, "major"],
+  ["Asian Studies", "B.A.", LS, "major"],
+  ["Celtic Studies", "B.A.", LS, "major"],
+  ["Chicanx and Latinx Studies", "B.A.", LS, "major"],
+  ["Chinese Language", "B.A.", LS, "major"],
+  ["Comparative Literature", "B.A.", LS, "major"],
+  ["Dance and Performance Studies", "B.A.", LS, "major"],
+  ["Dutch Studies", "B.A.", LS, "major"],
+  ["East Asian Religion, Thought, and Culture", "B.A.", LS, "major"],
+  ["English", "B.A.", LS, "major"],
+  ["Ethnic Studies", "B.A.", LS, "major"],
+  ["Film", "B.A.", LS, "major"],
+  ["French", "B.A.", LS, "major"],
+  ["German", "B.A.", LS, "major"],
+  ["History of Art", "B.A.", LS, "major"],
+  ["Italian", "B.A.", LS, "major"],
+  ["Japanese Language", "B.A.", LS, "major"],
+  ["Jewish Studies", "B.A.", LS, "major"],
+  ["Korean Language", "B.A.", LS, "major"],
+  ["Media Studies", "B.A.", LS, "major"],
+  ["Middle Eastern Languages and Cultures", "B.A.", LS, "major"],
+  ["Music", "B.A.", LS, "major"],
+  ["Native American Studies", "B.A.", LS, "major"],
+  ["Philosophy", "B.A.", LS, "major"],
+  ["Rhetoric", "B.A.", LS, "major"],
+  ["Scandinavian", "B.A.", LS, "major"],
+  ["Slavic Languages and Literatures", "B.A.", LS, "major"],
+  ["South and Southeast Asian Studies", "B.A.", LS, "major"],
+  ["Spanish and Portuguese", "B.A.", LS, "major"],
+  ["Theater and Performance Studies", "B.A.", LS, "major"],
+
+  /* --- Letters & Science: Biological Sciences --- */
+  ["Integrative Biology", "B.A.", LS, "major"],
+  ["Microbial Biology", "B.A.", LS, "major"],
+  ["Molecular and Cell Biology", "B.A.", LS, "major"],
+  ["Neuroscience", "B.A.", LS, "major"],
+
+  /* --- Letters & Science: Mathematical & Physical Sciences --- */
+  ["Applied Mathematics", "B.A.", LS, "major"],
+  ["Astrophysics", "B.A.", LS, "major"],
+  ["Earth and Planetary Science", "B.A.", LS, "major"],
+  ["Environmental Earth Science", "B.A.", LS, "major"],
+  ["Geology", "B.A.", LS, "major"],
+  ["Geophysics", "B.A.", LS, "major"],
+  ["Marine Science", "B.A.", LS, "major"],
+  ["Mathematics", "B.A.", LS, "major"],
+  ["Physics", "B.A.", LS, "major"],
+
+  /* --- Letters & Science: Social Sciences --- */
+  ["Anthropology", "B.A.", LS, "major"],
+  ["Economics", "B.A.", LS, "major"],
+  ["Gender and Women's Studies", "B.A.", LS, "major"],
+  ["Geography", "B.A.", LS, "major"],
+  ["History", "B.A.", LS, "major"],
+  ["Legal Studies", "B.A.", LS, "major"],
+  ["Linguistics", "B.A.", LS, "major"],
+  ["Political Science", "B.A.", LS, "major"],
+  ["Psychology", "B.A.", LS, "major"],
+  ["Sociology", "B.A.", LS, "major"],
+
+  /* --- Letters & Science: interdisciplinary & group majors --- */
+  ["Development Studies", "B.A.", LS, "major"],
+  ["Global Studies", "B.A.", LS, "major"],
+  ["Interdisciplinary Studies Field", "B.A.", LS, "major"],
+  ["Latin American Studies", "B.A.", LS, "major"],
+  ["Peace and Conflict Studies", "B.A.", LS, "major"],
+  ["Political Economy", "B.A.", LS, "major"],
+  ["Urban Studies", "B.A.", LS, "major"],
+
+  /* --- Computing, Data Science & Society --- */
+  ["Computer Science", "B.A.", CDSS, "major"],
+  ["Statistics", "B.A.", CDSS, "major"],
+  ["Computer Science", "Minor", CDSS, "minor"],
+  ["Statistics", "Minor", CDSS, "minor"],
+
+  /* --- Minors most often paired with an L&S major --- */
+  ["Anthropology", "Minor", LS, "minor"],
+  ["Art History", "Minor", LS, "minor"],
+  ["Asian American and Asian Diaspora Studies", "Minor", LS, "minor"],
+  ["Cognitive Science", "Minor", LS, "minor"],
+  ["Creative Writing", "Minor", LS, "minor"],
+  ["Demography", "Minor", LS, "minor"],
+  ["Economics", "Minor", LS, "minor"],
+  ["Education", "Minor", LS, "minor"],
+  ["English", "Minor", LS, "minor"],
+  ["Ethnic Studies", "Minor", LS, "minor"],
+  ["Gender and Women's Studies", "Minor", LS, "minor"],
+  ["Geography", "Minor", LS, "minor"],
+  ["Global Poverty and Practice", "Minor", LS, "minor"],
+  ["History", "Minor", LS, "minor"],
+  ["Human Rights Interdisciplinary", "Minor", LS, "minor"],
+  ["Linguistics", "Minor", LS, "minor"],
+  ["Media Studies", "Minor", LS, "minor"],
+  ["Music", "Minor", LS, "minor"],
+  ["Philosophy", "Minor", LS, "minor"],
+  ["Political Economy", "Minor", LS, "minor"],
+  ["Psychology", "Minor", LS, "minor"],
+  ["Public Policy", "Minor", LS, "minor"],
+  ["Rhetoric", "Minor", LS, "minor"],
+  ["Sociology", "Minor", LS, "minor"],
+  ["Theater and Performance Studies", "Minor", LS, "minor"],
+].map(([name, degree, college, kind]) => ({
+  id: "idx_" + kind + "_" + norm(name).toLowerCase().slice(0, 24),
+  name, degree, college, kind,
+}));
+
+const indexFor = (kind) => PROGRAM_INDEX.filter((x) => x.kind === kind);
+
+/* A program picked from the index starts empty: the right name, degree and
+   college, and nowhere for its courses to go until the student loads them. */
+function stubProgram(entry) {
+  return {
+    id: entry.id, type: entry.kind, custom: true, stub: true,
+    name: entry.name, degree: entry.degree, college: entry.college,
+    dept: [], sections: [],
+  };
+}
+
 
 /* Exported so tools/check-data.mjs can validate the requirement data without a browser. */
 export { CATALOG, UNIVERSITY, LS_COLLEGE, programGroups };
@@ -1225,6 +1414,81 @@ function guessDept(prog) {
   return best ? [best[0]] : [];
 }
 
+/* Every program, grouped so the encoded ones are findable and the rest are
+   ordered by college. */
+function ProgramSelect({ value, kind, encoded, onChange, first }) {
+  const idx = indexFor(kind);
+  const ls = idx.filter((x) => x.college === LS);
+  const cdss = idx.filter((x) => x.college === CDSS);
+  return (
+    <select className="bdl-sel" value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">{first ? (kind === "major" ? "No major loaded" : "No minor") : `Add another ${kind}…`}</option>
+      <optgroup label="Requirements included">
+        {encoded.map((m) => <option key={m.id} value={m.id}>{m.name}, {m.degree}</option>)}
+      </optgroup>
+      <optgroup label="Letters & Science">
+        {ls.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+      </optgroup>
+      <optgroup label="Computing, Data Science & Society">
+        {cdss.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+      </optgroup>
+    </select>
+  );
+}
+
+/* Shown on a program that has a name and a college but no requirements yet.
+   The Guide is the source; this is the doorway to it. */
+function LoadRequirements({ prog, setState }) {
+  const [paste, setPaste] = useState("");
+  const [msg, setMsg] = useState("");
+  const search = "https://guide.berkeley.edu/search/?P=" + encodeURIComponent(prog.name);
+
+  const load = () => {
+    const parsed = parseGuide(paste, prog.name);
+    if (!parsed) {
+      setMsg("Nothing parsed. Copy the Requirements tab itself — the reader keys off the “Complete N of the following” lines and the course rows beneath them.");
+      return;
+    }
+    setState((s) => {
+      const rest = (s.customPrograms || []).filter((c) => c.id !== prog.id);
+      return { ...s, customPrograms: [...rest, {
+        id: prog.id, type: prog.type, custom: true, name: prog.name, degree: prog.degree,
+        college: prog.college, dept: guessDept(parsed), sections: parsed.sections,
+      }] };
+    });
+    setPaste("");
+  };
+
+  return (
+    <div className="bdl-card" style={{ marginBottom: 16 }}>
+      <h3>Load this program's requirements</h3>
+      <Flag>
+        <span>
+          <b>{prog.name} is not typed into this ledger.</b> Its name and college are, which is enough for the
+          University, campus and {prog.college === CDSS ? "CDSS" : "Letters & Science"} tabs to apply to you
+          correctly and for the overlap rules to work. What is missing is its own course lists — and those come
+          from the Guide rather than from me, because a requirement list invented from memory is worse than
+          none at all in something you plan a degree around.
+        </span>
+      </Flag>
+      <p className="bdl-note" style={{ fontSize: 12.5 }}>
+        Open{" "}
+        <a href={search} target="_blank" rel="noopener noreferrer"><b>{prog.name}</b> in the Academic Guide</a>,
+        go to its <b>Requirements</b> tab, select the requirement blocks and paste them below. Block headings,
+        course lists and OR cross-listings are read straight out of the text. You only do this once — it stays
+        on this device.
+      </p>
+      <textarea className="bdl-ta" value={paste}
+        placeholder={"Lower Division\nComplete at least 1 of the following Courses:\nPSYCH 1 - General Psychology\nOR PSYCH N1 - General Psychology\n\nUpper Division\nComplete at least 2 of the following Courses:\nPSYCH 101 - Research and Data Analysis"}
+        onChange={(e) => setPaste(e.target.value)} />
+      <div className="bdl-row" style={{ marginTop: 9 }}>
+        <button className="bdl-btn" onClick={load} disabled={!paste.trim()}>Load requirements</button>
+        {msg && <span style={{ fontSize: 12.5, color: "var(--slate)" }}>{msg}</span>}
+      </div>
+    </div>
+  );
+}
+
 function AddProgram({ state, setState }) {
   const [mode, setMode] = useState("paste");
   const [pname, setPname] = useState("");
@@ -1525,24 +1789,22 @@ function SetupView({ p, setProfile, state, setState }) {
         {majors.concat([""]).map((id, i) => (
           <label className="bdl-field" key={"maj" + i}>
             <span className="bdl-label">{i === 0 ? "Major" : "Second major"}</span>
-            <select className="bdl-sel" value={id} onChange={(e) => setList("majors", i, e.target.value)}>
-              <option value="">{i === 0 ? "No major loaded" : "Add another major…"}</option>
-              {CATALOG.majors.map((m) => <option key={m.id} value={m.id}>{m.name}, {m.degree}</option>)}
-            </select>
+            <ProgramSelect value={id} kind="major" encoded={CATALOG.majors}
+              onChange={(v) => setList("majors", i, v)} first={i === 0} />
           </label>
         )).slice(0, Math.min(majors.length + 1, 3))}
         {minors.concat([""]).map((id, i) => (
           <label className="bdl-field" key={"min" + i}>
             <span className="bdl-label">{i === 0 ? "Minor" : "Second minor"}</span>
-            <select className="bdl-sel" value={id} onChange={(e) => setList("minors", i, e.target.value)}>
-              <option value="">{i === 0 ? "No minor" : "Add another minor…"}</option>
-              {CATALOG.minors.map((m) => <option key={m.id} value={m.id}>{m.name} minor — {m.college}</option>)}
-            </select>
+            <ProgramSelect value={id} kind="minor" encoded={CATALOG.minors}
+              onChange={(v) => setList("minors", i, v)} first={i === 0} />
           </label>
         )).slice(0, Math.min(minors.length + 1, 3))}
         <p className="bdl-note" style={{ fontSize: 12, marginTop: -4 }}>
-          These are typed in and checked against the Academic Guide. Load any other major or minor below —
-          it gets its own tab and the same rules engine.
+          The three marked <em>requirements included</em> are typed in and checked against the Academic Guide.
+          Every other program gives you the right college rules and its own tab, and asks you to load its
+          requirements once — the list of names is a way to find your program, not a source of requirements.
+          Not listed? Add it by name at the bottom of this page.
         </p>
 
         {/* A program that branches — the minor's two pathways, the Data Science
@@ -1788,7 +2050,7 @@ function OverlapPanel({ audit, audits, courses, usage }) {
   );
 }
 
-function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry, onPin, onRelease, onQuickAdd, warnings, usage, audits }) {
+function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry, onPin, onRelease, onQuickAdd, warnings, usage, audits, setState }) {
   const { prog, groups, byGroup, used } = audit;
   const sections = [];
   for (const g of groups) {
@@ -1811,6 +2073,8 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
       <p className="bdl-note">{prog.note || `${totals.done} of ${totals.need} requirements closed.`}</p>
 
       {warnings.map((w, i) => <Flag key={i} tone={w.tone}><span>{w.text}</span></Flag>)}
+
+      {prog.stub && <LoadRequirements prog={prog} setState={setState} />}
 
       <OverlapPanel audit={audit} audits={audits} courses={courses} usage={usage} />
 
@@ -1948,10 +2212,33 @@ export default function App() {
   const igetcFull = p.entry === "transfer" && p.igetc === "full";
 
   const programs = useMemo(() => {
-    const pick = (ids, list) => [...new Set(ids || [])].map((id) => list.find((m) => m.id === id)).filter(Boolean);
+    const custom = state.customPrograms || [];
+    /* A selected id is either a program typed into this file, or one of the
+       index entries — which starts empty and fills in once the student loads
+       its requirements from the Guide. */
+    const pick = (ids, list) => [...new Set(ids || [])].map((id) => {
+      const encoded = list.find((m) => m.id === id);
+      if (encoded) return encoded;
+      const entry = PROGRAM_INDEX.find((x) => x.id === id);
+      if (!entry) return null;
+      const loaded = custom.find((c) => c.id === id);
+      if (loaded && (loaded.sections || []).length) return { ...stubProgram(entry), ...loaded, stub: false };
+      return stubProgram(entry);
+    }).filter(Boolean);
     const majors = pick(p.majors, CATALOG.majors);
     const minors = pick(p.minors, CATALOG.minors);
-    return [UNIVERSITY, LS_COLLEGE, ...majors, ...minors, ...(state.customPrograms || [])];
+    const chosen = new Set([...(p.majors || []), ...(p.minors || [])]);
+    const freeform = custom.filter((c) => !chosen.has(c.id));
+    /* Your college follows your major, not your minor — a Letters & Science
+       student minoring in Data Science still clears the L&S list. With a major
+       in each, both apply, which is exactly the simultaneous-degree case. */
+    const colleges = [];
+    const declaring = [...majors, ...custom.filter((c) => c.type === "major")];
+    const inCDSS = declaring.some((m) => /Computing, Data Science/.test(m.college || ""));
+    const inLS = declaring.some((m) => !/Computing, Data Science/.test(m.college || "")) || !declaring.length;
+    if (inLS) colleges.push(LS_COLLEGE);
+    if (inCDSS) colleges.push(CDSS_COLLEGE);
+    return [UNIVERSITY, ...colleges, ...majors, ...minors, ...freeform];
   }, [p.majors, p.minors, state.customPrograms]);
 
   const audits = useMemo(() => programs.map((prog) => {
@@ -2146,7 +2433,7 @@ export default function App() {
                 onPin={(gid, cid) => pin(current.prog.id, gid, cid)}
                 onRelease={(gid, cid) => release(current.prog.id, gid, cid)}
                 onQuickAdd={quickAdd}
-                warnings={warnings[current.prog.id] || []} />
+                warnings={warnings[current.prog.id] || []} setState={setState} />
             )}
           </div>
 
