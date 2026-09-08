@@ -120,18 +120,21 @@ const CSS = `
 .bdl-in.mono { font-family:var(--mono); text-transform:uppercase; }
 .bdl-ta { width:100%; min-height:130px; padding:9px; border:1px solid var(--line);
   border-radius:2px; font-family:var(--mono); font-size:12px; line-height:1.5; }
-.bdl-btn { border:1px solid var(--blue); background:var(--blue); color:#fff; padding:7px 14px;
+/* These carry an extra .bdl so they outrank the colour:inherit reset on
+   .bdl button above. Without it the filled button drew near-black text on the
+   Berkeley blue — 1.29:1, effectively invisible. White on that blue is 12.95:1. */
+.bdl .bdl-btn { border:1px solid var(--blue); background:var(--blue); color:#fff; padding:7px 14px;
   border-radius:2px; font-size:13px; font-weight:500; }
-.bdl-btn:hover { background:#00427C; }
-.bdl-btn.ghost { background:none; color:var(--blue); }
-.bdl-btn.ghost:hover { background:#E4EBF1; }
-.bdl-btn.tiny { padding:3px 8px; font-size:11.5px; font-family:var(--mono); }
-.bdl-btn.danger { border-color:var(--brick); color:var(--brick); background:none; }
-.bdl-btn:disabled { opacity:.45; cursor:not-allowed; }
+.bdl .bdl-btn:hover { background:#00427C; }
+.bdl .bdl-btn.ghost { background:none; color:var(--blue); }
+.bdl .bdl-btn.ghost:hover { background:#E4EBF1; }
+.bdl .bdl-btn.tiny { padding:3px 8px; font-size:11.5px; font-family:var(--mono); }
+.bdl .bdl-btn.danger { border-color:var(--brick); color:var(--brick); background:none; }
+.bdl .bdl-btn:disabled { opacity:.45; cursor:not-allowed; }
 .bdl-row { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; }
 .bdl-switch { display:flex; gap:0; border:1px solid var(--line); border-radius:2px; overflow:hidden; }
 .bdl-switch button { flex:1 1 auto; background:#fff; border:0; padding:7px 12px; font-size:13px; color:var(--slate); }
-.bdl-switch button.sel { background:var(--blue); color:#fff; }
+.bdl .bdl-switch button.sel { background:var(--blue); color:#fff; }
 .bdl-check { display:flex; gap:9px; align-items:flex-start; padding:8px 0;
   border-bottom:1px dotted var(--line); font-size:13.5px; }
 .bdl-check:last-child { border-bottom:0; }
@@ -156,7 +159,7 @@ const CSS = `
   font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--slate); }
 .bdl-optbar button { background:none; border:1px solid var(--line); border-radius:2px; padding:2px 7px;
   font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--slate); }
-.bdl-optbar button.sel { background:var(--blue); border-color:var(--blue); color:#fff; }
+.bdl .bdl-optbar button.sel { background:var(--blue); border-color:var(--blue); color:#fff; }
 .bdl-code { min-width:96px; }
 .bdl-ud { font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; color:var(--slate);
   border:1px solid var(--line); border-radius:2px; padding:1px 4px; flex:0 0 auto; }
@@ -1990,6 +1993,155 @@ function Clearances({ p, setProfile, state, setState }) {
   );
 }
 
+/* ============ L&S × CDSS pairings ============
+   The combinations this ledger is really for. Each row names the L&S side, the
+   CDSS side it is usually taken with, and what people take it for.
+
+   On the popularity column: only the Economics row rests on published figures
+   — CDSS reported Economics × Data Science as the most common double major at
+   around 40% of all students holding more than one, and Economics as the most
+   common major among Data Science minors at 24%. Every other rating is an
+   informal impression of how often the combination comes up, not a measurement,
+   and the page says so rather than dressing it up as data. The shared-course
+   counts underneath are computed live from the encoded requirements and are
+   the part you can rely on. */
+const PAIRINGS = [
+  { ls: "cogsci", cdss: ["dsmajor"], stars: 5, sourced: false,
+    forWhat: "AI and ML, product, UX research, tech" },
+  { ls: "econ", cdss: ["dsmajor", "dsminor"], stars: 5, sourced: true,
+    forWhat: "finance, analytics, consulting, fintech" },
+  { ls: "appmath", cdss: ["dsmajor", "csmajor", "statmajor"], stars: 4, sourced: false,
+    forWhat: "quant, ML, graduate school" },
+  { ls: "idx_major_astrophysics", cdss: ["dsmajor"], stars: 3, sourced: false,
+    forWhat: "scientific computing, research, tech", also: "idx_major_physics" },
+  { ls: "idx_major_psychology", cdss: ["dsmajor", "statminor"], stars: 3, sourced: false,
+    forWhat: "behavioural data, UX research, analytics" },
+  { ls: "idx_major_neuroscience", cdss: ["dsmajor"], stars: 3, sourced: false,
+    forWhat: "computational biology, biotech, research", also: "idx_major_molecularandcellbiolo" },
+  { ls: "idx_major_politicaleconomy", cdss: ["dsmajor", "dsminor"], stars: 3, sourced: false,
+    forWhat: "policy analytics, economics, government", also: "idx_major_politicalscience" },
+];
+
+const progById = (id) =>
+  CATALOG.majors.find((m) => m.id === id) || CATALOG.minors.find((m) => m.id === id) ||
+  (() => { const e = PROGRAM_INDEX.find((x) => x.id === id); return e ? stubProgram(e) : null; })();
+
+/* Every course code a program can be closed with, for one pathway. */
+function codesOf(prog, pathway, onlyCore) {
+  const out = new Set();
+  for (const g of programGroups(prog, pathway)) {
+    if (onlyCore && String(g.sectionId).startsWith("emph")) continue;
+    for (const o of g.options || []) o.codes.forEach((c) => out.add(c));
+  }
+  return out;
+}
+const shareCount = (a, b) => { let n = 0; for (const c of a) if (b.has(c)) n++; return n; };
+
+/* Which Data Science emphasis sits closest to a given L&S major. */
+function bestEmphasis(lsProg) {
+  const ds = CATALOG.majors.find((m) => m.id === "dsmajor");
+  if (!ds || !lsProg) return null;
+  const mine = codesOf(lsProg);
+  if (!mine.size) return null;
+  const ranked = ds.pathways.options.map((o) => {
+    const e = new Set();
+    for (const g of programGroups(ds, o.id))
+      if (String(g.sectionId).startsWith("emph"))
+        for (const opt of g.options || []) opt.codes.forEach((c) => e.add(c));
+    return { label: o.label, id: o.id, n: shareCount(mine, e) };
+  }).sort((x, y) => y.n - x.n);
+  return ranked[0] && ranked[0].n > 0 ? ranked[0] : null;
+}
+
+function PairingsView({ p, setProfile, setTab }) {
+  const apply = (lsId, cdssId, emphasisId) => {
+    setProfile("majors", [...new Set([lsId, ...(CATALOG.majors.some((m) => m.id === cdssId) ? [cdssId] : [])])]);
+    setProfile("minors", CATALOG.minors.some((m) => m.id === cdssId) ? [cdssId] : []);
+    if (emphasisId) setProfile("pathways", { ...(p.pathways || {}), dsmajor: emphasisId });
+    setTab("setup");
+  };
+
+  return (
+    <div>
+      <p className="bdl-eyebrow">Pairings</p>
+      <h2 className="bdl-h2">Letters &amp; Science, meet Computing &amp; Data Science</h2>
+      <p className="bdl-note">
+        These are the combinations this ledger is built for. Picking one sets up both programs, both colleges'
+        requirements, and the overlap rules in one go — a major in each college is a simultaneous degree, which
+        is where the overlap allowance actually bites.
+      </p>
+
+      <Flag>
+        <span>
+          <b>On the star ratings.</b> Only the Economics row rests on published figures: CDSS reported Economics
+          × Data Science as the most common double major on campus, at about 40% of all students holding more
+          than one, and Economics as the most common major among Data Science minors at 24%. Every other rating
+          is an informal impression of how often the combination comes up — not a measurement. The shared-course
+          counts below each pairing <em>are</em> computed from the real requirement lists, and those you can rely on.
+        </span>
+      </Flag>
+
+      {PAIRINGS.map((pair) => {
+        const ls = progById(pair.ls);
+        const also = pair.also ? progById(pair.also) : null;
+        if (!ls) return null;
+        const lsCodes = codesOf(ls);
+        const emph = bestEmphasis(ls);
+        return (
+          <div className="bdl-card" style={{ marginBottom: 12 }} key={pair.ls}>
+            <div className="bdl-row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+              <h3 style={{ margin: 0, fontSize: 14.5, fontFamily: "var(--sans)", fontWeight: 600,
+                letterSpacing: 0, textTransform: "none", color: "var(--ink)" }}>
+                {ls.name}{also ? ` or ${also.name}` : ""}
+              </h3>
+              <span title={pair.sourced ? "Backed by published CDSS figures" : "Informal impression, not a measurement"}
+                style={{ fontFamily: "var(--mono)", fontSize: 12, color: pair.sourced ? "var(--gold)" : "var(--slate)" }}>
+                {"★".repeat(pair.stars)}{"☆".repeat(5 - pair.stars)}
+                {pair.sourced && <Chip tone="ok" >sourced</Chip>}
+              </span>
+            </div>
+            <p className="bdl-note" style={{ margin: "4px 0 9px", fontSize: 12.5 }}>{pair.forWhat}</p>
+
+            {pair.cdss.map((cid) => {
+              const cd = progById(cid);
+              if (!cd) return null;
+              const core = shareCount(lsCodes, codesOf(cd, pathwayFor(p, cd), true));
+              const known = lsCodes.size > 0;
+              return (
+                <div className="bdl-ovl" key={cid}>
+                  <span className="c" style={{ minWidth: 150, fontFamily: "var(--sans)", fontWeight: 500 }}>
+                    + {cd.name}{cd.degree === "Minor" ? " minor" : ""}
+                  </span>
+                  <span className="w">
+                    {known
+                      ? <>{core} course{core === 1 ? "" : "s"} count for both{core > 0 ? " before you spend any overlap allowance" : ""}</>
+                      : <>requirements not loaded for {ls.name} yet — pick it and paste them from the Guide to see the shared courses</>}
+                  </span>
+                  <button className="bdl-btn tiny" onClick={() => apply(pair.ls, cid, cid === "dsmajor" && emph ? emph.id : null)}>
+                    Set this up
+                  </button>
+                </div>
+              );
+            })}
+
+            {emph && (
+              <p className="bdl-note" style={{ margin: "9px 0 0", fontSize: 12 }}>
+                Closest Data Science domain emphasis by shared coursework: <b>{emph.label}</b> ({emph.n} courses
+                in common). Worth weighing against what the emphasis does for the work you actually want — the
+                two do not always point the same way.
+              </p>
+            )}
+          </div>
+        );
+      })}
+
+      <p className="bdl-note" style={{ fontSize: 12 }}>
+        Anything not listed still works — load it from Setup. These are shortcuts, not the limits of the tool.
+      </p>
+    </div>
+  );
+}
+
 function SetupView({ p, setProfile, state, setState }) {
   const majors = p.majors || [];
   const minors = p.minors || [];
@@ -2697,6 +2849,7 @@ export default function App() {
 
   const tabs = [
     { id: "setup", label: "Setup" },
+    { id: "pairings", label: "L&S × CDSS" },
     { id: "courses", label: "My courses", n: courses.length },
     ...audits.map((a) => ({ id: a.prog.id, label: a.prog.type === "minor" ? a.prog.name + " minor" : a.prog.name })),
     { id: "grad", label: "Graduation check" },
@@ -2746,6 +2899,7 @@ export default function App() {
         <div className="bdl-cols">
           <div>
             {tab === "setup" && <SetupView p={p} setProfile={setProfile} state={state} setState={setState} />}
+            {tab === "pairings" && <PairingsView p={p} setProfile={setProfile} setTab={setTab} />}
             {tab === "courses" && <CoursesView courses={courses} setState={setState} audits={audits} />}
             {tab === "grad" && <GraduationView audits={audits} checks={state.checks} auto={auto}
               igetcFull={igetcFull} p={p} stats={stats} warnings={allWarnings} courses={courses} />}
