@@ -192,11 +192,16 @@ const CSS = `
 
 /* ---------- course code utilities ---------- */
 
-const SUBJECTS = ("AFRICAM AGRS AMERSTD ANTHRO ART ASTRON BIOENG CHEM CHMENG CIVENG CMPBIO COGSCI " +
-  "COMPSCI CPH CYPLAN DATA DEMOG DIGHUM ECON EDUC EECS ELENG ENERES ENGIN ENGLISH ENVECON EPS ESPM " +
-  "FILM GEOG HISTART HISTORY IAS INDENG INFO INTEGBI ISF JOURN LDARCH LEGALST LINGUIS LS MATH MCELLBI " +
-  "MECENG MEDIAST MELC MUSIC NATAMST NEUROSC NEU NUCENG NUSCTX NWMEDIA PBHLTH PHILOS PHYSICS PLANTBI " +
-  "POLECON POLSCI PSYCH PUBPOL RHETOR SLAVIC SOCIOL SPANISH STAT STS UGBA UGIS VISSCI XMATH")
+/* Every subject prefix that appears in a requirement list has to be here, or
+   the code will not split into subject + number — which silently breaks
+   `isUpperDiv`, and with it the 36-upper-division-unit count. tools/check-subjects.mjs
+   fails the build if a course code is ever added whose subject is missing. */
+const SUBJECTS = ("AEROENG AFRICAM AGRS AMERSTD ANTHRO ARCH ART ASTRON BIOENG BIOLOGY CHEM CHMENG CIVENG " +
+  "CMPBIO COGSCI COMPSCI CPH CYPLAN DATA DEMOG DIGHUM DISSTD ECON EDSTEM EDUC EECS ELENG ENERES ENGIN " +
+  "ENGLISH ENVDES ENVECON EPS ESPM ETHSTD FILM GEOG GLOBAL GPP GWS HISTART HISTORY IAS INDENG INFO " +
+  "INTEGBI ISF JOURN LDARCH LEGALST LINGUIS LS MATH MBN MCELLBI MECENG MEDIAST MELC MUSIC NATAMST " +
+  "NEUROSC NEU NUCENG NUSCTX NWMEDIA PBHLTH PHILOS PHYSICS PLANTBI POLECON POLSCI PSYCH PUBPOL RHETOR " +
+  "SLAVIC SOCIOL SOCWEL SPANISH STAT STS UGBA UGIS VISSCI XMATH XPSYCH XSOCIOL")
   .split(" ").sort((a, b) => b.length - a.length);
 
 const norm = (s) => String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -579,7 +584,9 @@ const DS_EMPHASES = [
     up: ["ENGIN120","INDENG115","INDENG120","INDENG130","INDENG153","INDENG156","INDENG166","LEGALST122",
       "UGBA104","UGBA134","UGBA141","UGBA142","UGBA161"], upNeed: 2 },
   { id: "cognition", label: "Cognition",
-    low: ["COGSCI1/COGSCIN1/COGSCI1B","NEUC61/NEU61","NEUC64/PSYCHC64","NEU61/PSYCHC61"], lowNeed: 1,
+    /* The Guide lists Brain, Mind and Behavior twice — as NEU C61/NEU 61 and
+       again as NEU 61/PSYCH C61. They are one course, so they are one option. */
+    low: ["COGSCI1/COGSCIN1/COGSCI1B","NEUC61/NEU61/PSYCHC61","NEUC64/PSYCHC64"], lowNeed: 1,
     up: ["COGSCIC100/PSYCHC120","COGSCIC101/LINGUISC105","COGSCIC126/PSYCHC126","COGSCIC127/PSYCHC127",
       "COGSCIC131/COGSCI131/PSYCHC123","COGSCI132","COGSCI150","COGSCI180","COMPSCI188","LINGUISC146/PSYCHC143",
       "MUSIC108/MUSIC108M","PSYCH114","PSYCH117","PSYCH131"], upNeed: 2 },
@@ -673,9 +680,11 @@ const DS_EMPHASES = [
       "MECENGC180","NUCENG101","NUCENG130","NUCENG155","PHYSICS105","PHYSICS111A","PHYSICS112","PHYSICS129",
       "PHYSICS151","PHYSICSC161","PHYSICS188"], upNeed: 2 },
   { id: "quantsoc", label: "Quantitative Social Science",
-    low: ["ECON1","ECON2","POLSCIN3","POLSCI3/POLSCIN3/POLSCIW3","POLSCI5","POLSCI88","SOCIOL1",
+    /* POLSCI N3 is listed twice in the Guide, once alone and once as a
+       cross-listing of POLSCI 3. Kept only as the cross-listing. */
+    low: ["ECON1","ECON2","POLSCI3/POLSCIN3/POLSCIW3","POLSCI5","POLSCI88","SOCIOL1",
       "SOCIOL3AC/XSOCIOL3AC"], lowNeed: 1,
-    up: ["DEMOG110","DEMOGC126","DEMOG130","DEMOGC175/ECONC175","DEMOG180","ENVECONC118/IASC118","IASC118",
+    up: ["DEMOG110","DEMOGC126","DEMOG130","DEMOGC175/ECONC175","DEMOG180","ENVECONC118/IASC118",
       "LEGALST123","MEDIAST130","POLSCI132B","POLSCI132C","POLSCI133","POLSCIC135/ECONC110","SOCIOL106",
       "SOCIOLC126"], upNeed: 2 },
   { id: "robotics", label: "Robotics",
@@ -775,6 +784,9 @@ const DATASCI_MAJOR = {
 };
 
 const CATALOG = { majors: [COGSCI, DATASCI_MAJOR], minors: [DATASCI_MINOR] };
+
+/* Exported so tools/check-data.mjs can validate the requirement data without a browser. */
+export { CATALOG, UNIVERSITY, LS_COLLEGE, programGroups };
 
 /* ============================================================
    Parser: paste a Berkeley Academic Guide requirements page
@@ -1472,7 +1484,9 @@ function SetupView({ p, setProfile, state, setState }) {
   const setList = (k, i, v) => {
     const next = [...(p[k] || [])];
     if (v) next[i] = v; else next.splice(i, 1);
-    setProfile(k, next.filter(Boolean));
+    // The same program in two slots would render two identical tabs that share
+    // a key and fight over the same pins, so a repeat replaces rather than adds.
+    setProfile(k, [...new Set(next.filter(Boolean))]);
   };
 
   return (
@@ -1934,8 +1948,9 @@ export default function App() {
   const igetcFull = p.entry === "transfer" && p.igetc === "full";
 
   const programs = useMemo(() => {
-    const majors = (p.majors || []).map((id) => CATALOG.majors.find((m) => m.id === id)).filter(Boolean);
-    const minors = (p.minors || []).map((id) => CATALOG.minors.find((m) => m.id === id)).filter(Boolean);
+    const pick = (ids, list) => [...new Set(ids || [])].map((id) => list.find((m) => m.id === id)).filter(Boolean);
+    const majors = pick(p.majors, CATALOG.majors);
+    const minors = pick(p.minors, CATALOG.minors);
     return [UNIVERSITY, LS_COLLEGE, ...majors, ...minors, ...(state.customPrograms || [])];
   }, [p.majors, p.minors, state.customPrograms]);
 

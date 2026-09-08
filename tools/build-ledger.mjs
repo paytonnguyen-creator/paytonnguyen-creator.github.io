@@ -7,8 +7,15 @@
  * shell; __BUNDLE__ inside its <script> is where the bundle lands. */
 import { build } from "esbuild";
 import { readFile, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 
 const OUT = "degree-ledger/index.html";
+
+// A missing subject prefix breaks upper-division detection silently, so the
+// build refuses to produce a page with one.
+execFileSync("node", ["tools/check-subjects.mjs"], { stdio: "inherit" });
+// ...and refuses to ship requirement data that cannot be satisfied.
+execFileSync("node", ["tools/check-data.mjs"], { stdio: "inherit" });
 
 const result = await build({
   entryPoints: ["src/main.jsx"],
