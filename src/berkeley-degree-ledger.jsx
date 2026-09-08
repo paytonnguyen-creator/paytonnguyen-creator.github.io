@@ -625,7 +625,7 @@ const DS_EMPHASES = [
     up: ["ASTRON160","ASTRONC162/EPSC162","CIVENG126","COMPSCI168","EECS149","ELENG117","ELENG120","ELENG121",
       "ELENG122","ELENG142","MECENG100","MECENG103","MECENG104","MECENG106","MECENG109","MECENG132","MECENG140",
       "MECENG151A","MECENG151B","MECENG154","MECENG163","MECENGC134"], upNeed: 2,
-    catalogNote: "The Guide reads “Complete at least 0 of the following” for this block, which cannot be right; it is treated as 2, matching every other emphasis. It also allows any 3-unit AEROENG 1–199 course, which is not in the list below. Confirm with your adviser." },
+    catalogNote: "The Guide reads “Complete at least 0 of the following” for this block — confirmed in the official program PDF, so it is the catalog's own error rather than a transcription slip. It is treated as 2, matching every other emphasis. It also allows any 3-unit AEROENG 1–199 course, which is not in the list below. Confirm with your adviser." },
   { id: "appmath", label: "Applied Mathematics and Modeling",
     low: ["MATH53/MATHH53/MATHW53","MATH55/MATHN55"], lowNeed: 1,
     up: ["EECS127","ENGIN150","INDENG160","INDENG162","MATH104/MATHH104","MATH110","MATH113","MATH118",
@@ -669,7 +669,7 @@ const DS_EMPHASES = [
     up: ["DATA144","EDUCC122/EDSTEMC122","EDUCC130","EDUCC142/EDUC142/GLOBALC129","EDUCW161","EDUC153",
       "EDUC161C","EDUC168","EDUC244","EDUC260","EDUC274A","EDUC274B","EDUC275B","EDUC275G","EDUC276A",
       "EDUC293A","SOCIOL113/SOCIOL113AC","SOCIOL180E"], upNeed: 2,
-    catalogNote: "The Guide reads “Complete ALL of the following Courses” over eighteen courses, which cannot be right; it is treated as 2, matching every other emphasis. Confirm with your adviser." },
+    catalogNote: "The Guide reads “Complete ALL of the following Courses” over eighteen courses — confirmed in the official program PDF, so it is the catalog's own error rather than a transcription slip. It is treated as 2, matching every other emphasis. Confirm with your adviser." },
   { id: "envres", label: "Environment, Resource Management, and Society",
     low: ["ECONC3","ENVECONC1","ESPM50AC"], lowNeed: 1,
     up: ["ECONC102/ENVECONC102","ECONC125/ENVECONC101","ENERESC100/ENERESW100","ENERES131",
@@ -834,7 +834,117 @@ const DATASCI_MAJOR = {
   ],
 };
 
-const CATALOG = { majors: [COGSCI, DATASCI_MAJOR], minors: [DATASCI_MINOR] };
+/* ============ Computer Science, B.A. (CDSS) ============
+   From the program's own Academic Guide PDF. The two upper-division unit
+   requirements are stated as categories rather than course lists ("8 units of
+   upper-division COMPSCI", "our approved technical electives list"), so they
+   are open blocks carrying the rule: you pick from your own record and the
+   ledger counts the units. */
+const CS_DESIGN = ["COMPSCI152","COMPSCI160","COMPSCI161","COMPSCI162","COMPSCI164","COMPSCI168","COMPSCI169A",
+  "COMPSCI169L","COMPSCI180","COMPSCI182/COMPSCIW182","COMPSCI184","COMPSCI186/COMPSCIW186",
+  "ELENGC128","ELENG130","ELENG140","ELENG143","ELENG192",
+  "EECSC106A","EECSC106B","EECS149","EECS151"];
+
+const COMPSCI_MAJOR = {
+  id: "csmajor", type: "major", name: "Computer Science", degree: "B.A.",
+  dept: ["COMPSCI", "EECS", "ELENG"], college: "Computing, Data Science, and Society",
+  note: "Every course counted toward this major must be 3 or more units, taken for a letter grade, and technical in nature.",
+  rules: [
+    "All courses for the major must be 3 or more units and taken for a letter grade.",
+    "All courses must be technical. Courses numbered 199, 198, 197, 196, 195, plus select 194, 191, 190 and various seminars do not count — check with CS advising if unsure.",
+    "Only one upper-division course may count toward both a major and a minor. No more than two upper-division courses may overlap between two majors.",
+    "At least a 2.0 GPA across both the lower- and upper-division courses used for the major.",
+  ],
+  sections: [
+    { id: "lower", name: "Lower division", groups: [
+      G("cs_math", "Mathematics", 3, ["MATH51", "MATH52", "MATH54/MATHW54/MATH56/ELENG16A"], { all: true }),
+      G("cs_core", "Computer Science", 4, ["COMPSCI61A", "COMPSCI61B", "COMPSCI61BL", "COMPSCI61C",
+        "COMPSCI61CL", "COMPSCI70"]),
+    ]},
+    { id: "upper", name: "Upper division", groups: [
+      GU("cs_design", "Design", 4, CS_DESIGN, {
+        hint: "Four units from the design list. The Guide also allows select special-topics and graduate courses that are not enumerated — add those by hand under My courses and pin them here." }),
+      G("cs_udcs", "Computer Science / Electrical Engineering", 16, [], { open: true, needUnits: 16,
+        hint: "Sixteen units: eight of upper-division COMPSCI, and eight more of upper-division COMPSCI, EL ENG or EECS. The Guide states this as a category rather than a list, so add the courses under My courses and pin them here. INFO 159, DATA 101 and STAT/DATA C100 are the only non-COMPSCI/EL ENG/EECS titles accepted." }),
+      G("cs_tech", "Technical electives", 4, [], { open: true, needUnits: 4,
+        hint: "Four units from the department's approved technical-electives list, or EL ENG/EECS. Not enumerated in the Guide — confirm your choice with CS advising, then pin it here." }),
+    ]},
+  ],
+};
+
+/* ============ Statistics, B.A. (CDSS) ============ */
+const STAT_ELECT_LAB = ["DATAC102", "STAT151A", "STAT152", "STAT153", "STAT154", "STAT156", "STAT158", "STAT159"];
+const STAT_ELECT_ANY = ["DATAC102", "STAT150", "STAT151A", "STAT152", "STAT153", "STAT154", "STAT155",
+  "STAT156", "STAT157", "STAT159", "STAT165"];
+const STAT_PROB = ["STAT134", "DATAC140", "MATH106", "EECS126"];
+
+const STAT_MAJOR = {
+  id: "statmajor", type: "major", name: "Statistics", degree: "B.A.",
+  dept: ["STAT"], college: "Computing, Data Science, and Society",
+  note: "Three of the upper-division courses are an applied cluster you design yourself around a unifying theme, with at least two from the same department.",
+  rules: [
+    "All courses for the major must be taken for graded credit, except those offered P/NP only.",
+    "No more than one upper-division course may count toward both a major and a minor — except for minors offered outside the College of Letters & Science.",
+    "At least a 2.0 GPA across both the lower- and upper-division courses used for the major.",
+    "Only one course may be selected from ECON 136, ENGIN 120 and UGBA 103.",
+    "If MATH 110 or H110 was used for the maths prerequisite, it cannot also be used for the cluster.",
+    "MATH 170 cannot be combined with INDENG 160 or INDENG 162.",
+    "Only one course from STAT 154, COMPSCI 189 and INDENG 142 may count toward the major.",
+    "STAT 155 and ECON C110 / POLSCI C135 cannot both count toward the major.",
+  ],
+  sections: [
+    { id: "lower", name: "Lower division prerequisites", groups: [
+      G("st_m51", "Calculus I", 1, ["MATH51"], { all: true }),
+      G("st_m52", "Calculus II", 1, ["MATH52"], { all: true }),
+      G("st_m53", "Multivariable Calculus", 1, ["MATH53"], { all: true }),
+      G("st_m54", "Linear Algebra", 1, ["MATH54/MATHW54/MATH56"], { all: true }),
+      G("st_found", "Statistics or Data Science foundation", 1,
+        ["STAT20", "DATAC8/STATC8/COMPSCIC8/INFOC8"]),
+    ]},
+    { id: "upper", name: "Upper division core", groups: [
+      G("st_prob", "Concepts of Probability", 1, STAT_PROB),
+      G("st_stat", "Concepts of Statistics", 1, ["STAT135"], { all: true }),
+      G("st_comp", "Concepts in Computing with Data", 1, ["STAT133", "DATAC100"], {
+        hint: "STAT 133 on its own, or DATA C100 together with STAT 33B. The ledger counts one course here — if you take the C100 route, add STAT 33B to your record too." }),
+    ]},
+    { id: "electives", name: "Upper division electives", groups: [
+      G("st_lab", "Electives with lab", 1, STAT_ELECT_LAB),
+      G("st_any", "Electives with or without lab", 2, STAT_ELECT_ANY),
+    ]},
+    { id: "cluster", name: "Applied cluster",
+      note: "Three upper-division courses of at least 3 units each, letter-graded, around a unifying theme, with at least two from the same department. The Guide's approved list is explicitly not exhaustive and the Head Undergraduate Faculty Adviser can approve others.", groups: [
+      G("st_cluster", "Cluster courses", 3, [], { open: true,
+        hint: "Add your three cluster courses under My courses, then pick them here. Economics and Business count as one department for this purpose, as do EE, CS and EECS, and as do the social-and-ethical courses CYPLAN 101, INFO 188, PHILOS 121 and DATA C104 / HISTORY C184D / STS C104D." }),
+    ]},
+  ],
+};
+
+/* ============ Statistics minor (CDSS) ============ */
+const STAT_MINOR = {
+  id: "statminor", type: "minor", name: "Statistics", degree: "Minor",
+  dept: ["STAT"], college: "Computing, Data Science, and Society",
+  rules: [
+    "Declare the minor before the first day of instruction of your expected graduation term.",
+    "All courses for the minor must be taken for graded credit.",
+    "At least three of the upper-division courses must be completed at UC Berkeley.",
+    "At least a 2.0 GPA across the courses used for the minor.",
+    "Courses used for the minor may also count toward the Seven-Course Breadth requirement.",
+    "No more than one upper-division course may count toward both a major and a minor.",
+  ],
+  sections: [
+    { id: "upper", name: "Upper division", groups: [
+      G("stm_prob", "Concepts of Probability", 1, STAT_PROB),
+      G("stm_stat", "Concepts of Statistics", 1, ["STAT135"]),
+      G("stm_lab", "Electives with lab", 1, STAT_ELECT_LAB),
+      G("stm_any", "Electives with or without lab", 2, STAT_ELECT_ANY),
+    ]},
+  ],
+};
+
+const CATALOG = {
+  majors: [COGSCI, DATASCI_MAJOR, COMPSCI_MAJOR, STAT_MAJOR],
+  minors: [DATASCI_MINOR, STAT_MINOR],
+};
 
 /* ============ Every program you can pick ============
    A finding aid, not a requirements source. Each entry carries only a name, a
@@ -925,10 +1035,7 @@ const PROGRAM_INDEX = [
   ["Urban Studies", "B.A.", LS, "major"],
 
   /* --- Computing, Data Science & Society --- */
-  ["Computer Science", "B.A.", CDSS, "major"],
-  ["Statistics", "B.A.", CDSS, "major"],
   ["Computer Science", "Minor", CDSS, "minor"],
-  ["Statistics", "Minor", CDSS, "minor"],
 
   /* --- Minors most often paired with an L&S major --- */
   ["Anthropology", "Minor", LS, "minor"],
@@ -1363,16 +1470,21 @@ function CourseBlock({ group, courses, assigned, used, usage, onPin, onRelease, 
   );
 }
 
+/* A block the catalog states as a category rather than a course list — "16
+   units of upper-division CS/EE", "three cluster courses you design yourself".
+   The student picks from their own record; the rule text is the hint. */
 function OpenBlock({ group, courses, assigned, onPin, onRelease }) {
   const byId = (id) => courses.find((c) => c.id === id);
-  const done = assigned.length;
-  const cls = done >= group.need ? "done" : "";
+  const isUnits = !!group.needUnits;
+  const target = isUnits ? group.needUnits : group.need;
+  const done = isUnits ? assigned.reduce((n, id) => n + unitsOf(byId(id)), 0) : assigned.length;
+  const cls = done >= target ? "done" : done ? "part" : "";
   return (
     <div className={"bdl-block " + cls} id={"blk-" + group.id}>
       <div className="bdl-bhead">
-        <span className="bdl-glyph">{done >= group.need ? "■" : "□"}</span>
+        <span className="bdl-glyph">{done >= target ? "■" : done ? "◪" : "□"}</span>
         <span className="bdl-bname">{group.name}</span>
-        <span className="bdl-count">{done}/{group.need}</span>
+        <span className="bdl-count">{Math.min(done, target)}/{target}{isUnits ? " units" : ""}</span>
       </div>
       <div className="bdl-body">
         <p className="bdl-hint">{group.hint}</p>
@@ -1383,7 +1495,7 @@ function OpenBlock({ group, courses, assigned, onPin, onRelease }) {
             <button className="bdl-btn tiny ghost" onClick={() => onRelease(group.id, id)}>remove</button>
           </div>
         ))}
-        {done < group.need && (
+        {done < target && (
           <select className="bdl-sel" value="" onChange={(e) => e.target.value && onPin(group.id, e.target.value)}>
             <option value="">Choose from your courses…</option>
             {courses.map((c) => <option key={c.id} value={c.id}>{pretty(c.code)} — {c.title || "untitled"}</option>)}

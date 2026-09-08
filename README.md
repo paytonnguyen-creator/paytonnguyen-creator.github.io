@@ -132,7 +132,17 @@ checked line by line against the Berkeley Academic Guide:
 | --- | --- |
 | Cognitive Science, B.A. | Six upper-division areas plus three electives from a 249-course list |
 | Data Science, B.A. | Core requirements plus all 28 domain emphases; the depth requirement is counted in units, not courses |
+| Computer Science, B.A. | Lower division in full; the two upper-division unit categories are open blocks, because the Guide states them as categories rather than course lists |
+| Statistics, B.A. | Core and electives in full; the applied cluster is an open block, because you design it yourself and the approved list is explicitly not exhaustive |
 | Data Science minor | Both upper-division pathways, and the Guide's ten general guidelines |
+| Statistics minor | Upper division in full, and the Guide's six general guidelines |
+
+The CDSS programs were encoded from the official Academic Guide program PDFs.
+Where the Guide states a requirement as a category rather than a list — "16
+units of upper-division CS/EE", "three cluster courses you design yourself" —
+it is an open block carrying the rule text, and you pin your own courses to it.
+Inventing a list there would be guessing at something the Guide deliberately
+leaves open.
 
 Every other major and minor is loaded by the student from the Guide — pasted and
 parsed, or built block by block — which is deliberate: hand-encoding eighty
