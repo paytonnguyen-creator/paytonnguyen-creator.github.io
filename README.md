@@ -116,6 +116,19 @@ the Guide page; an invented course list would not announce itself. The list was
 compiled offline and is a way to find your program, not a source of
 requirements. Anything missing or renamed can be added by name.
 
+**L&S × CDSS pairings.** The tool's own tab for the combinations it is really
+for: seven L&S majors against the CDSS programs usually taken with them, each
+with the number of courses that count for both — computed live from the encoded
+requirements — the closest Data Science domain emphasis by shared coursework,
+and a button that configures both programs and both colleges in one go.
+
+Only the Economics row's popularity rests on published figures (CDSS reported
+Economics × Data Science as the most common double major, ~40% of students with
+more than one major, and Economics as the most common major among Data Science
+minors at 24%). The other star ratings are an informal impression of how often
+a combination comes up, and the page says so on the page rather than presenting
+them as measurement. The shared-course counts are real either way.
+
 **Overlap rules follow the College, not the program.** L&S allows ONE
 upper-division course to overlap in total across all your majors and all your
 minors — not one per major, which is what an individual program's own wording
