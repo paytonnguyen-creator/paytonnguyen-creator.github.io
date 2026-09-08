@@ -116,6 +116,14 @@ the Guide page; an invented course list would not announce itself. The list was
 compiled offline and is a way to find your program, not a source of
 requirements. Anything missing or renamed can be added by name.
 
+**Overlap rules follow the College, not the program.** L&S allows ONE
+upper-division course to overlap in total across all your majors and all your
+minors — not one per major, which is what an individual program's own wording
+can suggest. No upper-division overlap at all is allowed between two L&S
+minors, and a simultaneous degree allows two upper-division courses between the
+majors. Where a program's own rule is stricter, the stricter one applies. The
+ledger tracks these as a single running allowance rather than per pair.
+
 **Colleges.** L&S and CDSS are separate colleges with different requirements,
 and the tab follows your major rather than being assumed. A CDSS major sees
 Computational Reasoning, Statistical Reasoning, Human and Social Dynamics and
@@ -134,6 +142,8 @@ checked line by line against the Berkeley Academic Guide:
 | Data Science, B.A. | Core requirements plus all 28 domain emphases; the depth requirement is counted in units, not courses |
 | Computer Science, B.A. | Lower division in full; the two upper-division unit categories are open blocks, because the Guide states them as categories rather than course lists |
 | Statistics, B.A. | Core and electives in full; the applied cluster is an open block, because you design it yourself and the approved list is explicitly not exhaustive |
+| Economics, B.A. | Prerequisites and upper division in full; the "any ECON 100–196" elective rule is matched by course number rather than enumerated |
+| Applied Mathematics, B.A. | Five lower-division blocks, the core, and all 19 clusters |
 | Data Science minor | Both upper-division pathways, and the Guide's ten general guidelines |
 | Statistics minor | Upper division in full, and the Guide's six general guidelines |
 
