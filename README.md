@@ -110,6 +110,19 @@ minor can be selected. Picking one gives it its own tab, applies the right
 college's requirements, and turns on the overlap rules; its course lists are
 loaded once from the Academic Guide by the student, pasted and parsed.
 
+Thirteen programs are typed in from the Guide rather than pasted: Cognitive
+Science, Data Science, Computer Science, Statistics, Economics, Applied
+Mathematics, Political Science, Political Economy, Neuroscience, Psychology and
+Physics, plus the Data Science and Statistics minors. Programs that branch carry
+their branches — 28 data-science domain emphases, 19 applied-maths clusters, two
+data-science-minor pathways, five political-science subfield specializations —
+and the branch picker sits on the program's own tab as well as on Setup.
+
+Requirements the Guide states as two routes rather than one (POL SCI 3 *or* Data
+C8 with POL SCI 88; the Physics 7 series *or* the 5 series) are a pair of blocks
+sharing an `alt` key. `progressTotals` counts only the route you are furthest
+along, so being on one route never reads as being behind on the other.
+
 The index carries only a name, a degree and a college — deliberately. A name
 that has drifted costs nothing, because you would see it the moment you opened
 the Guide page; an invented course list would not announce itself. The list was
@@ -117,7 +130,7 @@ compiled offline and is a way to find your program, not a source of
 requirements. Anything missing or renamed can be added by name.
 
 **L&S × CDSS pairings.** The tool's own tab for the combinations it is really
-for: seven L&S majors against the CDSS programs usually taken with them, each
+for: the L&S majors usually taken with a CDSS program, listed against them, each
 with the number of courses that count for both — computed live from the encoded
 requirements — the closest Data Science domain emphasis by shared coursework,
 and a button that configures both programs and both colleges in one go.

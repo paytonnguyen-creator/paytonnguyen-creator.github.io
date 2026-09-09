@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 
 /* ============================================================
    Berkeley Degree Ledger
@@ -67,6 +67,17 @@ const CSS = `
 .bdl-block.done .bdl-glyph { color:var(--pine); }
 .bdl-bname { font-weight:600; font-size:14.5px; flex:1 1 auto; }
 .bdl-count { font-family:var(--mono); font-size:11.5px; color:var(--slate); flex:0 0 auto; }
+/* Marks the two halves of an either/or requirement, so a block that reads as
+   unfinished is visibly the road not taken rather than work left undone. */
+.bdl-next { display:block; width:100%; text-align:left; background:none; border:0; border-top:1px solid #EDF1F4;
+  padding:8px 0; cursor:pointer; }
+.bdl-next:first-of-type { border-top:0; }
+.bdl-next:hover .nm { color:var(--blue); }
+.bdl-next .nm { display:block; font-size:12.5px; font-weight:600; color:var(--ink); }
+.bdl-next .pr { display:block; font-size:11px; color:var(--slate); }
+.bdl-next .ct { display:block; font-family:var(--mono); font-size:10.5px; color:#8A6A12; margin-top:2px; }
+.bdl-tag { flex:0 0 auto; font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  padding:2px 6px; border-radius:999px; border:1px solid #CBD5DD; color:var(--slate); background:#F6F8FA; }
 .bdl-body { padding:0 15px 14px; border-top:1px solid #EDF1F4; }
 .bdl-hint { font-size:12.5px; color:var(--slate); margin:11px 0 9px; }
 
@@ -204,7 +215,10 @@ const SUBJECTS = ("AEROENG AFRICAM AGRS AMERSTD ANTHRO ARCH ART ASTRON BIOENG BI
   "ENGLISH ENVDES ENVECON EPS ESPM ETHSTD FILM GEOG GLOBAL GPP GWS HISTART HISTORY IAS INDENG INFO " +
   "INTEGBI ISF JOURN LDARCH LEGALST LINGUIS LS MATH MBN MCELLBI MECENG MEDIAST MELC MUSIC NATAMST " +
   "NEUROSC NEU NUCENG NUSCTX NWMEDIA PBHLTH PHILOS PHYSICS PLANTBI POLECON POLSCI PSYCH PUBPOL RHETOR " +
-  "SLAVIC SOCIOL SOCWEL SPANISH STAT STS UGBA UGIS VISSCI XMATH XPSYCH XSOCIOL")
+  "SLAVIC SOCIOL SOCWEL SPANISH STAT STS UGBA UGIS VISSCI XMATH XPSYCH XSOCIOL " +
+  "ARABIC ARMENI CELTIC CHINESE DUTCH FILIPN FRENCH GERMAN HEBREW HINDI INDONES ITALIAN JAPAN KOREAN " +
+  "PACS PORTUG PUNJABI RELIGST RUSSIAN SCANDIN TAMIL THAI TURKISH URDU VIETNMS " +
+  "XAGRS XETHSTD XHISTOR XPOLSCI XSTAT")
   .split(" ").sort((a, b) => b.length - a.length);
 
 const norm = (s) => String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -1085,8 +1099,250 @@ const APPLIED_MATH = {
   ],
 };
 
+/* ---- Political Science ---------------------------------------------------
+   Eight upper-division courses inside the department, one course in each of
+   the five subfields, and then a specialization in one of those five. The
+   Guide prints the American Politics distribution list and the Empirical
+   Theory upper-division list in full and names the other five as course sets,
+   so those are open blocks carrying the rule instead of an invented list. */
+const POLSCI_SPECS = [
+  { id: "am", label: "American Politics" },
+  { id: "comp", label: "Comparative Politics" },
+  { id: "etqm", label: "Empirical Theory & Quantitative Methods" },
+  { id: "theory", label: "Political Theory" },
+  { id: "ir", label: "International Relations" },
+];
+
+const POLSCI_MAJOR = {
+  id: "polsci", type: "major", name: "Political Science", degree: "B.A.",
+  dept: ["POLSCI"], college: "Letters & Science",
+  note: "Two lower-division introductions, a methods course, a history course, one course in each of the five subfields, one subfield specialization, and eight upper-division courses in the department.",
+  pathways: {
+    id: "psSpec", label: "Subfield specialization",
+    note: "One of the five. Changing it swaps the specialization blocks below; the five distribution blocks stay where they are.",
+    options: POLSCI_SPECS.map((x) => ({ id: x.id, label: x.label })),
+  },
+  rules: [
+    "Subfield distribution requirements can be met with lower-division or upper-division courses.",
+    "Upper-division courses used for the specialization or for a remaining distribution requirement also count toward the eight upper-division courses. This ledger assigns each course to one block, so pin such a course to the distribution or specialization block and count it again by hand against the eight.",
+  ],
+  sections: [
+    { id: "ps_low", name: "Lower division", groups: [
+      G("ps_prereq", "Prerequisites", 2, ["POLSCI1/XPOLSCI1", "POLSCI2/XPOLSCI2", "POLSCI4", "POLSCI5"]),
+      G("ps_meth1", "Methods — POL SCI 3", 1, ["POLSCI3", "POLSCIW3"], { alt: "meth",
+        note: "The Guide writes this option as “complete at least 0”, which is how it marks one of two routes rather than a requirement you can skip. Either this block or the Data C8 route below." }),
+      G("ps_meth2", "Methods — Data C8 and POL SCI 88", 2,
+        ["COMPSCIC8/DATAC8/INFOC8/STATC8", "POLSCI88"], { all: true, alt: "meth",
+        note: "The second route. Both courses are needed; either this block or POL SCI 3 above." }),
+      G("ps_hist", "History", 1, ["AFRICAM4A/AFRICAMN4A", "AFRICAM4B", "AFRICAM111", "AGRS10A", "AGRS10B", "AMERSTD139AC", "CELTIC70", "ECON113", "ECON115", "ETHSTD10A/ETHSTD10AC", "ETHSTD21AC", "GEOGC55", "GERMAN160A", "GERMAN160C", "GLOBAL45", "HISTORYC139C", "HISTORYC157", "HISTORYC159A", "HISTORYN106A", "HISTORYN106B", "HISTORYN112B", "HISTORYN124A", "HISTORYN124B", "HISTORYN131B", "HISTORYN143", "HISTORYN151C", "HISTORYN158C", "HISTORYN162A", "HISTORY4A", "HISTORY4B", "HISTORY5", "HISTORY6A", "HISTORY6B", "HISTORY7A", "HISTORY7B", "HISTORY8A", "HISTORY8B", "HISTORY10", "HISTORY11", "HISTORY12", "HISTORY14", "HISTORY105A", "HISTORY105B", "HISTORY106A", "HISTORY106B", "HISTORY108", "HISTORY112B", "HISTORY122AC", "HISTORY123", "HISTORY124A", "HISTORY124B", "HISTORY130", "HISTORY131B", "HISTORY133A", "HISTORY137AC", "HISTORY140B", "HISTORY141B", "HISTORY143", "HISTORY149B", "HISTORY150B", "HISTORY151A", "HISTORY151B", "HISTORY151C", "HISTORY155A", "HISTORY155B", "HISTORY158A", "HISTORY158B", "HISTORY158C", "HISTORY159B", "HISTORY160", "HISTORY162A", "HISTORY162B", "HISTORY164A", "HISTORY165A", "HISTORY165B", "HISTORY166A", "HISTORY166B", "HISTORY166C", "HISTORY167A", "HISTORY167B", "HISTORY167C", "HISTORY168A", "HISTORY169A", "HISTORY170", "HISTORY171A", "HISTORY171B", "HISTORY171C", "HISTORY173B", "HISTORY173C", "HISTORY174B", "HISTORY185A", "HISTORY185B", "IAS45", "MELCC26", "MELC10", "MELC109", "MELC147", "MELC173", "MELC175", "PACS125AC", "POLECONC160", "PORTUG113", "RELIGSTC124", "SCANDIN123", "XAGRS10A", "XETHSTD21AC", "XHISTOR7B"]),
+    ]},
+    { id: "ps_dist", name: "Subfield distribution",
+      note: "One course in each of the five subfields. Lower-division or upper-division courses both count.", groups: [
+      G("ps_dist_am", "American Politics", 1, ["POLSCI1", "POLSCI102", "POLSCI103", "POLSCI103W", "POLSCI104", "POLSCI105", "POLSCI106A", "POLSCI107", "POLSCI109", "POLSCI109A", "POLSCI109B", "POLSCI109D", "POLSCI109E", "POLSCI109G", "POLSCI109H", "POLSCI109L", "POLSCI109M", "POLSCI109P", "POLSCI109Q", "POLSCI109R", "POLSCI109S", "POLSCI109W", "POLSCI109Z", "POLSCI111AC", "POLSCI116J", "POLSCI150", "POLSCI152A", "POLSCI157A", "POLSCI157B", "POLSCI160", "POLSCI161", "POLSCI164A", "POLSCI166", "POLSCI167", "POLSCI167AC", "POLSCI169", "POLSCI171", "POLSCI173S", "POLSCI175A", "POLSCI181"]),
+      G("ps_dist_comp", "Comparative Politics", 1, [], { open: true,
+        hint: "One course from the department's Comparative Politics Distribution list. The Guide names the list rather than printing it — add your course under My courses and pin it here." }),
+      G("ps_dist_etqm", "Empirical Theory & Quantitative Methods", 1, ["POLSCI3", "POLSCIW3"], {
+        note: "The same course as the POL SCI 3 methods route above. The ledger gives a course to one block, so if you took POL SCI 3 it lands on Methods and this block stays open — one course closes both in the department's audit." }),
+      G("ps_dist_theory", "Political Theory", 1, [], { open: true,
+        hint: "One course from the department's Political Theory Distribution list. The Guide names the list rather than printing it — add your course under My courses and pin it here." }),
+      G("ps_dist_ir", "International Relations", 1, [], { open: true,
+        hint: "One course from the department's International Relations Distribution list. The Guide names the list rather than printing it — add your course under My courses and pin it here." }),
+    ]},
+    { id: "ps_spec_am", name: "American Politics specialization", pathway: "am",
+      note: "Your chosen subfield. Changing it swaps these two blocks; nothing else on the tab moves.", groups: [
+      G("ps_low_am", "American Politics: lower division", 1, ["POLSCI1", "XPOLSCI1"]),
+      G("ps_up_am", "American Politics: upper division", 2, [], { open: true,
+          hint: "Two upper-division courses from the department's American Politics Specialization list. The Guide names the list rather than printing it, so add your two under My courses and pin them here." }),
+    ]},
+    { id: "ps_spec_comp", name: "Comparative Politics specialization", pathway: "comp",
+      note: "Your chosen subfield. Changing it swaps these two blocks; nothing else on the tab moves.", groups: [
+      G("ps_low_comp", "Comparative Politics: lower division", 1, ["POLSCI2", "XPOLSCI2"]),
+      G("ps_up_comp", "Comparative Politics: upper division", 2, [], { open: true,
+          hint: "Two upper-division courses from the department's Comparative Politics Specialization list. The Guide names the list rather than printing it, so add your two under My courses and pin them here." }),
+    ]},
+    { id: "ps_spec_etqm", name: "Empirical Theory & Quantitative Methods specialization", pathway: "etqm",
+      note: "Your chosen subfield. Changing it swaps these two blocks; nothing else on the tab moves.", groups: [
+      G("ps_low_etqm", "Empirical Theory & Quantitative Methods: lower division", 1, ["POLSCI3", "POLSCIW3"]),
+      G("ps_up_etqm", "Empirical Theory & Quantitative Methods: upper division", 2, ["ECONC110", "ECONC142", "POLSCIC131A", "POLSCIC135/POLSCIW135", "POLSCI132A", "POLSCI132B", "POLSCI133", "POLSCI134", "PUBPOLC142"]),
+    ]},
+    { id: "ps_spec_theory", name: "Political Theory specialization", pathway: "theory",
+      note: "Your chosen subfield. Changing it swaps these two blocks; nothing else on the tab moves.", groups: [
+      G("ps_low_theory", "Political Theory: lower division", 1, ["POLSCI4"]),
+      G("ps_up_theory", "Political Theory: upper division", 2, [], { open: true,
+          hint: "Two upper-division courses from the department's Political Theory Specialization list. The Guide names the list rather than printing it, so add your two under My courses and pin them here." }),
+    ]},
+    { id: "ps_spec_ir", name: "International Relations specialization", pathway: "ir",
+      note: "Your chosen subfield. Changing it swaps these two blocks; nothing else on the tab moves.", groups: [
+      G("ps_low_ir", "International Relations: lower division", 1, ["POLSCI5"]),
+      G("ps_up_ir", "International Relations: upper division", 2, [], { open: true,
+          hint: "Two upper-division courses from the department's International Relations Specialization list. The Guide names the list rather than printing it, so add your two under My courses and pin them here." }),
+    ]},
+    { id: "ps_eight", name: "Upper division in the department", groups: [
+      G("ps_eight_g", "Upper-division Political Science", 8, [], { open: true,
+        hint: "Eight upper-division courses inside the department. The Guide states this as a course set rather than a list. Courses already pinned to a distribution or specialization block also count toward these eight — the ledger gives each course to one block, so add them here by hand as well if you want the count to read true." }),
+    ]},
+  ],
+};
+
+/* ---- Political Economy ---------------------------------------------------
+   An interdisciplinary major: one survey, economics, statistics, a foreign
+   language, then the two political-economy theory courses, two conceptual
+   tools courses and one historical-context course. The four-course
+   concentration is designed with a Political Economy adviser, so it is an
+   open block carrying that instruction rather than a list. */
+const POLECON_MAJOR = {
+  id: "polecon", type: "major", name: "Political Economy", degree: "B.A.",
+  dept: ["POLECON"], college: "Letters & Science",
+  note: "The survey course needs a B- or better and the economics course a C or better. Beyond the blocks below, every student builds a four-course concentration with a Political Economy adviser.",
+  rules: [
+    "Minimum grade of B- in the International & Area Studies survey course.",
+    "Minimum grade of C in the economics course.",
+    "AP Statistics with a score of 3 or higher also satisfies the statistics requirement.",
+  ],
+  sections: [
+    { id: "pe_low", name: "Lower division", groups: [
+      G("pe_survey", "International & Area Studies", 1, ["GLOBAL45", "IASN45", "POLECON45"], {
+        note: "A B- or better is required." }),
+      G("pe_econ", "Economics", 1, ["ECON1", "ECON2"], {
+        note: "A C or better is required.",
+        exams: ["AP: Microeconomics and Macroeconomics, score 4+", "IB: Microeconomics and Macroeconomics, score 5+"] }),
+      G("pe_stat", "Statistics", 1, ["COMPSCIC8/DATAC8/INFOC8/STATC8", "STAT2/XSTAT2", "STAT20", "STAT21/STATW21"], {
+        exams: ["AP: Statistics, score 3+"] }),
+      G("pe_lang", "Foreign language", 1, ["AFRICAM10B", "ARABIC20B", "ARABIC30", "ARMENI101B", "CHINESE10", "CHINESE10B", "CHINESE10BX", "CHINESE100A", "CHINESE100B", "CHINESE100XA", "CHINESE100XB", "CHINESE100YA", "CHINESE100YB", "DUTCH100", "FILIPN100B", "FRENCH4", "GERMAN4", "HEBREW20B", "HINDI100B", "INDONES100B", "ITALIAN4", "JAPAN10", "JAPAN10B", "KOREAN10", "KOREAN10B", "KOREAN10BX", "KOREAN100A", "KOREAN100AX", "KOREAN100B", "KOREAN100BX", "PORTUG103", "PUNJABI100B", "RUSSIAN4", "SPANISHN4", "SPANISH4", "SPANISH21", "SPANISH22", "SPANISH101", "TAMIL101B", "THAI100B", "TURKISH100B", "URDU100B", "VIETNMS100B"], {
+        note: "Reaching the level of the courses listed here, in one language. Study abroad and departmental placement also satisfy it — check with a Political Economy adviser." }),
+    ]},
+    { id: "pe_up", name: "Upper division", groups: [
+      G("pe_theory", "Political Economy theory", 2, ["POLECON100/POLECONN100", "POLECON101/POLECONN101"], { all: true }),
+      G("pe_tools1", "Conceptual tools 1", 1, ["ECON100A", "ECON101A", "ENVECON100", "POLECON106", "UGBA101A"]),
+      G("pe_tools2", "Conceptual tools 2", 1, ["ECON100B", "ECON101B", "POLECON107", "UGBA101B"]),
+      G("pe_hist", "Historical context", 1, ["AMERSTDC172/UGBAC172", "ECON115", "ECON134", "ECON135", "HISTORY133A", "HISTORY160", "HISTORY162B", "POLECON160"]),
+    ]},
+    { id: "pe_conc", name: "Concentration", groups: [
+      G("pe_conc_g", "Concentration courses", 4, [], { open: true,
+        hint: "Four upper-division courses on a theme you choose, built with a Political Economy adviser. The Guide does not enumerate them — add yours under My courses and pin them here." }),
+    ]},
+  ],
+};
+
+/* ---- Neuroscience ---------------------------------------------------------
+   Preparatory science, the two-semester core sequence plus scientific
+   communication and a laboratory, then three neuroscience electives and one
+   course from outside the department. */
+const NEURO_MAJOR = {
+  id: "neuro", type: "major", name: "Neuroscience", degree: "B.A.",
+  dept: ["NEU"], college: "Letters & Science",
+  note: "A C- or better is required in every lower-division course. Between the two mathematics blocks you may use only one STAT course or DATA C8 — not both.",
+  rules: [
+    "A minimum grade of C- is required for all lower-division courses.",
+    "Between Math, Part 1 and Math, Part 2 students may take only one STAT course or DATA C8.",
+  ],
+  sections: [
+    { id: "nu_prep", name: "Preparatory subject matter", note: "A C- or better in each.", groups: [
+      G("nu_chembio", "Chemistry and biology", 4, ["CHEM1A", "CHEM1AL", "BIOLOGY1A", "BIOLOGY1AL"], { all: true,
+        note: "Both lecture-and-laboratory pairs: CHEM 1A with 1AL, and BIOLOGY 1A with 1AL." }),
+      G("nu_math1", "Mathematics, part 1", 1, ["DATAC8", "MATH1A", "MATH10A/MATHN10A", "MATH51/XMATH51", "MATH53", "MATH54", "STAT2", "STAT20", "STAT21"], {
+        note: "Between part 1 and part 2 you may use only one STAT course or DATA C8.",
+        exams: ["AP: Mathematics: Calculus BC, score 5", "AP: Mathematics: Calculus AB, score 3+",
+          "IB: HL Math: Analysis & Approaches, score 7", "IB: HL Mathematics, score 5+",
+          "IB: HL Further Mathematics, score 6+", "A-Level: Mathematics, score 1-2",
+          "A-Level: Further Mathematics, score 1-2", "A-Level: Mathematics H2, score 1-2"] }),
+      G("nu_math2", "Mathematics, part 2", 1, ["MATH1B/MATHN1B/MATHH1B", "MATH10B/MATHN10B", "MATH52/XMATH52"], {
+        note: "Between part 1 and part 2 you may use only one STAT course or DATA C8." }),
+      G("nu_phys1", "Physics, part 1", 1, ["PHYSICS7A/PHYSICSH7A", "PHYSICS8A"]),
+      G("nu_phys2", "Physics, part 2", 1, ["PHYSICS7B/PHYSICSH7B", "PHYSICS8B"]),
+    ]},
+    { id: "nu_adv", name: "Advanced subject matter", groups: [
+      G("nu_core", "Core neuroscience sequence", 2, ["NEU100A", "NEU100B/MCELLBI161"], { all: true }),
+      G("nu_comm", "Scientific communication", 1, ["NEU110"], { all: true }),
+      G("nu_lab", "Neuroscience laboratory", 1, ["NEU171L", "NEU172L", "NEU173L"]),
+    ]},
+    { id: "nu_elec", name: "Major electives", groups: [
+      G("nu_elec_g", "Neuroscience electives", 3, ["NEUC121/PSYCHC111", "NEUC124/BIOENGC171", "NEUC125/PSYCHC115C", "NEUC126/PSYCHC116", "NEUC166/INTEGBIC139", "NEU123", "NEU128", "NEU151", "NEU152", "NEU162", "NEU163/NEU163C", "NEU164", "NEU165", "MCELLBIC175/UGBAC195C", "PSYCHC127"]),
+      G("nu_outside", "Outside perspectives", 1, ["ANTHRO106", "ANTHRO115", "ANTHROC119A", "BIOENG114", "BIOENGC165", "COGSCIC100", "COGSCI115", "COGSCIC126", "COGSCIC131", "COGSCIC142", "COMPSCIC100", "DATAC100", "DATAC102", "DATAC131A", "ESPMC126", "ESPMC153", "ESPMC156", "ESPM169", "ESPMC162A", "HISTORY180", "INTEGBI111", "INTEGBI114", "INTEGBI131", "INTEGBI132", "INTEGBI135", "INTEGBI136", "INTEGBI138", "INTEGBI140", "INTEGBI159", "INTEGBI160", "INTEGBI164L", "INTEGBI169", "INTEGBIC144", "INTEGBIC145", "INTEGBIC153", "LINGUIS100", "LINGUISC142", "LINGUISC146", "MBNC130", "MCELLBIC100A", "MCELLBI100B", "MCELLBI102", "MCELLBI104", "MCELLBI136", "MCELLBI140", "MCELLBI141", "MCELLBI150", "MCELLBI153", "MCELLBIC112", "MCELLBIC130", "PBHLTH126", "PBHLTH129", "PBHLTH132", "PBHLTH142", "PBHLTH150A", "PBHLTH150B", "PBHLTH150D", "PBHLTH162A", "PHILOS122", "PHILOS128", "PHILOS132", "PHILOS133", "PLANTBIC112", "PSYCH140", "PSYCH156", "PSYCH162", "PSYCHC120", "PSYCHC123", "PSYCHC126", "PSYCHC143", "STAT154", "STATC100", "STATC102", "STATC131A"]),
+    ]},
+  ],
+};
+
+/* ---- Psychology -----------------------------------------------------------
+   Four prerequisites, then a survey course in each of four areas (Tier II) and
+   three electives (Tier III). */
+const PSYCH_MAJOR = {
+  id: "psych", type: "major", name: "Psychology", degree: "B.A.",
+  dept: ["PSYCH"], college: "Letters & Science",
+  note: "Four prerequisites, one survey course in each of the four Tier II areas, and three Tier III electives of at least 3 units each.",
+  rules: [
+    "At most two courses from outside the department may be used toward Tier II and Tier III combined.",
+    "At most one Child Minor course may be used toward Tier II and Tier III combined.",
+    "Excess Tier II survey courses may be used for Tier III once every Tier II area is closed.",
+  ],
+  sections: [
+    { id: "py_pre", name: "Prerequisites", groups: [
+      G("py_gen", "General psychology", 1, ["PSYCH1/PSYCHN1/XPSYCH1"], {
+        exams: ["AP: Psychology, score 4+", "IB: HL Psychology, score 5+"] }),
+      G("py_quant", "Quantitative", 1, ["COMPSCIC8", "DATAC8", "INFOC8", "STATC8", "MATH10A", "MATH10B", "MATH1A", "XMATH1B", "MATH51", "MATH52", "MATH54", "MATH55", "MATHH1B", "MATHH54", "MATHN10A", "MATHN10B", "MATHN1A", "MATHN1B", "MATHN54", "MATHN55", "PSYCH10", "STAT2", "STAT20", "STAT21", "STATW21"]),
+      G("py_soc", "Social science", 1, ["ANTHRO3", "ANTHRO3AC", "ANTHRON3", "LINGUIS5", "PHILOS12A", "PHILOS25B", "PHILOS3", "PHILOS4", "PHILOS5", "PHILOSW12A", "POLSCI1", "POLSCI2", "POLSCI4", "POLSCIN1AC", "POLSCIN2", "SOCIOL1", "SOCIOL3", "SOCIOL3AC", "SOCIOLN1H"], {
+        exams: ["AP: Government & Politics: U.S., score 4+", "AP: Government & Politics: Comparative, score 4+"] }),
+      G("py_res", "Psychology research and data", 1, ["PSYCH101", "PSYCH101D"]),
+    ]},
+    { id: "py_tier2", name: "Survey courses (Tier II)",
+      note: "One course in each of the four areas. At most two courses from outside the department, and at most one Child Minor course, across Tier II and Tier III together.", groups: [
+      G("py_bio", "Biological survey", 1, ["PSYCH110/PSYCHN110", "PSYCH114", "PSYCH117", "PSYCH119", "PSYCH124", "PSYCH125", "PSYCHC111/NEUC121", "PSYCHC115C/INTEGBIC147/NEUC125", "PSYCHC127/COGSCIC127", "PSYCHN117"]),
+      G("py_clin", "Clinical survey", 1, ["PSYCH119", "PSYCH130", "PSYCH130M", "PSYCH131", "PSYCH134", "PSYCH135", "PSYCHN134", "PSYCHN135"]),
+      G("py_cog", "Cognition and development survey", 1, ["COGSCIC100/COGSCIN100/PSYCHC120", "COGSCIC126/PSYCHC126", "PSYCHN120", "PSYCH140/PSYCHN140", "PSYCHC143/LINGUISC146", "PSYCH147"]),
+      G("py_socp", "Social and personality survey", 1, ["PSYCH150/PSYCHN150", "PSYCH156", "PSYCH160/PSYCHN160", "PSYCH166AC", "PSYCH180/PSYCHN180", "SOCIOL150"]),
+    ]},
+    { id: "py_tier3", name: "Electives (Tier III)",
+      note: "Three courses of at least 3 units each. Excess Tier II survey courses count here once all four Tier II areas are closed.", groups: [
+      G("py_elec", "Electives", 3, ["ANTHRO106", "ANTHRO109", "ANTHRO149", "COGSCIC100/COGSCIN100", "COGSCI115", "COGSCI131", "COGSCIC124", "COGSCIC126", "COGSCIC127", "COGSCI132", "COGSCIC142", "COGSCI175", "COGSCI180", "COMPSCI188", "ECON119", "ESPMC126", "INTEGBI139/INTEGBIC139", "INTEGBIC143A", "INTEGBIC144", "LEGALST180", "LEGALST181", "LEGALST183", "LINGUIS108", "LINGUISC142", "LINGUISC146", "NEU100A", "NEU123", "NEU165", "NEUC126", "NEUC166", "PBHLTH129/PBHLTHC129/NEUROSCC129", "POLSCIN164A", "PSYCH192", "PUBPOLC189", "SOCIOL150", "SOCIOL150A", "SOCWEL181/SOCWELC181", "SPANISH163", "UGBA105", "UGBA160"]),
+    ]},
+  ],
+};
+
+/* ---- Physics --------------------------------------------------------------
+   The lower-division series comes in two shapes — the 7 series or the 5
+   series — so those are an either/or pair rather than two separate blocks. */
+const PHYSICS_MAJOR = {
+  id: "physics", type: "major", name: "Physics", degree: "B.A.",
+  dept: ["PHYSICS"], college: "Letters & Science",
+  note: "A C- or better is required in every course counted toward the major.",
+  rules: [
+    "A minimum grade of C- is required in each course counted toward the major.",
+    "Transfer students may use MATH 54-equivalent courses completed before admission in place of PHYSICS 89.",
+    "Students double-majoring in Physics and Mathematics may use MATH 54 in place of PHYSICS 89.",
+    "PHYSICS 111B must be taken for 3 units to count toward the laboratory requirement.",
+  ],
+  sections: [
+    { id: "ph_low", name: "Lower division", note: "A C- or better in each.", groups: [
+      G("ph_m51", "Calculus I", 1, ["MATH1A/MATHN1A", "MATH51/XMATH51"], {
+        exams: ["AP: Mathematics: Calculus BC, score 3+", "AP: Mathematics: Calculus AB, score 3+",
+          "IB: HL Math: Analysis & Approaches, score 5+", "IB: HL Mathematics, score 5+",
+          "IB: HL Further Mathematics, score 6+", "A-Level: Mathematics, score 1-2",
+          "A-Level: Further Mathematics, score 1-2", "A-Level: Mathematics H2, score 1-2"] }),
+      G("ph_m52", "Calculus II", 1, ["MATH1B/MATHH1B/MATHN1B", "MATH52/XMATH52"], {
+        exams: ["AP: Mathematics: Calculus BC, score 5", "IB: HL Math: Analysis & Approaches, score 7",
+          "IB: HL Mathematics, score 7", "IB: HL Further Mathematics, score 7",
+          "A-Level: Mathematics, score 1-2", "A-Level: Mathematics H2, score 1-2"] }),
+      G("ph_m53", "Multivariable calculus", 1, ["MATH53/MATHH53/MATHW53"]),
+      G("ph_mp", "Mathematical physics", 1, ["PHYSICS89/PHYSICSW89"], {
+        note: "The Guide writes this block as “complete at least 0”, which reads as a Guide artefact rather than a course you may skip — the department lists PHYSICS 89 as required. Transfer students may substitute a MATH 54 equivalent taken before admission, and Physics/Mathematics double majors may substitute MATH 54." }),
+      G("ph_a", "Physics: A series", 1, ["PHYSICS5A", "PHYSICS7A"]),
+      G("ph_s7", "Physics series — 7 series", 2, ["PHYSICS7B", "PHYSICS7C"], { all: true, alt: "series",
+        note: "Either this block or the 5 series below." }),
+      G("ph_s5", "Physics series — 5 series", 4, ["PHYSICS5B", "PHYSICS5BL", "PHYSICS5C", "PHYSICS5CL"], { all: true, alt: "series",
+        note: "Either this block or the 7 series above. Students who start the 5 series after PHYSICS 7A also need PHYSICS 49 to complete it." }),
+    ]},
+    { id: "ph_up", name: "Upper division", note: "A C- or better in each.", groups: [
+      G("ph_core", "Core", 5, ["PHYSICS105", "PHYSICS110A", "PHYSICS112", "PHYSICS137A", "PHYSICS137B"], { all: true }),
+      G("ph_lab", "Laboratory", 2, ["PHYSICS111A", "PHYSICS111B"], { all: true,
+        note: "PHYSICS 111B must be taken for 3 units to count." }),
+      G("ph_elec", "Electives", 1, ["ASTRONC161", "CHEMC191", "COMPSCIC191", "PHYSICS110B", "PHYSICS129", "PHYSICS130", "PHYSICS138", "PHYSICS139", "PHYSICS141A", "PHYSICS141B", "PHYSICS142", "PHYSICS151", "PHYSICS177", "PHYSICS188", "PHYSICSC161", "PHYSICSC191/EECSC191A/CHEMC191A", "PHYSICSC191B/EECSC191B/CHEMC191B"]),
+    ]},
+  ],
+};
+
 const CATALOG = {
-  majors: [COGSCI, DATASCI_MAJOR, COMPSCI_MAJOR, STAT_MAJOR, ECONOMICS, APPLIED_MATH],
+  majors: [COGSCI, DATASCI_MAJOR, COMPSCI_MAJOR, STAT_MAJOR, ECONOMICS, APPLIED_MATH,
+    POLSCI_MAJOR, POLECON_MAJOR, NEURO_MAJOR, PSYCH_MAJOR, PHYSICS_MAJOR],
   minors: [DATASCI_MINOR, STAT_MINOR],
 };
 
@@ -1144,7 +1400,6 @@ const PROGRAM_INDEX = [
   ["Integrative Biology", "B.A.", LS, "major"],
   ["Microbial Biology", "B.A.", LS, "major"],
   ["Molecular and Cell Biology", "B.A.", LS, "major"],
-  ["Neuroscience", "B.A.", LS, "major"],
 
   /* --- Letters & Science: Mathematical & Physical Sciences --- */
   ["Astrophysics", "B.A.", LS, "major"],
@@ -1154,7 +1409,6 @@ const PROGRAM_INDEX = [
   ["Geophysics", "B.A.", LS, "major"],
   ["Marine Science", "B.A.", LS, "major"],
   ["Mathematics", "B.A.", LS, "major"],
-  ["Physics", "B.A.", LS, "major"],
 
   /* --- Letters & Science: Social Sciences --- */
   ["Anthropology", "B.A.", LS, "major"],
@@ -1163,8 +1417,6 @@ const PROGRAM_INDEX = [
   ["History", "B.A.", LS, "major"],
   ["Legal Studies", "B.A.", LS, "major"],
   ["Linguistics", "B.A.", LS, "major"],
-  ["Political Science", "B.A.", LS, "major"],
-  ["Psychology", "B.A.", LS, "major"],
   ["Sociology", "B.A.", LS, "major"],
 
   /* --- Letters & Science: interdisciplinary & group majors --- */
@@ -1173,7 +1425,6 @@ const PROGRAM_INDEX = [
   ["Interdisciplinary Studies Field", "B.A.", LS, "major"],
   ["Latin American Studies", "B.A.", LS, "major"],
   ["Peace and Conflict Studies", "B.A.", LS, "major"],
-  ["Political Economy", "B.A.", LS, "major"],
   ["Urban Studies", "B.A.", LS, "major"],
 
   /* --- Computing, Data Science & Society --- */
@@ -1224,7 +1475,7 @@ function stubProgram(entry) {
 
 
 /* Exported so tools/check-data.mjs can validate the requirement data without a browser. */
-export { CATALOG, UNIVERSITY, LS_COLLEGE, programGroups };
+export { CATALOG, UNIVERSITY, LS_COLLEGE, programGroups, PROGRAM_INDEX, PAIRINGS };
 
 /* ============================================================
    Parser: paste a Berkeley Academic Guide requirements page
@@ -1374,6 +1625,46 @@ function groupProgress(g, byGroup, checkState, auto, igetcFull, entry, courses) 
   }
   const n = (byGroup[g.id] || []).length + (checkState["exam:" + g.id] ? 1 : 0);
   return { done: Math.min(n, g.need), need: g.need };
+}
+/* Some requirements are two routes to the same place — "either POL SCI 3, or
+   Data C8 together with POL SCI 88"; "either the Physics 7 series or the 5
+   series". Blocks that share an `alt` key are one requirement, not two: only
+   the route you are furthest along counts toward the totals, and closing
+   either one closes the requirement. Without this a student on one route
+   would read as permanently short by the whole of the other. */
+function altKey(g) { return g.alt ? g.programId + ":" + g.alt : null; }
+function progressTotals(groups, byGroup, checkState, auto, igetcFull, entry, courses) {
+  const best = new Map();
+  const out = { done: 0, need: 0, open: [] };
+  for (const g of groups) {
+    const pr = groupProgress(g, byGroup, checkState, auto, igetcFull, entry, courses);
+    const k = altKey(g);
+    if (!k) {
+      out.done += pr.done; out.need += pr.need;
+      if (pr.done < pr.need) out.open.push(g.name);
+      continue;
+    }
+    const share = pr.need ? pr.done / pr.need : 1;
+    const cur = best.get(k);
+    if (!cur || share > cur.share) best.set(k, { share, pr, name: g.name });
+  }
+  for (const b of best.values()) {
+    out.done += b.pr.done; out.need += b.pr.need;
+    if (b.pr.done < b.pr.need) out.open.push(b.name);
+  }
+  return out;
+}
+/* Which alt routes are already satisfied, so the other route in the pair can
+   stop reading as an unfinished block in the sidebar and the graduation check. */
+function altsMet(groups, byGroup, checkState, auto, igetcFull, entry, courses) {
+  const met = new Set();
+  for (const g of groups) {
+    const k = altKey(g);
+    if (!k) continue;
+    const pr = groupProgress(g, byGroup, checkState, auto, igetcFull, entry, courses);
+    if (pr.done >= pr.need) met.add(k);
+  }
+  return met;
 }
 function checkOn(item, checkState, auto, igetcFull) {
   if (item.auto) return !!auto[item.auto];
@@ -1528,6 +1819,7 @@ function CourseBlock({ group, courses, assigned, used, usage, onPin, onRelease, 
       <button className="bdl-bhead" onClick={() => setOpen(!open)} aria-expanded={open}>
         <span className="bdl-glyph">{done >= target ? "■" : done ? "◪" : "□"}</span>
         <span className="bdl-bname">{group.name}</span>
+        {group.alt && <span className="bdl-tag">either / or</span>}
         {assigned.length > 0 && !open && (
           <span className="bdl-ctitle" style={{ flex: "0 1 auto", fontFamily: "var(--mono)", fontSize: 11.5 }}>
             {assigned.map((id) => pretty(byId(id) ? byId(id).code : "")).join(" · ")}
@@ -1544,6 +1836,7 @@ function CourseBlock({ group, courses, assigned, used, usage, onPin, onRelease, 
             {onRecord > 0 && ` ${onRecord} ${onRecord === 1 ? "is" : "are"} on your record.`}
             {" Tap one to count it here; tap again to release it."}
           </p>
+          {group.note && <p className="bdl-hint">{group.note}</p>}
           {group.exams && group.exams.map((x, k) => (
             <label key={k} className="bdl-check">
               <input type="checkbox" checked={examOn && checks["exam:" + group.id] === x}
@@ -1627,10 +1920,12 @@ function OpenBlock({ group, courses, assigned, onPin, onRelease }) {
       <div className="bdl-bhead">
         <span className="bdl-glyph">{done >= target ? "■" : done ? "◪" : "□"}</span>
         <span className="bdl-bname">{group.name}</span>
+        {group.alt && <span className="bdl-tag">either / or</span>}
         <span className="bdl-count">{Math.min(done, target)}/{target}{isUnits ? " units" : ""}</span>
       </div>
       <div className="bdl-body">
         <p className="bdl-hint">{group.hint}</p>
+        {group.note && <p className="bdl-hint">{group.note}</p>}
         {assigned.map((id) => (
           <div key={id} className="bdl-opt hit">
             <span className="bdl-code">{pretty(byId(id) ? byId(id).code : "")}</span>
@@ -2012,14 +2307,20 @@ const PAIRINGS = [
     forWhat: "finance, analytics, consulting, fintech" },
   { ls: "appmath", cdss: ["dsmajor", "csmajor", "statmajor"], stars: 4, sourced: false,
     forWhat: "quant, ML, graduate school" },
+  { ls: "physics", cdss: ["dsmajor"], stars: 3, sourced: false,
+    forWhat: "scientific computing, research, tech" },
   { ls: "idx_major_astrophysics", cdss: ["dsmajor"], stars: 3, sourced: false,
-    forWhat: "scientific computing, research, tech", also: "idx_major_physics" },
-  { ls: "idx_major_psychology", cdss: ["dsmajor", "statminor"], stars: 3, sourced: false,
+    forWhat: "scientific computing, research, tech" },
+  { ls: "psych", cdss: ["dsmajor", "statminor"], stars: 3, sourced: false,
     forWhat: "behavioural data, UX research, analytics" },
-  { ls: "idx_major_neuroscience", cdss: ["dsmajor"], stars: 3, sourced: false,
-    forWhat: "computational biology, biotech, research", also: "idx_major_molecularandcellbiolo" },
-  { ls: "idx_major_politicaleconomy", cdss: ["dsmajor", "dsminor"], stars: 3, sourced: false,
-    forWhat: "policy analytics, economics, government", also: "idx_major_politicalscience" },
+  { ls: "neuro", cdss: ["dsmajor"], stars: 3, sourced: false,
+    forWhat: "computational biology, biotech, research" },
+  { ls: "idx_major_molecularandcellbiology", cdss: ["dsmajor"], stars: 3, sourced: false,
+    forWhat: "computational biology, biotech, research" },
+  { ls: "polecon", cdss: ["dsmajor", "dsminor"], stars: 3, sourced: false,
+    forWhat: "policy analytics, economics, government" },
+  { ls: "polsci", cdss: ["dsmajor", "dsminor"], stars: 3, sourced: false,
+    forWhat: "policy analytics, economics, government" },
 ];
 
 const progById = (id) =>
@@ -2214,28 +2515,9 @@ function SetupView({ p, setProfile, state, setState }) {
         {/* A program that branches — the minor's two pathways, the Data Science
             major's domain emphasis — picks its branch here. Two or three
             options read as buttons; a long list belongs in a select. */}
-        {selected.filter((prog) => prog.pathways).map((prog) => {
-          const pw = prog.pathways;
-          const cur = pathwayFor(p, prog);
-          const pick = (v) => setProfile("pathways", { ...(p.pathways || {}), [prog.id]: v });
-          return (
-            <label className="bdl-field" key={prog.id}>
-              <span className="bdl-label">{prog.name} — {pw.label}</span>
-              {pw.options.length <= 3 ? (
-                <div className="bdl-switch">
-                  {pw.options.map((o) => (
-                    <button key={o.id} className={cur === o.id ? "sel" : ""} onClick={() => pick(o.id)}>{o.label}</button>
-                  ))}
-                </div>
-              ) : (
-                <select className="bdl-sel" value={cur} onChange={(e) => pick(e.target.value)}>
-                  {pw.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-                </select>
-              )}
-              {pw.note && <p className="bdl-note" style={{ fontSize: 12, margin: "6px 0 0" }}>{pw.note}</p>}
-            </label>
-          );
-        })}
+        {selected.filter((prog) => prog.pathways).map((prog) => (
+          <PathwayPicker key={prog.id} prog={prog} p={p} setProfile={setProfile} showName />
+        ))}
         <label className="bdl-check" style={{ borderBottom: 0 }}>
           <input type="checkbox" checked={p.simultaneous} onChange={(e) => setProfile("simultaneous", e.target.checked)} />
           <span>I'm pursuing a simultaneous degree
@@ -2476,7 +2758,37 @@ function OverlapPanel({ audit, audits, courses, usage }) {
   );
 }
 
-function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry, onPin, onRelease, onQuickAdd, warnings, usage, audits, setState }) {
+/* A program that branches — the Data Science major's domain emphasis, Applied
+   Mathematics' cluster, Political Science's subfield — picks its branch here.
+   The same control appears on Setup and on the program's own tab: burying it on
+   a form you filled in once meant the blocks it swaps looked, from the major
+   tab, like they had changed on their own. Two or three options read as
+   buttons; a longer list belongs in a select. */
+function PathwayPicker({ prog, p, setProfile, showName }) {
+  const pw = prog.pathways;
+  if (!pw) return null;
+  const cur = pathwayFor(p, prog);
+  const pick = (v) => setProfile("pathways", { ...(p.pathways || {}), [prog.id]: v });
+  return (
+    <label className="bdl-field">
+      <span className="bdl-label">{showName ? `${prog.name} — ${pw.label}` : pw.label}</span>
+      {pw.options.length <= 3 ? (
+        <div className="bdl-switch">
+          {pw.options.map((o) => (
+            <button key={o.id} className={cur === o.id ? "sel" : ""} onClick={() => pick(o.id)}>{o.label}</button>
+          ))}
+        </div>
+      ) : (
+        <select className="bdl-sel" value={cur} onChange={(e) => pick(e.target.value)}>
+          {pw.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+        </select>
+      )}
+      {pw.note && <p className="bdl-note" style={{ fontSize: 12, margin: "6px 0 0" }}>{pw.note}</p>}
+    </label>
+  );
+}
+
+function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry, onPin, onRelease, onQuickAdd, warnings, usage, audits, setState, p, setProfile }) {
   const { prog, groups, byGroup, used } = audit;
   const sections = [];
   for (const g of groups) {
@@ -2484,10 +2796,7 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
     if (!s) { s = { id: g.sectionId, name: g.sectionName, note: g.sectionNote, groups: [] }; sections.push(s); }
     s.groups.push(g);
   }
-  const totals = groups.reduce((acc, g) => {
-    const p = groupProgress(g, byGroup, checks, auto, igetcFull, entry, courses);
-    acc.done += p.done; acc.need += p.need; return acc;
-  }, { done: 0, need: 0 });
+  const totals = progressTotals(groups, byGroup, checks, auto, igetcFull, entry, courses);
 
   return (
     <div>
@@ -2499,6 +2808,12 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
       <p className="bdl-note">{prog.note || `${totals.done} of ${totals.need} requirements closed.`}</p>
 
       {warnings.map((w, i) => <Flag key={i} tone={w.tone}><span>{w.text}</span></Flag>)}
+
+      {prog.pathways && setProfile && (
+        <div className="bdl-card" style={{ marginBottom: 12 }}>
+          <PathwayPicker prog={prog} p={p} setProfile={setProfile} />
+        </div>
+      )}
 
       {prog.stub && <LoadRequirements prog={prog} setState={setState} />}
 
@@ -2539,12 +2854,7 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
 function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings, courses }) {
   const rows = [];
   for (const a of audits) {
-    const t = a.groups.reduce((acc, g) => {
-      const pr = groupProgress(g, a.byGroup, checks, auto, igetcFull, p.entry, courses);
-      acc.done += pr.done; acc.need += pr.need;
-      if (pr.done < pr.need) acc.open.push(g.name);
-      return acc;
-    }, { done: 0, need: 0, open: [] });
+    const t = progressTotals(a.groups, a.byGroup, checks, auto, igetcFull, p.entry, courses);
     rows.push({ name: a.prog.name + (a.prog.degree ? `, ${a.prog.degree}` : ""), ...t });
   }
   const allClear = rows.every((r) => r.done >= r.need) && !warnings.some((w) => w.tone === "bad");
@@ -2631,7 +2941,21 @@ function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings, c
    ============================================================ */
 export default function App() {
   const [state, setState, ready, saved] = useStore();
-  const [tab, setTab] = useState("setup");
+  /* The tab lives in the URL. A ledger is something you keep open in a tab for
+     four years, so the back button, a bookmark and a reload all have to land
+     where you were rather than dumping you back on the setup form. */
+  const hashTab = () => (typeof location !== "undefined" && location.hash ? decodeURIComponent(location.hash.slice(1)) : "");
+  const [tab, setTabRaw] = useState(() => hashTab() || "setup");
+  const setTab = useCallback((id) => {
+    setTabRaw(id);
+    if (typeof history !== "undefined" && hashTab() !== id) history.pushState(null, "", "#" + encodeURIComponent(id));
+  }, []);
+  useEffect(() => {
+    const onPop = () => setTabRaw(hashTab() || "setup");
+    window.addEventListener("hashchange", onPop);
+    window.addEventListener("popstate", onPop);
+    return () => { window.removeEventListener("hashchange", onPop); window.removeEventListener("popstate", onPop); };
+  }, []);
   const p = state.profile;
 
   const courses = useMemo(() => state.courses.map((c) => ({ ...c, norm: norm(c.code) })), [state.courses]);
@@ -2831,13 +3155,43 @@ export default function App() {
     code: norm(code), title: titleOf(code), units: 4, grade: "", term: "", source: "berkeley" }] }));
 
   /* ---- spine ---- */
-  const spine = useMemo(() => audits.flatMap((a) => a.groups.map((g) => {
-    const pr = groupProgress(g, a.byGroup, state.checks, auto, igetcFull, p.entry, courses);
-    return { key: a.prog.id + g.id, tab: a.prog.id, id: g.id,
-      label: `${a.prog.name} · ${g.name} — ${pr.done}/${pr.need}`,
-      cls: pr.done >= pr.need ? "on" : pr.done ? "part" : "" };
-  })), [audits, state.checks, auto, igetcFull, p.entry, courses]);
+  const spine = useMemo(() => audits.flatMap((a) => {
+    const met = altsMet(a.groups, a.byGroup, state.checks, auto, igetcFull, p.entry, courses);
+    return a.groups.map((g) => {
+      const pr = groupProgress(g, a.byGroup, state.checks, auto, igetcFull, p.entry, courses);
+      /* A block on the road not taken is not an open block. */
+      const done = pr.done >= pr.need || met.has(altKey(g));
+      return { key: a.prog.id + g.id, tab: a.prog.id, id: g.id,
+        prog: a.prog.name, ptype: a.prog.type, name: g.name, done: pr.done, need: pr.need, units: !!pr.units,
+        label: `${a.prog.name} · ${g.name} — ${pr.done}/${pr.need}`,
+        cls: done ? "on" : pr.done ? "part" : "" };
+    });
+  }), [audits, state.checks, auto, igetcFull, p.entry, courses]);
   const closed = spine.filter((t) => t.cls === "on").length;
+
+  /* The nearest unfinished blocks, closest first. Ten tabs of requirements is a
+     lot to hold in your head; this answers "what should I sign up for" without
+     making you open every one of them. */
+  const nextUp = useMemo(() => {
+    /* Work already started comes first, then your own major and minor ahead of
+       the university's boilerplate, then whatever is shortest. At most two per
+       program, so the list does not fill up with six identical university
+       blocks while the major you are actually planning goes unmentioned. */
+    const weight = (t) => (t.ptype === "major" ? 0 : t.ptype === "minor" ? 1 : t.ptype === "custom" ? 2 : 3);
+    const ranked = spine
+      .filter((t) => t.cls !== "on")
+      .map((t) => ({ ...t, left: t.need - t.done }))
+      .sort((a, b) => (b.done > 0) - (a.done > 0) || weight(a) - weight(b) || a.left - b.left);
+    const perProgram = {};
+    const out = [];
+    for (const t of ranked) {
+      perProgram[t.tab] = (perProgram[t.tab] || 0) + 1;
+      if (perProgram[t.tab] > 2) continue;
+      out.push(t);
+      if (out.length === 6) break;
+    }
+    return out;
+  }, [spine]);
 
   const jump = (t) => {
     setTab(t.tab);
@@ -2851,9 +3205,28 @@ export default function App() {
     { id: "setup", label: "Setup" },
     { id: "pairings", label: "L&S × CDSS" },
     { id: "courses", label: "My courses", n: courses.length },
-    ...audits.map((a) => ({ id: a.prog.id, label: a.prog.type === "minor" ? a.prog.name + " minor" : a.prog.name })),
+    /* Each program tab carries its own blocks-closed count, so the nav answers
+       "how far along is my minor" without having to open it. */
+    ...audits.map((a) => {
+      const mine = spine.filter((t) => t.tab === a.prog.id);
+      return { id: a.prog.id, label: a.prog.type === "minor" ? a.prog.name + " minor" : a.prog.name,
+        n: `${mine.filter((t) => t.cls === "on").length}/${mine.length}` };
+    }),
     { id: "grad", label: "Graduation check" },
   ];
+
+  /* A first visit needs the setup form; a ledger you have already filled in does
+     not. With no tab in the URL, someone who has courses on file opens on their
+     first major instead of on a form they finished months ago. */
+  const landed = useRef(false);
+  useEffect(() => {
+    if (!ready || landed.current) return;
+    landed.current = true;
+    if (hashTab()) return;
+    if (!courses.length) return;
+    const first = audits.find((a) => a.prog.type === "major");
+    if (first) setTab(first.prog.id);
+  }, [ready, courses.length, audits, setTab]);
 
   const exportJSON = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -2887,8 +3260,11 @@ export default function App() {
           </div>
           <nav className="bdl-tabs">
             {tabs.map((t) => (
-              <button key={t.id} className={"bdl-tab " + (tab === t.id ? "sel" : "")} onClick={() => setTab(t.id)}>
-                {t.label}{t.n != null && <span className="n">{t.n}</span>}
+              <button key={t.id} data-tab={t.id} className={"bdl-tab " + (tab === t.id ? "sel" : "")}
+                onClick={() => setTab(t.id)}>
+                {/* The space matters: without it the tab's accessible name reads
+                    "Data Science0/13" to a screen reader. */}
+                {t.label}{t.n != null && <span className="n">{" " + t.n}</span>}
               </button>
             ))}
           </nav>
@@ -2909,7 +3285,8 @@ export default function App() {
                 onPin={(gid, cid) => pin(current.prog.id, gid, cid)}
                 onRelease={(gid, cid) => release(current.prog.id, gid, cid)}
                 onQuickAdd={quickAdd}
-                warnings={warnings[current.prog.id] || []} setState={setState} />
+                warnings={warnings[current.prog.id] || []} setState={setState}
+                p={p} setProfile={setProfile} />
             )}
           </div>
 
@@ -2924,11 +3301,24 @@ export default function App() {
               <div className="bdl-stat"><span>GPA</span><b>{p.gpa || "—"}</b></div>
             </div>
 
+            {nextUp.length > 0 && (
+              <div className="bdl-card">
+                <h3>Next up</h3>
+                <p className="bdl-note" style={{ margin: "0 0 8px", fontSize: 12 }}>
+                  The blocks closest to closing. Tap one to go to it.
+                </p>
+                {nextUp.map((t) => (
+                  <button key={t.key} className="bdl-next" onClick={() => jump(t)}>
+                    <span className="nm">{t.name}</span>
+                    <span className="pr">{t.prog}</span>
+                    <span className="ct">{t.left} {t.units ? "units" : t.left === 1 ? "course" : "courses"} to go</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
             {audits.filter((a) => a.prog.type === "major" || a.prog.type === "minor").map((a) => {
-              const t = a.groups.reduce((acc, g) => {
-                const pr = groupProgress(g, a.byGroup, state.checks, auto, igetcFull, p.entry, courses);
-                acc.done += pr.done; acc.need += pr.need; return acc;
-              }, { done: 0, need: 0 });
+              const t = progressTotals(a.groups, a.byGroup, state.checks, auto, igetcFull, p.entry, courses);
               return (
                 <div key={a.prog.id} className="bdl-card">
                   <h3>{a.prog.type}</h3>
@@ -2936,6 +3326,11 @@ export default function App() {
                     <span style={{ fontWeight: 600 }}>{a.prog.name}</span><b>{t.done}/{t.need}</b>
                   </div>
                   <Meter done={t.done} need={t.need} />
+                  {/* Courses, not blocks — the tab bar counts blocks, and two
+                      different fractions with no labels read as a contradiction. */}
+                  <p className="bdl-note" style={{ margin: "6px 0 0", fontSize: 11 }}>
+                    courses counted toward the requirement lists
+                  </p>
                 </div>
               );
             })}
@@ -2969,7 +3364,9 @@ export default function App() {
 
       <footer className="bdl-foot">
         University, campus and Letters &amp; Science requirements follow the Berkeley Academic Guide and apply to every
-        L&amp;S student. Cognitive Science and the Data Science minor ship with their course lists typed in; every other
+        L&amp;S student. Thirteen programs ship with their course lists typed in from the Guide — Cognitive Science,
+        Data Science, Computer Science, Statistics, Economics, Applied Mathematics, Political Science, Political
+        Economy, Neuroscience, Psychology and Physics, plus the Data Science and Statistics minors. Every other
         program is whatever you loaded from the Guide, so it is only as current as the text you pasted. Requirements
         change between catalog years, and this ledger is a planning aid — check your Academic Progress Report in
         CalCentral and talk to your major and college advisers before you file to graduate.
