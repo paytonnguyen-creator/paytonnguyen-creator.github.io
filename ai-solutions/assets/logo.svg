@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250" role="img" aria-label="AI Solutions at Berkeley">
+  <title>AI Solutions @ Berkeley</title>
+  <defs>
+    <linearGradient id="aisb-swoosh" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0"   stop-color="#16294a"/>
+      <stop offset=".34" stop-color="#6d6448"/>
+      <stop offset=".70" stop-color="#c9992f"/>
+      <stop offset="1"   stop-color="#efc054"/>
+    </linearGradient>
+  </defs>
+
+  <!-- The "A": outer triangle with a triangular counter knocked out. No
+       crossbar — the gold swoosh plays that role, as in the wordmark. -->
+  <path fill="#14294b" fill-rule="evenodd"
+        d="M100 16 L190 230 L10 230 Z
+           M100 112 L145 230 L55 230 Z"/>
+
+  <!-- The "I": the Campanile. Belfry windows knocked out with even-odd. -->
+  <path fill="#14294b" fill-rule="evenodd"
+        d="M225 40 L247 95 L247 230 L203 230 L203 95 Z
+           M211 110 h8 v24 h-8 z
+           M221 110 h8 v24 h-8 z
+           M231 110 h8 v24 h-8 z"/>
+  <rect x="199" y="90" width="52" height="8" fill="#14294b"/>
+
+  <!-- Swoosh: blunt at the lower left, tapering to a point at the tower. -->
+  <path fill="url(#aisb-swoosh)" d="M20 218 C70 132 162 88 244 82 C162 112 88 158 46 224 Z"/>
+
+  <!-- Four-point sparkle -->
+  <path fill="#e0a52b"
+        d="M262 4 C265 25 271 31 292 34 C271 37 265 43 262 64 C259 43 253 37 232 34 C253 31 259 25 262 4 Z"/>
+</svg>
