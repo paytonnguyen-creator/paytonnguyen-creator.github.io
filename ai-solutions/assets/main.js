@@ -72,3 +72,15 @@ if (revealables.length && !matchMedia('(prefers-reduced-motion: reduce)').matche
 /* Footer year */
 const year = document.getElementById('year');
 if (year) year.textContent = new Date().getFullYear();
+
+/* Every Apply button reads one URL, set in index.html's <head>. Empty means
+   the application isn't live yet, and the buttons keep their href="#join"
+   fallback rather than dumping people on a dead link. */
+const applyUrl = (window.APPLY_URL || '').trim();
+if (applyUrl) {
+  document.querySelectorAll('[data-apply]').forEach(a => {
+    a.href = applyUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+  });
+}

@@ -7,16 +7,17 @@
 <meta name="description" content="A new UC Berkeley student organization building AI-powered products and solutions for real-world clients. Fall 2026 recruitment open — info session Monday, September 14.">
 
 <!-- Link previews (LinkedIn, Slack, iMessage).
-     TODO: export a 1200×630 PNG to assets/og.png and uncomment the og:image
-     tags — until that file exists, previews fall back to a plain text card.
-     TODO: if you move to a custom domain, update og:url and the canonical. -->
+     TODO: if you move to a custom domain, update og:url, the canonical and
+     og:image to point at it. -->
 <link rel="canonical" href="https://paytonnguyen-creator.github.io/ai-solutions/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI Solutions @ Berkeley">
 <meta property="og:title" content="AI Solutions @ Berkeley">
 <meta property="og:description" content="A new UC Berkeley student organization building AI-powered products and solutions for real-world clients. Fall 2026 recruitment open.">
 <meta property="og:url" content="https://paytonnguyen-creator.github.io/ai-solutions/">
-<!-- <meta property="og:image" content="https://paytonnguyen-creator.github.io/ai-solutions/assets/og.png"> -->
+<meta property="og:image" content="https://paytonnguyen-creator.github.io/ai-solutions/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
@@ -25,7 +26,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=1">
+<link rel="stylesheet" href="assets/style.css?v=2">
+
+<!-- ─────────────────────────────────────────────────────────────────────
+     THE ONE THING LEFT TO FILL IN.
+     Paste the URL behind the flyer's QR code between the quotes. Every
+     "Apply" button on the page picks it up. Leave it empty and those
+     buttons point at the recruitment section instead of going nowhere.
+     ───────────────────────────────────────────────────────────────────── -->
+<script>window.APPLY_URL = "";</script>
 </head>
 <body>
 <a class="skip" href="#about">Skip to content</a>
@@ -48,10 +57,9 @@
       <a href="#team">Team</a>
       <a href="#faq">FAQ</a>
       <!-- Shown only in the mobile drawer, where the header CTA is hidden. -->
-      <a href="#join" class="nav-apply">Apply &rarr;</a>
+      <a href="#join" class="nav-apply" data-apply>Apply &rarr;</a>
     </nav>
-    <!-- TODO: point this at your live application / interest form. -->
-    <a class="btn btn--gold" href="#join">Apply</a>
+    <a class="btn btn--gold" href="#join" data-apply>Apply</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Menu"><span></span></button>
   </div>
 </header>
@@ -88,8 +96,7 @@
     </p>
     <p class="tagline">People <span>&times;</span> AI <span>&times;</span> Real Impact</p>
     <div class="btn-row">
-      <!-- TODO: point at the application the flyer's QR code opens. -->
-      <a class="btn btn--navy" href="#join">Apply for Fall 2026</a>
+      <a class="btn btn--navy" href="#join" data-apply>Apply for Fall 2026</a>
       <a class="btn btn--ghost" href="#partner">Partner with us</a>
     </div>
     <p class="hero-note">Founded 2026 · University of California, Berkeley</p>
@@ -367,13 +374,14 @@
     </div>
 
     <div class="btn-row reveal" style="margin-top:2.5rem">
-      <!-- TODO: swap "#" for your application form URL when it's live. -->
-      <a class="btn btn--gold" href="#">Start an application</a>
+      <a class="btn btn--gold" href="#join" data-apply>Start an application</a>
       <a class="btn btn--ghost" href="https://www.linkedin.com/company/143752028/" target="_blank" rel="noopener">Follow us on LinkedIn</a>
     </div>
     <p style="margin-top:1.25rem;font-size:.88rem;color:rgba(223,230,240,.6)">
       No prior AI experience required. We recruit for judgment and follow-through;
-      the technical ramp is what our internal workshops are for.
+      the technical ramp is what our internal workshops are for. Come to the info
+      session on September 14 or follow us on LinkedIn — the application link goes
+      out through both.
     </p>
   </div>
 </section>
@@ -400,9 +408,6 @@
         <h3>Payton Nguyen</h3>
         <p class="role">Co-Founder</p>
         <p class="meta">Cognitive Science &amp; Data Science</p>
-        <p class="links">
-          <a href="https://paytonnguyen-creator.github.io/" target="_blank" rel="noopener">Portfolio</a>
-        </p>
       </article>
 
       <!-- TODO: your co-founder's details. -->
@@ -547,8 +552,7 @@
       too — the earlier, the better.
     </p>
     <div class="btn-row">
-      <!-- TODO: swap "#" for your application form URL. -->
-      <a class="btn btn--gold" href="#">Apply to join</a>
+      <a class="btn btn--gold" href="#join" data-apply>Apply to join</a>
       <a class="btn btn--ghost" href="#partner">Partner with us</a>
     </div>
   </div>
