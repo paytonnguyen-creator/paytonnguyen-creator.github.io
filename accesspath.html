@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AccessPath — a mobile navigation concept that routes wheelchair users along paths they can actually use. UX@Berkeley Fall 2026 mini-project by Payton Nguyen.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230F4C8A'/><path d='M24 72h52M30 72 68 32' stroke='%23ffffff' stroke-width='9' stroke-linecap='round' fill='none'/></svg>">
+<style>
+html{color-scheme:light dark}
+body{margin:0;font:14px/1.5 system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>AccessPath</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap">
+</head>
+<body>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+
+:root{
+  color-scheme:light;
+  /* deck chrome */
+  --paper:#EEF1F4;
+  --frame:#FFFFFF;
+  --ink:#101820;
+  --ink-2:#4B5866;
+  --ink-3:#6C7A88;
+  --line:#DBE0E6;
+  --accent:#0F4C8A;
+  --accent-soft:#E6EEF7;
+  --accent-line:#BFD5EB;
+  --warn-ink:#7A4300;
+  --warn-soft:#FBEFDA;
+  --warn-line:#E7CB9E;
+  --shadow:0 1px 2px rgba(16,24,32,.06),0 12px 32px -22px rgba(16,24,32,.35);
+
+  /* device: a screenshot of a light-mode app. Deliberately fixed in both themes. */
+  --d-bg:#FFFFFF;
+  --d-ground:#EDF0F3;
+  --d-ink:#0F161C;
+  --d-mute:#57646F;
+  --d-line:#DEE3E9;
+  --d-accent:#0F4C8A;
+  --d-accent-soft:#E8EFF8;
+  --d-accent-line:#C2D7EC;
+  --d-warn-ink:#7A4300;
+  --d-warn-soft:#FCF1DD;
+  --d-warn-line:#E6C89B;
+
+  --font-display:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --font-body:'Source Sans 3','Segoe UI',system-ui,sans-serif;
+  --font-device:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#0B1117; --frame:#141C24; --ink:#E9EFF4; --ink-2:#A3B2C0; --ink-3:#8494A2;
+    --line:#25313C; --accent:#82BAF0; --accent-soft:#15283A; --accent-line:#2D4761;
+    --warn-ink:#EFBE7C; --warn-soft:#2A2114; --warn-line:#4A3A1E;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -24px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0B1117; --frame:#141C24; --ink:#E9EFF4; --ink-2:#A3B2C0; --ink-3:#8494A2;
+  --line:#25313C; --accent:#82BAF0; --accent-soft:#15283A; --accent-line:#2D4761;
+  --warn-ink:#EFBE7C; --warn-soft:#2A2114; --warn-line:#4A3A1E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -24px rgba(0,0,0,.9);
+}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;letter-spacing:-.012em}
+p{margin:0}
+a{color:var(--accent)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:#fff;padding:10px 16px;border-radius:0 0 8px 0;z-index:50}
+.skip:focus{left:0}
+
+:where(a,button,label,input,summary):focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:color-mix(in srgb,var(--paper) 88%,transparent);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:saturate(1.4) blur(8px);
+}
+.topbar-in{
+  max-width:1080px;margin:0 auto;padding:11px 24px;
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+}
+.wordmark{font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:-.02em;color:var(--ink)}
+.topbar .who{font-size:13.5px;color:var(--ink-3);margin-right:auto}
+.topbar nav{display:flex;gap:4px;flex-wrap:wrap}
+.topbar nav a{
+  font-size:13.5px;color:var(--ink-2);text-decoration:none;
+  padding:5px 10px;border-radius:7px;
+}
+.topbar nav a:hover{background:var(--accent-soft);color:var(--accent)}
+
+/* ---------- deck ---------- */
+#deck{max-width:1080px;margin:0 auto;padding:28px 24px 90px;display:flex;flex-direction:column;gap:28px}
+
+.frame{
+  scroll-margin-top:78px;
+  background:var(--frame);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:42px 46px 46px;
+  box-shadow:var(--shadow);
+}
+.fh{
+  display:flex;align-items:baseline;gap:14px;
+  padding-bottom:13px;margin-bottom:30px;
+  border-bottom:1px solid var(--line);
+}
+.fh .n{
+  font-family:var(--font-display);font-weight:700;font-size:13px;
+  color:var(--accent);font-variant-numeric:tabular-nums;
+}
+.fh .lbl{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+
+h2.ftitle{font-size:27px;font-weight:700;line-height:1.2;margin-bottom:10px}
+.flede{font-size:17px;color:var(--ink-2);max-width:64ch}
+
+/* ---------- cover ---------- */
+.cover{
+  background:var(--frame);
+  border-top:5px solid var(--accent);
+  padding:60px 46px 52px;
+}
+.cover .eyebrow{
+  font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:20px;
+}
+.cover h1{font-size:62px;line-height:1;font-weight:700;letter-spacing:-.035em}
+.cover .sub{
+  font-family:var(--font-display);font-weight:500;
+  font-size:23px;line-height:1.3;color:var(--ink);
+  margin-top:16px;max-width:22ch;
+}
+.cover .desc{font-size:17.5px;color:var(--ink-2);margin-top:18px;max-width:56ch}
+.meta{
+  display:flex;flex-wrap:wrap;gap:0 34px;
+  margin-top:36px;padding-top:22px;border-top:1px solid var(--line);
+}
+.meta div{min-width:120px}
+.meta dt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.meta dd{margin:3px 0 0;font-size:15.5px;color:var(--ink)}
+.cover-art{display:flex;gap:10px;margin-top:34px;flex-wrap:wrap}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);
+  padding:6px 13px;border-radius:999px;font-size:13.5px;font-weight:600;
+}
+.chip.warn{border-color:var(--warn-line);background:var(--warn-soft);color:var(--warn-ink)}
+
+/* ---------- problem page ---------- */
+.dl{display:grid;grid-template-columns:132px 1fr;gap:22px 30px;margin-top:4px}
+.dl dt{
+  font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;padding-top:4px;
+}
+.dl dd{margin:0;font-size:17px;color:var(--ink);max-width:66ch}
+.dl dd .quiet{color:var(--ink-2)}
+.pullquote{
+  font-family:var(--font-display);font-weight:600;font-size:20px;line-height:1.35;
+  color:var(--ink);border-left:3px solid var(--accent);padding-left:16px;
+}
+
+.assume{
+  margin-top:32px;padding:20px 22px;border-radius:12px;
+  background:var(--accent-soft);border:1px dashed var(--accent-line);
+}
+.assume h3{
+  font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:10px;font-weight:700;
+}
+.assume p{font-size:15.5px;color:var(--ink-2)}
+.assume ul{margin:10px 0 0;padding-left:19px;display:flex;flex-direction:column;gap:7px}
+.assume li{font-size:15.5px;color:var(--ink-2)}
+.assume li b{color:var(--ink);font-weight:600}
+
+/* ---------- screen pages ---------- */
+.split{display:grid;grid-template-columns:352px 1fr;gap:52px;align-items:start;margin-top:6px}
+.notes{display:flex;flex-direction:column;gap:26px}
+.note{border-left:3px solid var(--accent);padding:1px 0 1px 17px}
+.note b{
+  display:block;font-family:var(--font-display);font-weight:600;
+  font-size:16px;color:var(--ink);margin-bottom:4px;
+}
+.note p{font-size:16px;color:var(--ink-2);max-width:56ch}
+.note.plain{border-left-color:var(--line)}
+.uitext{
+  margin-top:6px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;
+  background:var(--paper);
+}
+.uitext h4{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.uitext p{font-size:15px;color:var(--ink-2)}
+
+/* ---------- decisions page ---------- */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-bottom:38px}
+.dec h3{font-family:var(--font-display);font-size:17px;font-weight:600;margin-bottom:7px}
+.dec .rule{width:34px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:13px}
+.dec p{font-size:16px;color:var(--ink-2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:34px;padding-top:32px;border-top:1px solid var(--line)}
+.grid2 h3{
+  font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:12px;
+}
+.grid2 ul{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:9px}
+.grid2 li{font-size:16px;color:var(--ink-2)}
+.grid2 li b{color:var(--ink);font-weight:600}
+
+/* ---------- phone ---------- */
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;position:sticky;top:78px}
+.phone{
+  width:372px;padding:11px;border-radius:48px;
+  background:#111820;
+  box-shadow:0 0 0 1.5px #2A343F,0 26px 50px -26px rgba(10,16,22,.75);
+}
+.screen{
+  width:100%;min-height:706px;border-radius:38px;overflow:hidden;
+  background:var(--d-bg);color:var(--d-ink);
+  font-family:var(--font-device);font-size:15px;line-height:1.4;
+  display:flex;flex-direction:column;
+}
+.caption{font-size:13.5px;color:var(--ink-3);text-align:center}
+
+.statusbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px 26px 6px;font-size:14px;font-weight:600;color:var(--d-ink);
+  font-variant-numeric:tabular-nums;
+}
+.sb-icons{display:flex;align-items:center;gap:5px}
+.sb-icons i{display:block;background:var(--d-ink);border-radius:1px}
+.sb-icons .b1{width:3px;height:5px}.sb-icons .b2{width:3px;height:7px}
+.sb-icons .b3{width:3px;height:9px}.sb-icons .b4{width:3px;height:11px}
+.sb-icons .bat{width:22px;height:11px;border:1.5px solid var(--d-ink);border-radius:3px;background:none;margin-left:5px;position:relative}
+.sb-icons .bat::after{content:"";position:absolute;inset:1.5px;background:var(--d-ink);border-radius:1px}
+.homebar{margin:auto auto 9px;width:132px;height:5px;border-radius:3px;background:#C6CDD5;flex:none}
+
+.s-pad{padding:0 20px}
+.s-title{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-top:14px}
+.s-sub{font-size:15px;color:var(--d-mute);margin-top:7px}
+
+.field{
+  margin-top:20px;border:1.5px solid var(--d-line);border-radius:14px;
+  padding:11px 14px;display:flex;flex-direction:column;gap:1px;background:var(--d-bg);
+}
+.field .flabel{font-size:12.5px;color:var(--d-mute);font-weight:600}
+.field .fval{font-size:17px;font-weight:600}
+.field .fplace{font-size:17px;color:#8C98A3}
+.field.filled{border-color:var(--d-accent-line);background:var(--d-accent-soft)}
+
+.s-label{
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--d-mute);font-weight:700;margin:26px 0 11px;
+}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;align-items:center;gap:11px;
+  border:1.5px solid var(--d-line);border-radius:14px;
+  padding:13px 14px;min-height:64px;cursor:pointer;background:var(--d-bg);
+}
+.opt:hover{border-color:var(--d-accent-line)}
+.opt .oi{
+  flex:none;width:34px;height:34px;border-radius:10px;
+  background:var(--d-ground);color:var(--d-mute);
+  display:grid;place-items:center;
+}
+.opt .ot{flex:1;min-width:0}
+.opt .ot b{display:block;font-size:15.5px;font-weight:600;line-height:1.25}
+.opt .ot span{display:block;font-size:13.5px;color:var(--d-mute);margin-top:1px}
+.opt input{position:absolute;opacity:0;width:0;height:0}
+.sw{
+  flex:none;width:46px;height:28px;border-radius:14px;background:#C3CBD3;
+  position:relative;transition:background .15s ease;
+}
+.sw::after{
+  content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;
+  border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);
+  transition:transform .15s ease;
+}
+.opt input:checked ~ .sw{background:var(--d-accent)}
+.opt input:checked ~ .sw::after{transform:translateX(18px)}
+.opt:has(input:checked){border-color:var(--d-accent-line);background:var(--d-accent-soft)}
+.opt:has(input:checked) .oi{background:#fff;color:var(--d-accent)}
+.opt:has(input:focus-visible){outline:3px solid var(--d-accent);outline-offset:2px}
+
+.cta{
+  display:block;width:100%;border:none;border-radius:14px;
+  background:var(--d-accent);color:#fff;
+  font-family:inherit;font-size:17px;font-weight:600;
+  padding:16px;min-height:54px;cursor:pointer;text-align:center;
+}
+.cta:hover{background:#0C3F76}
+.cta.ghost{background:none;color:var(--d-accent);border:1.5px solid var(--d-accent-line)}
+.cta.ghost:hover{background:var(--d-accent-soft)}
+.btnrow{display:flex;gap:10px;margin-top:12px}
+.btnrow .cta{flex:1;white-space:nowrap;padding:15px 8px;font-size:16px}
+
+/* nav header inside device */
+.navbar{
+  display:flex;align-items:center;gap:12px;padding:6px 18px 14px;
+  border-bottom:1px solid var(--d-line);
+}
+.navbar .back{
+  width:36px;height:36px;border-radius:10px;background:var(--d-ground);color:var(--d-ink);
+  display:grid;place-items:center;flex:none;
+}
+.navbar .route-ttl{display:block;font-size:16.5px;font-weight:600;line-height:1.25}
+.navbar .route-sub{display:block;font-size:13px;color:var(--d-mute)}
+
+/* map */
+.map{position:relative;background:var(--d-ground);flex:none}
+.map > svg{display:block;width:100%;height:auto}
+.mk{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+  background:#fff;border:1px solid var(--d-line);border-radius:999px;
+  padding:4px 10px 4px 6px;font-size:11.5px;font-weight:600;color:var(--d-ink);
+  box-shadow:0 1px 5px rgba(16,22,28,.18);
+}
+.mk .g{color:var(--d-accent);display:grid;place-items:center}
+.mk.warn{border-color:var(--d-warn-line);background:var(--d-warn-soft);color:var(--d-warn-ink)}
+.mk.warn .g{color:var(--d-warn-ink)}
+.mk.pt{padding:4px 10px;background:var(--d-accent);color:#fff;border-color:var(--d-accent)}
+
+/* route cards */
+.sheet{padding:16px 18px 6px;display:flex;flex-direction:column;gap:11px}
+.rcard{border:1.5px solid var(--d-line);border-radius:16px;padding:15px}
+.rcard.rec{border-color:var(--d-accent);border-width:2px;background:var(--d-accent-soft)}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--d-accent);color:#fff;border-radius:6px;
+  font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:4px 8px;margin-bottom:9px;
+}
+.rtop{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.rname{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.rtime{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.rdist{font-size:13.5px;color:var(--d-mute);margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.tag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#fff;border:1px solid var(--d-accent-line);color:var(--d-accent);
+  border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;
+}
+.rcard .cta{margin-top:13px}
+.flag{
+  display:flex;gap:8px;align-items:flex-start;margin-top:10px;
+  background:var(--d-warn-soft);border:1px solid var(--d-warn-line);
+  color:var(--d-warn-ink);border-radius:11px;padding:9px 11px;
+}
+.flag b{font-size:14px;font-weight:700;display:block}
+.flag span{font-size:13px;display:block;margin-top:1px}
+.linkrow{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:11px;font-size:14px;color:var(--d-mute);
+}
+.linkrow a{color:var(--d-accent);font-weight:600;text-decoration:none}
+.prefbar{
+  margin:0 18px 14px;padding:11px 13px;border-radius:12px;background:var(--d-ground);
+  display:flex;align-items:center;gap:9px;font-size:13px;color:var(--d-mute);
+}
+.prefbar b{color:var(--d-ink);font-weight:600}
+.prefbar a{margin-left:auto;color:var(--d-accent);font-weight:600;text-decoration:none}
+
+/* navigating */
+.instr{background:var(--d-accent);color:#fff;padding:14px 18px 16px;display:flex;gap:13px;align-items:center}
+.instr .arrow{width:40px;height:40px;flex:none;display:grid;place-items:center}
+.instr .big{display:block;font-size:20px;font-weight:700;line-height:1.15}
+.instr .small{display:block;font-size:13.5px;opacity:.92;margin-top:2px}
+.alert{margin:14px 18px 0;border:2px solid var(--d-warn-line);background:var(--d-warn-soft);border-radius:16px;padding:15px}
+.alert-head{display:flex;gap:11px;align-items:flex-start}
+.alert-head .ai{color:var(--d-warn-ink);flex:none;margin-top:1px}
+.alert h4{font-size:18px;font-weight:700;color:var(--d-warn-ink);letter-spacing:-.01em;line-height:1.2;font-family:inherit}
+.alert .src{font-size:13.5px;color:var(--d-warn-ink);opacity:.9;margin-top:3px}
+.alt{
+  margin-top:13px;background:#fff;border:1px solid var(--d-accent-line);border-radius:12px;
+  padding:11px 13px;display:flex;align-items:center;gap:11px;
+}
+.alt .g{color:var(--d-accent);flex:none}
+.alt b{display:block;font-size:15px;font-weight:600}
+.alt span{display:block;font-size:13.5px;color:var(--d-mute)}
+.alt .plus{margin-left:auto;white-space:nowrap;font-size:15.5px;font-weight:700;color:var(--d-accent);font-variant-numeric:tabular-nums}
+.tripbar{
+  margin-top:auto;border-top:1px solid var(--d-line);
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+}
+.tripbar .eta{display:block;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.tripbar .det{display:block;font-size:13.5px;color:var(--d-mute)}
+.tripbar .end{
+  margin-left:auto;border:1.5px solid var(--d-line);background:none;color:var(--d-ink);
+  font-family:inherit;font-size:15px;font-weight:600;padding:9px 18px;border-radius:11px;cursor:pointer;
+}
+
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ic-20{width:20px;height:20px}
+.ic-22{width:22px;height:22px}
+.ic-26{width:26px;height:26px;stroke-width:2}
+
+footer.deck-foot{
+  max-width:1080px;margin:0 auto;padding:0 24px 60px;
+  font-size:14px;color:var(--ink-3);
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+
+@media (max-width:900px){
+  .split{grid-template-columns:1fr;gap:34px}
+  .phone-wrap{position:static}
+  .grid3{grid-template-columns:1fr;gap:26px}
+  .grid2{grid-template-columns:1fr;gap:26px}
+  .frame{padding:32px 24px 34px}
+  .cover{padding:44px 24px 40px}
+  .cover h1{font-size:46px}
+  .dl{grid-template-columns:1fr;gap:5px 0}
+  .dl dd{margin-bottom:14px}
+}
+@media (max-width:420px){
+  .phone{width:100%;padding:8px;border-radius:36px}
+  .screen{border-radius:30px}
+}
+
+@media print{
+  .topbar{display:none}
+  body{background:#fff}
+  #deck{padding:0;gap:0}
+  .frame{break-inside:avoid;break-after:page;box-shadow:none;border:none;padding:26px 0}
+  .phone-wrap{position:static}
+}
+</style>
+
+<svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-ramp" viewBox="0 0 16 16"><path d="M1.5 12.5h13M2.5 12.5 12.5 4.5"/></symbol>
+  <symbol id="ic-stairs" viewBox="0 0 16 16"><path d="M1.5 13.5v-3h4v-3h4v-3h5"/></symbol>
+  <symbol id="ic-elev" viewBox="0 0 16 16"><path d="M8 2v12M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></symbol>
+  <symbol id="ic-door" viewBox="0 0 16 16"><path d="M3.5 2.5h9v11h-9zM10 8.2h.01"/></symbol>
+  <symbol id="ic-warn" viewBox="0 0 16 16"><path d="M8 1.8 15 13.8H1zM8 6.2v3.4M8 11.6h.01"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 16 16"><path d="m2.2 8.4 4 4 7.6-9"/></symbol>
+  <symbol id="ic-slope" viewBox="0 0 16 16"><path d="M1.5 12.5h13M2 12.5C6 12.5 9 9.5 14 5.5"/></symbol>
+  <symbol id="ic-pin" viewBox="0 0 16 16"><path d="M8 14.5s5-4.6 5-8a5 5 0 1 0-10 0c0 3.4 5 8 5 8Z"/><circle cx="8" cy="6.4" r="1.9"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6"/><path d="m10.6 10.6 3.4 3.4"/></symbol>
+  <symbol id="ic-back" viewBox="0 0 16 16"><path d="M10 2.5 4.5 8l5.5 5.5"/></symbol>
+  <symbol id="ic-up" viewBox="0 0 16 16"><path d="M8 14V3M3 8l5-5 5 5"/></symbol>
+</svg>
+
+<a class="skip" href="#deck">Skip to deck</a>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <span class="wordmark">AccessPath</span>
+    <span class="who">UX@Berkeley mini-project</span>
+    <nav aria-label="Deck pages">
+      <a href="#p1">Cover</a>
+      <a href="#p2">Problem</a>
+      <a href="#p3">Preferences</a>
+      <a href="#p4">Route comparison</a>
+      <a href="#p5">Live rerouting</a>
+      <a href="#p6">Decisions</a>
+    </nav>
+  </div>
+</header>
+
+<main id="deck">
+
+<!-- ============ 1 COVER ============ -->
+<section class="frame cover" id="p1">
+  <p class="eyebrow">UX@Berkeley · Fall 2026 mini-project</p>
+  <h1>AccessPath</h1>
+  <p class="sub">Navigation designed around accessibility, not just distance.</p>
+  <p class="desc">
+    A mobile navigation app that routes wheelchair users along paths they can
+    actually use — and tells them when conditions change mid-trip.
+  </p>
+
+  <div class="cover-art">
+    <span class="chip"><svg class="ic" aria-hidden="true"><use href="#ic-ramp"/></svg>Step-free</span>
+    <span class="chip"><svg class="ic" aria-hidden="true"><use href="#ic-slope"/></svg>Low incline</span>
+    <span class="chip"><svg class="ic" aria-hidden="true"><use href="#ic-door"/></svg>Accessible entrance</span>
+    <span class="chip warn"><svg class="ic" aria-hidden="true"><use href="#ic-warn"/></svg>Elevator out</span>
+  </div>
+
+  <dl class="meta">
+    <div><dt>Designer</dt><dd>Payton Nguyen</dd></div>
+    <div><dt>Focus</dt><dd>Mobility / wheelchair routing</dd></div>
+    <div><dt>Deliverable</dt><dd>3 screens + rationale</dd></div>
+    <div><dt>Scope</dt><dd>Concept, solo, ~1 week</dd></div>
+  </dl>
+</section>
+
+<!-- ============ 2 PROBLEM ============ -->
+<section class="frame" id="p2">
+  <div class="fh"><span class="n">02</span><span class="lbl">Problem &amp; user need</span></div>
+
+  <h2 class="ftitle">The fastest route and the usable route are not the same route</h2>
+
+  <dl class="dl">
+    <dt>Problem</dt>
+    <dd>
+      Most navigation apps optimize for speed and distance. The fastest route is
+      not always physically usable — one flight of stairs makes it impossible,
+      not slower. Accessibility also changes without warning: elevators break,
+      construction appears, entrances get blocked.
+    </dd>
+
+    <dt>Who it's for</dt>
+    <dd>
+      A wheelchair user navigating an unfamiliar campus, neighborhood, or transit
+      hub. <span class="quiet">The gap isn't the person — it's that the physical
+      condition of a route is information nobody is showing them until they're
+      standing in front of it.</span>
+    </dd>
+
+    <dt>User need</dt>
+    <dd class="pullquote">
+      “I need to know whether a route works for me before I'm already there.”
+    </dd>
+
+    <dt>Design goal</dt>
+    <dd>
+      Help users understand whether a route is accessible <em>before</em> they
+      encounter an obstacle, and make it easy to adapt when conditions change.
+    </dd>
+
+    <dt>Out of scope</dt>
+    <dd class="quiet">
+      I focused on mobility and wheelchair routing rather than covering mobility,
+      vision, and hearing at once. Vision and hearing support are sketched as
+      future work on the last page.
+    </dd>
+  </dl>
+
+  <div class="assume">
+    <h3>What I assumed, and what I didn't do</h3>
+    <p>
+      I did not run user interviews or collect data for this project, so there
+      are no research findings here. The framing comes from the prompt and my own
+      reasoning. Three assumptions drive the design:
+    </p>
+    <ul>
+      <li><b>Needs vary.</b> Two wheelchair users won't accept the same route — one avoids all inclines, another doesn't mind a gentle grade. So routing has to be adjustable, not one “accessible mode.”</li>
+      <li><b>Accessibility data goes stale.</b> A route that was step-free last month may be blocked today, so recency matters more than volume of reports.</li>
+      <li><b>Users want to decide.</b> Hiding the faster route would take the choice away. Showing it with a specific reason keeps the decision with the user.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 3 SCREEN 1 ============ -->
+<section class="frame" id="p3">
+  <div class="fh"><span class="n">03</span><span class="lbl">Screen 1 · Accessibility preferences</span></div>
+
+  <h2 class="ftitle">Ask what “accessible” means to this user, first</h2>
+  <p class="flede">
+    Before searching, the user sets what the route should optimize for. These
+    preferences carry through every screen that follows.
+  </p>
+
+  <div class="split">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="sb-icons"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i><i class="bat"></i></span>
+          </div>
+
+          <div class="s-pad">
+            <h3 class="s-title">How should we route you?</h3>
+            <p class="s-sub">Pick what matters for your route. You can change this anytime.</p>
+
+            <div class="field">
+              <span class="flabel">From</span>
+              <span class="fval">Sproul Plaza · Current location</span>
+            </div>
+            <div class="field filled" style="margin-top:10px">
+              <span class="flabel">Where are you going?</span>
+              <span class="fval">Doe Library</span>
+            </div>
+
+            <p class="s-label">Route preferences</p>
+            <div class="opts">
+              <label class="opt">
+                <span class="oi"><svg class="ic ic-20" aria-hidden="true"><use href="#ic-ramp"/></svg></span>
+                <span class="ot"><b>Step-free route</b><span>Never route me over stairs</span></span>
+                <input type="checkbox" checked>
+                <span class="sw" aria-hidden="true"></span>
+              </label>
+              <label class="opt">
+                <span class="oi"><svg class="ic ic-20" aria-hidden="true"><use href="#ic-slope"/></svg></span>
+                <span class="ot"><b>Avoid steep inclines</b><span>Keep grades gentle where possible</span></span>
+                <input type="checkbox" checked>
+                <span class="sw" aria-hidden="true"></span>
+              </label>
+              <label class="opt">
+                <span class="oi"><svg class="ic ic-20" aria-hidden="true"><use href="#ic-door"/></svg></span>
+                <span class="ot"><b>Accessible entrances</b><span>Ramp or level entry at the door</span></span>
+                <input type="checkbox" checked>
+                <span class="sw" aria-hidden="true"></span>
+              </label>
+              <label class="opt">
+                <span class="oi"><svg class="ic ic-20" aria-hidden="true"><use href="#ic-elev"/></svg></span>
+                <span class="ot"><b>Elevators preferred</b><span>Use elevators instead of long ramps</span></span>
+                <input type="checkbox">
+                <span class="sw" aria-hidden="true"></span>
+              </label>
+            </div>
+
+            <div style="margin:22px 0 20px"><button class="cta" type="button">Find accessible route</button></div>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="caption">Screen 1 — preferences. The toggles work; try them.</p>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <b>Preferences come before the search, not after it</b>
+        <p>
+          In most apps, accessibility is a checkbox buried in settings. Putting it
+          on the first screen makes it the premise of the search rather than a
+          filter applied to results.
+        </p>
+      </div>
+      <div class="note">
+        <b>Each toggle names a physical condition</b>
+        <p>
+          “Step-free route” and “Avoid steep inclines” instead of one vague
+          “accessible mode” switch. The user knows exactly what is being filtered
+          on, which also makes it clear later <em>why</em> a route was rejected.
+        </p>
+      </div>
+      <div class="note">
+        <b>Defaults on, but all four are optional</b>
+        <p>
+          Three are on by default because they're the most common needs, and
+          “Elevators preferred” is off because some users specifically avoid
+          them. Nothing is locked — this is the user's definition, not the app's.
+        </p>
+      </div>
+      <div class="note plain">
+        <b>Accessibility of the UI itself</b>
+        <p>
+          16 px minimum text, 64 px-tall tap targets, an icon and a label on every
+          option, and state shown by the switch position rather than color alone.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 SCREEN 2 ============ -->
+<section class="frame" id="p4">
+  <div class="fh"><span class="n">04</span><span class="lbl">Screen 2 · Route comparison</span></div>
+
+  <h2 class="ftitle">Show the trade-off instead of hiding the faster route</h2>
+  <p class="flede">
+    The main screen. Two minutes is the entire cost of the accessible route, and
+    the reason the faster one was not recommended is stated in the user's own
+    terms.
+  </p>
+
+  <div class="split">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="sb-icons"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i><i class="bat"></i></span>
+          </div>
+
+          <div class="navbar">
+            <span class="back"><svg class="ic" aria-hidden="true"><use href="#ic-back"/></svg></span>
+            <span>
+              <span class="route-ttl">Sproul Plaza → Doe Library</span>
+              <span class="route-sub">2 routes</span>
+            </span>
+          </div>
+
+          <div class="map">
+            <svg viewBox="0 0 330 250" role="img" aria-label="Map from Sproul Plaza to Doe Library showing an accessible route and a faster route that contains stairs.">
+              <rect width="330" height="250" fill="#EDF0F3"/>
+              <rect x="14" y="10" width="120" height="58" rx="4" fill="#E2E9E1"/>
+              <text x="24" y="36" font-family="system-ui,sans-serif" font-size="10" fill="#7E8B92">Memorial</text>
+              <text x="24" y="49" font-family="system-ui,sans-serif" font-size="10" fill="#7E8B92">Glade</text>
+              <rect x="186" y="16" width="128" height="56" rx="4" fill="#DFE4E9"/>
+              <text x="196" y="40" font-family="system-ui,sans-serif" font-size="10.5" fill="#6E7B86">Doe Library</text>
+              <rect x="146" y="104" width="86" height="48" rx="4" fill="#DFE4E9"/>
+              <text x="156" y="132" font-family="system-ui,sans-serif" font-size="10.5" fill="#6E7B86">Wheeler</text>
+              <rect x="16" y="176" width="92" height="58" rx="4" fill="#DFE4E9"/>
+              <text x="26" y="209" font-family="system-ui,sans-serif" font-size="10.5" fill="#6E7B86">Sproul Hall</text>
+              <path d="M0 158h330" stroke="#E4E8EB" stroke-width="12"/>
+              <path d="M124 250V0" stroke="#E4E8EB" stroke-width="12"/>
+
+              <path d="M124 214 C 124 190 132 176 158 168 C 196 156 214 140 226 112 C 236 90 240 76 244 60"
+                    fill="none" stroke="#97A3AE" stroke-width="4" stroke-dasharray="9 8" stroke-linecap="round"/>
+              <path d="M124 214 C 90 210 66 196 62 168 C 58 138 72 112 100 96 C 138 74 190 68 244 60"
+                    fill="none" stroke="#0F4C8A" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+              <circle cx="124" cy="214" r="9" fill="#fff" stroke="#0F4C8A" stroke-width="3.5"/>
+              <circle cx="244" cy="60" r="8.5" fill="#0F4C8A" stroke="#fff" stroke-width="3.5"/>
+            </svg>
+
+            <span class="mk" style="left:19%;top:66%"><span class="g"><svg class="ic" aria-hidden="true"><use href="#ic-ramp"/></svg></span>Ramp</span>
+            <span class="mk" style="left:47%;top:31%"><span class="g"><svg class="ic" aria-hidden="true"><use href="#ic-door"/></svg></span>Step-free entrance</span>
+            <span class="mk warn" style="left:63%;top:57%"><span class="g"><svg class="ic" aria-hidden="true"><use href="#ic-warn"/></svg></span>Stairs</span>
+          </div>
+
+          <div class="sheet">
+            <div class="rcard rec">
+              <span class="badge"><svg class="ic" style="width:12px;height:12px" aria-hidden="true"><use href="#ic-check"/></svg>Recommended</span>
+              <div class="rtop">
+                <span class="rname">Accessible route</span>
+                <span class="rtime">8 min</span>
+              </div>
+              <p class="rdist">0.4 mi · matches all your preferences</p>
+              <div class="tags">
+                <span class="tag"><svg class="ic" style="width:13px;height:13px" aria-hidden="true"><use href="#ic-ramp"/></svg>Step-free</span>
+                <span class="tag"><svg class="ic" style="width:13px;height:13px" aria-hidden="true"><use href="#ic-slope"/></svg>Low incline</span>
+                <span class="tag"><svg class="ic" style="width:13px;height:13px" aria-hidden="true"><use href="#ic-door"/></svg>Accessible entrance</span>
+              </div>
+              <button class="cta" type="button">Start accessible route</button>
+            </div>
+
+            <div class="rcard">
+              <div class="rtop">
+                <span class="rname">Fastest route</span>
+                <span class="rtime">6 min</span>
+              </div>
+              <p class="rdist">0.3 mi</p>
+              <div class="flag">
+                <svg class="ic ic-20" aria-hidden="true" style="margin-top:1px"><use href="#ic-warn"/></svg>
+                <span>
+                  <b>Contains stairs</b>
+                  <span>Doesn't match your step-free preference.</span>
+                </span>
+              </div>
+              <div class="linkrow"><span>Saves 2 minutes</span><a href="#p4">View anyway</a></div>
+            </div>
+          </div>
+
+          <div class="prefbar">
+            <svg class="ic" aria-hidden="true"><use href="#ic-check"/></svg>
+            <span>Routing for <b>step-free · low incline · accessible entrances</b></span>
+            <a href="#p3">Edit</a>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="caption">Screen 2 — route comparison</p>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <b>The recommended route wins on emphasis, not by deletion</b>
+        <p>
+          The accessible route gets the filled card, the badge, and the only
+          primary button. The fastest route stays fully readable right below it.
+          Removing it would make the app decide for the user; this way the app
+          makes a recommendation and shows its reasoning.
+        </p>
+      </div>
+      <div class="note">
+        <b>The warning is specific and checkable</b>
+        <p>
+          “Contains stairs — doesn't match your step-free preference” instead of
+          “may not be accessible.” It names the physical obstacle and ties it back
+          to the setting the user chose on Screen 1, so the recommendation is
+          traceable rather than a black box.
+        </p>
+      </div>
+      <div class="note">
+        <b>The cost is stated plainly: 2 minutes</b>
+        <p>
+          Both times sit at the same size in the same position, and “Saves 2
+          minutes” names the trade-off out loud. The principle behind the whole
+          screen: usability of a route matters more than its length.
+        </p>
+      </div>
+      <div class="note">
+        <b>Map markers pair an icon with a word</b>
+        <p>
+          Ramp, step-free entrance, and stairs are labeled, and the two route
+          lines differ in weight and dash pattern as well as color — so nothing on
+          the map depends on color vision to read.
+        </p>
+      </div>
+      <div class="uitext">
+        <h4>Assumption</h4>
+        <p>
+          Route details are illustrative. A real version depends on sidewalk
+          grade, curb-cut, and entrance data that is patchy in most cities —
+          which is the genuinely hard part of building this.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 SCREEN 3 ============ -->
+<section class="frame" id="p5">
+  <div class="fh"><span class="n">05</span><span class="lbl">Screen 3 · Live obstacle &amp; rerouting</span></div>
+
+  <h2 class="ftitle">A route can stop being accessible after you've started walking it</h2>
+  <p class="flede">
+    Static map data can't know that an elevator went out this morning. The alert
+    arrives while the user still has room to change course.
+  </p>
+
+  <div class="split">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="sb-icons"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i><i class="bat"></i></span>
+          </div>
+
+          <div class="instr">
+            <span class="arrow"><svg class="ic ic-26" aria-hidden="true"><use href="#ic-up"/></svg></span>
+            <span>
+              <span class="big">Continue straight · 300 ft</span>
+              <span class="small">Then left toward the north entrance</span>
+            </span>
+          </div>
+
+          <div class="map">
+            <svg viewBox="0 0 330 190" role="img" aria-label="Navigation map showing the current route ahead, with an unavailable elevator marked on the path.">
+              <rect width="330" height="190" fill="#EDF0F3"/>
+              <rect x="188" y="12" width="126" height="50" rx="4" fill="#DFE4E9"/>
+              <text x="198" y="42" font-family="system-ui,sans-serif" font-size="10.5" fill="#6E7B86">Doe Library</text>
+              <rect x="18" y="18" width="96" height="44" rx="4" fill="#E2E9E1"/>
+              <path d="M0 118h330" stroke="#E4E8EB" stroke-width="13"/>
+              <path d="M150 190V52" stroke="#E4E8EB" stroke-width="13"/>
+              <path d="M60 176 C 96 174 128 160 150 136 C 168 116 178 96 208 82 C 232 71 244 66 252 62"
+                    fill="none" stroke="#0F4C8A" stroke-width="6.5" stroke-linecap="round"/>
+              <circle cx="252" cy="62" r="8.5" fill="#0F4C8A" stroke="#fff" stroke-width="3.5"/>
+              <circle cx="60" cy="176" r="13" fill="#0F4C8A" opacity=".18"/>
+              <circle cx="60" cy="176" r="8" fill="#0F4C8A" stroke="#fff" stroke-width="3"/>
+            </svg>
+            <span class="mk warn" style="left:57%;top:47%"><span class="g"><svg class="ic" aria-hidden="true"><use href="#ic-elev"/></svg></span>Elevator out</span>
+            <span class="mk pt" style="left:18%;top:92%">You</span>
+          </div>
+
+          <div class="alert" role="status">
+            <div class="alert-head">
+              <span class="ai"><svg class="ic ic-22" aria-hidden="true"><use href="#ic-warn"/></svg></span>
+              <span>
+                <h4>Elevator unavailable ahead</h4>
+                <p class="src">Reported by another user 14 minutes ago.</p>
+              </span>
+            </div>
+            <div class="alt">
+              <span class="g"><svg class="ic ic-20" aria-hidden="true"><use href="#ic-check"/></svg></span>
+              <span>
+                <b>Alternative route</b>
+                <span>Step-free · ramp at the north entrance</span>
+              </span>
+              <span class="plus">+3 min</span>
+            </div>
+            <div class="btnrow">
+              <button class="cta" type="button">Reroute</button>
+              <button class="cta ghost" type="button">Report update</button>
+            </div>
+          </div>
+
+          <div class="tripbar">
+            <span>
+              <span class="eta">8 min</span>
+              <span class="det">0.4 mi · arrive 9:49</span>
+            </span>
+            <button class="end" type="button">End</button>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="caption">Screen 3 — live obstacle and reroute</p>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <b>The report's age is part of the alert, not a detail</b>
+        <p>
+          “14 minutes ago” is what makes the report worth acting on. For temporary
+          obstacles, recency is the credibility signal — a report from last week
+          would need to be presented much more tentatively, or not at all.
+        </p>
+      </div>
+      <div class="note">
+        <b>The alternative is priced before the user commits</b>
+        <p>
+          +3 minutes and “step-free” appear on the same card as the Reroute
+          button. Same principle as Screen 2: the app recommends, and shows the
+          cost, so accepting the detour is an informed choice rather than a
+          surprise.
+        </p>
+      </div>
+      <div class="note">
+        <b>Reporting supports navigation — it isn't the product</b>
+        <p>
+          “Report update” is a secondary button that appears in context, at the
+          moment the user is standing in front of the obstacle and actually knows
+          the answer. There's no separate feed, profile, or points system.
+        </p>
+      </div>
+      <div class="note plain">
+        <b>Alert, not interruption</b>
+        <p>
+          The card slides under the turn instruction rather than covering the map,
+          and it can be ignored — navigation continues either way. An accessibility
+          warning that blocks the screen is its own kind of obstacle.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 DECISIONS ============ -->
+<section class="frame" id="p6">
+  <div class="fh"><span class="n">06</span><span class="lbl">Design decisions &amp; next steps</span></div>
+
+  <h2 class="ftitle">Three decisions the whole product rests on</h2>
+
+  <div class="grid3" style="margin-top:26px">
+    <div class="dec">
+      <div class="rule"></div>
+      <h3>Personalized routing</h3>
+      <p>
+        Accessibility needs aren't identical, so the user sets what the route
+        optimizes for instead of accepting one built-in definition of
+        “accessible.”
+      </p>
+    </div>
+    <div class="dec">
+      <div class="rule"></div>
+      <h3>Accessibility over speed</h3>
+      <p>
+        The interface explains why the recommended route is longer and keeps the
+        faster option visible with a specific reason attached, so the choice stays
+        with the user.
+      </p>
+    </div>
+    <div class="dec">
+      <div class="rule"></div>
+      <h3>Real-time information</h3>
+      <p>
+        Recent reports cover what static map data misses — broken elevators,
+        construction, closed entrances — and reroute before the user reaches them.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <h3>How the UI applies this to itself</h3>
+      <ul>
+        <li><b>Icon plus text, always.</b> No status is carried by color alone.</li>
+        <li><b>Large targets and type.</b> 16 px minimum body text, tap targets above 44 px.</li>
+        <li><b>Plain language.</b> “Contains stairs,” not “limited accessibility.”</li>
+        <li><b>Strong contrast, low clutter.</b> One accent color, one warning color, no decorative gradients.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Where I'd take it next</h3>
+      <ul>
+        <li><b>Vision.</b> Spoken directions cued to landmarks and surfaces, not just distances.</li>
+        <li><b>Hearing.</b> Visual and haptic transit alerts for stops and platform changes.</li>
+        <li><b>Verified venues.</b> Operator-confirmed entrance and elevator data alongside user reports.</li>
+        <li><b>The real blocker.</b> Sourcing sidewalk grade, curb-cut, and entrance data — and getting enough active reporters in one place for live updates to be dependable.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="deck-foot">
+  <p>
+    AccessPath is a concept project made for the UX@Berkeley Fall 2026
+    application. It is not a shipping product, and no user research or data
+    collection was conducted for it.
+  </p>
+</footer>
+</body>
+</html>
