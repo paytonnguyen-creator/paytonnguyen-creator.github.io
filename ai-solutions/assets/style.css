@@ -469,6 +469,9 @@ img, svg { max-width: 100%; }
 
 /* ── Scroll-in ──────────────────────────────────────────────────────────── */
 
-.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.reveal { transition: opacity .6s ease, transform .6s ease; }
+/* Only hide it if scripting is live to bring it back — otherwise the page
+   reads fine with JS off instead of rendering as blank bands. */
+.js .reveal { opacity: 0; transform: translateY(18px); }
 .reveal.is-in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }

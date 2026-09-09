@@ -1,6 +1,10 @@
 /* AI Solutions @ Berkeley — nav behaviour, scrollspy, and scroll-in reveals.
    Every block is guarded so this file is safe to drop on any page. */
 
+/* Marks the document as scripted, which is what arms the reveal animation.
+   Without it the .reveal sections simply render in place. */
+document.documentElement.classList.add('js');
+
 const nav = document.getElementById('nav');
 const links = [...document.querySelectorAll('.nav nav a')];
 
