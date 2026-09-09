@@ -193,7 +193,7 @@ h2.ftitle{font-size:27px;font-weight:700;line-height:1.2;margin-bottom:10px}
 .assume li b{color:var(--ink);font-weight:600}
 
 /* ---------- screen pages ---------- */
-.split{display:grid;grid-template-columns:352px 1fr;gap:52px;align-items:start;margin-top:6px}
+.split{display:grid;grid-template-columns:372px 1fr;gap:50px;align-items:start;margin-top:6px}
 .notes{display:flex;flex-direction:column;gap:26px}
 .note{border-left:3px solid var(--accent);padding:1px 0 1px 17px}
 .note b{
@@ -214,6 +214,21 @@ h2.ftitle{font-size:27px;font-weight:700;line-height:1.2;margin-bottom:10px}
 .dec h3{font-family:var(--font-display);font-size:17px;font-weight:600;margin-bottom:7px}
 .dec .rule{width:34px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:13px}
 .dec p{font-size:16px;color:var(--ink-2)}
+.sec-h{
+  font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:18px;
+}
+.divider{padding-top:32px;border-top:1px solid var(--line);margin-top:2px}
+.dec.rejected .rule{background:var(--ink-3);width:22px}
+.dec.rejected h3{color:var(--ink)}
+.dec .verdict{
+  display:block;font-size:14.5px;color:var(--ink);font-weight:600;
+  margin-top:8px;padding-left:11px;border-left:2px solid var(--accent);
+}
+.closing{
+  margin-top:34px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:14.5px;color:var(--ink-3);max-width:78ch;
+}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:34px;padding-top:32px;border-top:1px solid var(--line)}
 .grid2 h3{
   font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
@@ -438,11 +453,24 @@ footer.deck-foot{
 }
 
 @media print{
+  :root{
+    --paper:#fff; --frame:#fff; --ink:#101820; --ink-2:#414E5B; --ink-3:#5F6D7A;
+    --line:#D3D9E0; --accent:#0F4C8A; --accent-soft:#E9F0F8; --accent-line:#B9D0E8;
+    --warn-ink:#6E3D00; --warn-soft:#FBEFDA; --warn-line:#DFC79E;
+  }
+  html,body{background:#fff}
   .topbar{display:none}
-  body{background:#fff}
-  #deck{padding:0;gap:0}
-  .frame{break-inside:avoid;break-after:page;box-shadow:none;border:none;padding:26px 0}
+  #deck{padding:0;gap:0;max-width:none}
+  .frame{
+    break-inside:avoid;break-after:page;
+    box-shadow:none;border:none;border-radius:0;
+    background:#fff;padding:46px 54px 40px;
+  }
+  .frame:last-of-type{break-after:auto}
+  .cover{border-top:6px solid var(--accent);padding-top:58px}
   .phone-wrap{position:static}
+  .phone{box-shadow:0 0 0 1.5px #2A343F}
+  a{text-decoration:none}
 }
 </style>
 
@@ -966,6 +994,39 @@ footer.deck-foot{
     </div>
   </div>
 
+  <div class="divider">
+    <p class="sec-h">What I considered and rejected</p>
+    <div class="grid3" style="margin-bottom:0">
+      <div class="dec rejected">
+        <div class="rule"></div>
+        <h3>One “accessible mode” switch</h3>
+        <p>
+          Simpler than four toggles, but it hides what's actually being filtered
+          on — and a single switch can't explain why a route was rejected.
+        </p>
+        <span class="verdict">Four named conditions cost one screen and make every later warning traceable.</span>
+      </div>
+      <div class="dec rejected">
+        <div class="rule"></div>
+        <h3>Hiding inaccessible routes</h3>
+        <p>
+          A shorter, cleaner list. But it quietly removes the user's judgement —
+          some people would take two steps with a hand, others never would.
+        </p>
+        <span class="verdict">Show the route, name the obstacle, let the user decide.</span>
+      </div>
+      <div class="dec rejected">
+        <div class="rule"></div>
+        <h3>A full crowdsourced access map</h3>
+        <p>
+          More ambitious, but it only works with a dense reporting community, and
+          it turns the product into contributing rather than getting somewhere.
+        </p>
+        <span class="verdict">Reporting stays one button, inside navigation.</span>
+      </div>
+    </div>
+  </div>
+
   <div class="grid2">
     <div>
       <h3>How the UI applies this to itself</h3>
@@ -986,16 +1047,15 @@ footer.deck-foot{
       </ul>
     </div>
   </div>
+
+  <p class="closing">
+    AccessPath is a concept project made for the UX@Berkeley Fall 2026
+    application. It is not a shipping product, and no user research or data
+    collection was conducted for it — every judgement here is my own reasoning
+    from the prompt, and the assumptions behind it are labelled on page 02.
+  </p>
 </section>
 
 </main>
-
-<footer class="deck-foot">
-  <p>
-    AccessPath is a concept project made for the UX@Berkeley Fall 2026
-    application. It is not a shipping product, and no user research or data
-    collection was conducted for it.
-  </p>
-</footer>
 </body>
 </html>
