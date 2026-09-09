@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Solutions @ Berkeley — Student AI Consulting at UC Berkeley</title>
+<meta name="description" content="AI Solutions @ Berkeley is a student-run AI consulting organization at UC Berkeley. We pair interdisciplinary undergraduate teams with companies and labs to scope, build and ship real AI systems. Founding cohort recruiting now.">
+
+<!-- Link previews (LinkedIn, Slack, iMessage).
+     TODO: export a 1200×630 PNG to assets/og.png and uncomment the og:image
+     tags — until that file exists, previews fall back to a plain text card.
+     TODO: if you move to a custom domain, update og:url and the canonical. -->
+<link rel="canonical" href="https://paytonnguyen-creator.github.io/ai-solutions/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI Solutions @ Berkeley">
+<meta property="og:title" content="AI Solutions @ Berkeley">
+<meta property="og:description" content="Student-run AI consulting at UC Berkeley. Interdisciplinary teams that scope, build and ship real AI systems. Founding cohort recruiting now.">
+<meta property="og:url" content="https://paytonnguyen-creator.github.io/ai-solutions/">
+<!-- <meta property="og:image" content="https://paytonnguyen-creator.github.io/ai-solutions/assets/og.png"> -->
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/logo.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/style.css?v=1">
+</head>
+<body>
+<a class="skip" href="#about">Skip to content</a>
+
+<!-- ── NAV ──────────────────────────────────────────────────────────────── -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#home">
+      <img src="assets/logo.svg" alt="" width="38" height="38">
+      <span class="brand-text">
+        <span class="brand-name">AI Solutions</span>
+        <span class="brand-sub">at Berkeley</span>
+      </span>
+    </a>
+    <nav aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#work">What we do</a>
+      <a href="#process">Process</a>
+      <a href="#join">Recruitment</a>
+      <a href="#team">Team</a>
+      <a href="#faq">FAQ</a>
+      <!-- Shown only in the mobile drawer, where the header CTA is hidden. -->
+      <a href="#join" class="nav-apply">Apply &rarr;</a>
+    </nav>
+    <!-- TODO: point this at your live application / interest form. -->
+    <a class="btn btn--gold" href="#join">Apply</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Menu"><span></span></button>
+  </div>
+</header>
+
+<!-- ── HERO ─────────────────────────────────────────────────────────────── -->
+<section class="hero" id="home">
+  <!-- Campanile drawn as original vector art rather than a campus photograph,
+       which would be someone else's copyright on a public page. -->
+  <svg class="hero-skyline" viewBox="0 0 400 560" aria-hidden="true">
+    <!-- Finial -->
+    <circle cx="200" cy="11" r="6" fill="#14294b"/>
+    <rect x="198" y="14" width="4" height="10" fill="#14294b"/>
+    <!-- Tower. Openings are knocked out with even-odd so the hero gradient
+         shows through them rather than being painted over in a flat cream. -->
+    <path fill="#14294b" fill-rule="evenodd" d="
+      M200 22 L250 122 L256 122 L256 134 L244 134 L244 520
+      L258 520 L258 540 L142 540 L142 520 L156 520 L156 134
+      L144 134 L144 122 L150 122 Z
+      M166 212 V180 a10 10 0 0 1 20 0 V212 Z
+      M190 212 V180 a10 10 0 0 1 20 0 V212 Z
+      M214 212 V180 a10 10 0 0 1 20 0 V212 Z
+      M200 275 a15 15 0 1 0 0.01 0 Z
+      M180 404 V364 a8 8 0 0 1 16 0 V404 Z
+      M204 404 V364 a8 8 0 0 1 16 0 V404 Z
+    "/>
+  </svg>
+
+  <div class="wrap hero-inner">
+    <span class="pill"><span class="dot"></span> Founding cohort — applications open</span>
+    <h1>Berkeley students who <span class="accent">ship AI</span>, not slide decks.</h1>
+    <p class="lede">
+      AI Solutions @ Berkeley is a student-run consulting organization pairing
+      interdisciplinary undergraduate teams with companies, labs and non-profits
+      to scope, build and deploy real AI systems — one semester at a time.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn--navy" href="#join">Join the founding cohort</a>
+      <a class="btn btn--ghost" href="#partner">Partner with us</a>
+    </div>
+    <p class="hero-note">Founded 2026 · University of California, Berkeley</p>
+  </div>
+</section>
+
+<!-- ── FACTS ────────────────────────────────────────────────────────────── -->
+<!-- Deliberately no member/project/revenue counts here: the club is being
+     founded, and inventing numbers is the fastest way to lose a partner's
+     trust. Swap these for real figures at the end of the first semester. -->
+<section class="facts">
+  <div class="wrap">
+    <dl class="facts-grid">
+      <div class="fact"><dt>Founded</dt><dd>2026</dd></div>
+      <div class="fact"><dt>Campus</dt><dd>UC Berkeley</dd></div>
+      <div class="fact"><dt>Engagement</dt><dd>One semester</dd></div>
+      <div class="fact"><dt>Cost to partners</dt><dd>Pro bono</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ── ABOUT ────────────────────────────────────────────────────────────── -->
+<section class="section section--cream" id="about">
+  <div class="wrap split reveal">
+    <div>
+      <p class="eyebrow">About us</p>
+      <h2>Every company now has an AI question. Most don't have anyone to answer it.</h2>
+      <p class="lede">
+        The gap isn't models — it's judgment. Which problem is actually worth
+        automating? What does the data support? What breaks when a language model
+        is wrong 4% of the time, and is that acceptable here?
+      </p>
+      <p>
+        We founded AI Solutions @ Berkeley to put students on the right side of
+        that question. Each semester we assemble small, cross-disciplinary teams —
+        engineers alongside people from economics, cognitive science, design and
+        business — and hand them one scoped problem from a real organization. The
+        team owns it end to end: discovery, data, prototype, evaluation, handoff.
+      </p>
+      <p>
+        We are not a lecture series and we are not a case-competition club. The
+        deliverable is a working system and the evidence that it holds up.
+      </p>
+      <p class="quote">
+        Our bar for a finished project: the partner still uses it a month after we
+        leave.
+      </p>
+    </div>
+
+    <div>
+      <ul class="check-list">
+        <li>
+          <span>
+            <strong>Interdisciplinary by design</strong>
+            An AI deployment fails on adoption and incentives far more often than
+            on architecture. We staff for both.
+          </span>
+        </li>
+        <li>
+          <span>
+            <strong>Real scope, real constraints</strong>
+            Partner data, partner deadlines, partner definition of done — not a
+            sandbox dataset with a tidy answer.
+          </span>
+        </li>
+        <li>
+          <span>
+            <strong>Evaluation is the deliverable</strong>
+            Anyone can demo a prompt. We measure the thing, document where it
+            fails, and say so plainly.
+          </span>
+        </li>
+        <li>
+          <span>
+            <strong>Teaching built in</strong>
+            Internal workshops each semester so a first-year with no ML background
+            can contribute by week four.
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT WE DO ───────────────────────────────────────────────────────── -->
+<section class="section" id="work">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">What we do</p>
+      <h2>Four kinds of engagement</h2>
+      <p class="lede">
+        A semester team takes on one of these. We'd rather do a single scope
+        properly than four things halfway.
+      </p>
+    </div>
+
+    <div class="grid grid--4 reveal">
+      <article class="card">
+        <div class="card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+          </svg>
+        </div>
+        <h3>AI opportunity mapping</h3>
+        <p>
+          We audit a workflow end to end, cost out where the hours actually go,
+          and rank what AI should and shouldn't touch — with the honest "not
+          worth it" cases named.
+        </p>
+        <div class="tag-row"><span class="tag">Discovery</span><span class="tag">Process audit</span><span class="tag">ROI model</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m8 8-5 4 5 4M16 8l5 4-5 4M14 4l-4 16"/>
+          </svg>
+        </div>
+        <h3>Prototype &amp; deployment</h3>
+        <p>
+          Retrieval systems, agents, internal copilots, classification pipelines.
+          Built in the partner's stack, handed over with documentation someone
+          else can maintain.
+        </p>
+        <div class="tag-row"><span class="tag">RAG</span><span class="tag">Agents</span><span class="tag">Integration</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/>
+          </svg>
+        </div>
+        <h3>Data &amp; evaluation</h3>
+        <p>
+          Getting the data into shape, then building the eval set and metrics that
+          tell you whether the system is good enough to trust in production.
+        </p>
+        <div class="tag-row"><span class="tag">Pipelines</span><span class="tag">Benchmarks</span><span class="tag">Error analysis</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>
+          </svg>
+        </div>
+        <h3>Enablement &amp; training</h3>
+        <p>
+          Workshops and internal playbooks that leave a partner's team able to run
+          and extend the thing after we've graduated.
+        </p>
+        <div class="tag-row"><span class="tag">Workshops</span><span class="tag">Playbooks</span><span class="tag">Handoff</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROCESS ──────────────────────────────────────────────────────────── -->
+<section class="section section--cream-deep" id="process">
+  <div class="wrap split reveal">
+    <div>
+      <p class="eyebrow">How a semester runs</p>
+      <h2>Sixteen weeks, one problem, one working answer.</h2>
+      <p class="lede">
+        Consulting hours are the same as anyone's: the difference is what you do
+        in weeks one and two. We spend them narrowing the question until the
+        build is obvious.
+      </p>
+      <div class="btn-row" style="margin-top:1.75rem">
+        <a class="btn btn--navy" href="#partner">Bring us a problem</a>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="step">
+        <span class="when">Weeks 1–2</span>
+        <h3>Scoping</h3>
+        <p>Stakeholder interviews and a written problem statement. If we can't state the success metric in one sentence, we haven't scoped it yet.</p>
+      </div>
+      <div class="step">
+        <span class="when">Weeks 3–5</span>
+        <h3>Discovery &amp; data</h3>
+        <p>Process mapping, data access, a baseline. Often the most valuable week is the one where we prove the naive approach already works.</p>
+      </div>
+      <div class="step">
+        <span class="when">Weeks 6–10</span>
+        <h3>Build</h3>
+        <p>Two-week sprints with a partner check-in closing each one. Something demoable exists by week eight, whatever else slips.</p>
+      </div>
+      <div class="step">
+        <span class="when">Weeks 11–13</span>
+        <h3>Evaluation</h3>
+        <p>Held-out tests, failure taxonomy, cost and latency under real load. This is where we find out what we actually built.</p>
+      </div>
+      <div class="step">
+        <span class="when">Weeks 14–16</span>
+        <h3>Handoff</h3>
+        <p>Final presentation, documented repository, and a runbook. Plus a candid memo on what we'd do differently with more time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── RECRUITMENT ──────────────────────────────────────────────────────── -->
+<section class="section on-navy" id="join">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Recruitment</p>
+      <h2>We're building the founding cohort.</h2>
+      <p class="lede">
+        Founding members shape how this club works — the project pipeline, the
+        curriculum, the culture. That's the trade: more ambiguity than an
+        established org, and a great deal more ownership.
+      </p>
+    </div>
+
+    <div class="grid grid--3 reveal" style="margin-bottom:3.5rem">
+      <article class="card">
+        <span class="card-num">Who we want</span>
+        <h3>Builders</h3>
+        <p>
+          CS, EECS, Data Science, Statistics — people who have shipped something,
+          anything, and can read a codebase they didn't write.
+        </p>
+      </article>
+      <article class="card">
+        <span class="card-num">Who we want</span>
+        <h3>Strategists</h3>
+        <p>
+          Business, Economics, Cognitive Science, Political Economy — people who
+          can interview a stakeholder, find the real question, and write clearly.
+        </p>
+      </article>
+      <article class="card">
+        <span class="card-num">Who we want</span>
+        <h3>Designers &amp; communicators</h3>
+        <p>
+          If nobody uses the tool, it didn't work. We want people who care about
+          the interface and the story around it.
+        </p>
+      </article>
+    </div>
+
+    <p class="eyebrow reveal">Fall 2026 timeline</p>
+    <!-- TODO: replace every date below with your real recruitment dates before
+         you share this link. Keep the format consistent. -->
+    <div class="dates reveal">
+      <div class="date-row">
+        <span class="d">Date TBA</span>
+        <span class="what">Info session</span>
+        <span class="detail">Overview, project examples, Q&amp;A. Open to all majors and years.</span>
+      </div>
+      <div class="date-row">
+        <span class="d">Date TBA</span>
+        <span class="what">Coffee chats</span>
+        <span class="detail">Informal, optional, and not evaluated. Come ask us anything.</span>
+      </div>
+      <div class="date-row">
+        <span class="d">Date TBA</span>
+        <span class="what">Application due</span>
+        <span class="detail">Short written application. No résumé screen, no cover letter.</span>
+      </div>
+      <div class="date-row">
+        <span class="d">Date TBA</span>
+        <span class="what">Round 1 — behavioral</span>
+        <span class="detail">A conversation about how you think and what you've built.</span>
+      </div>
+      <div class="date-row">
+        <span class="d">Date TBA</span>
+        <span class="what">Round 2 — case</span>
+        <span class="detail">A short AI-scoping case. We give you the prep material in advance.</span>
+      </div>
+      <div class="date-row">
+        <span class="d">Date TBA</span>
+        <span class="what">Decisions</span>
+        <span class="detail">Everyone hears back, accepted or not.</span>
+      </div>
+    </div>
+
+    <div class="btn-row reveal" style="margin-top:2.5rem">
+      <!-- TODO: swap "#" for your application form URL when it's live. -->
+      <a class="btn btn--gold" href="#">Start an application</a>
+      <a class="btn btn--ghost" href="https://www.linkedin.com/company/143752028/" target="_blank" rel="noopener">Follow us on LinkedIn</a>
+    </div>
+    <p style="margin-top:1.25rem;font-size:.88rem;color:rgba(223,230,240,.6)">
+      No prior AI experience required. We recruit for judgment and follow-through;
+      the technical ramp is what our internal workshops are for.
+    </p>
+  </div>
+</section>
+
+<!-- ── TEAM ─────────────────────────────────────────────────────────────── -->
+<section class="section" id="team">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Founding team</p>
+      <h2>The people starting this</h2>
+      <p class="lede">
+        A small founding board, on purpose. Roles below are open — if you want to
+        help build the organization rather than join a finished one, say so in
+        your application.
+      </p>
+    </div>
+
+    <!-- TODO: for each person, replace the initials with a headshot:
+         <div class="avatar"><img src="assets/team/name.jpg" alt="Full Name"></div>
+         Keep images square and around 600×600. -->
+    <div class="grid grid--4 reveal">
+      <article class="person">
+        <div class="avatar" aria-hidden="true">PN</div>
+        <h3>Payton Nguyen</h3>
+        <p class="role">Co-Founder</p>
+        <p class="meta">Cognitive Science &amp; Data Science</p>
+        <p class="links">
+          <a href="https://paytonnguyen-creator.github.io/" target="_blank" rel="noopener">Portfolio</a>
+        </p>
+      </article>
+
+      <!-- TODO: your co-founder's details. -->
+      <article class="person">
+        <div class="avatar" aria-hidden="true">TBA</div>
+        <h3>Co-Founder</h3>
+        <p class="role">Co-Founder</p>
+        <p class="meta">Name and bio to come</p>
+      </article>
+
+      <article class="person person--open">
+        <div class="avatar" aria-hidden="true">+</div>
+        <h3>VP of Projects</h3>
+        <p class="role">Open</p>
+        <p class="meta">Owns the partner pipeline and project quality</p>
+      </article>
+
+      <article class="person person--open">
+        <div class="avatar" aria-hidden="true">+</div>
+        <h3>VP of Education</h3>
+        <p class="role">Open</p>
+        <p class="meta">Owns the internal technical curriculum</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── PARTNERS ─────────────────────────────────────────────────────────── -->
+<section class="section section--cream" id="partner">
+  <div class="wrap split reveal">
+    <div>
+      <p class="eyebrow">For companies &amp; labs</p>
+      <h2>Bring us a problem you haven't had time to look at.</h2>
+      <p class="lede">
+        Our engagements are pro bono. What we ask for instead is a real scope, a
+        point of contact who can answer questions inside a week, and access to
+        whatever data the work requires.
+      </p>
+      <p>
+        The best first projects tend to be the ones sitting in someone's backlog:
+        a manual process nobody has costed out, a pile of unstructured documents,
+        a support queue, an internal tool that never got built. Startups,
+        research groups, campus units and non-profits are all welcome.
+      </p>
+      <div class="btn-row" style="margin-top:1.75rem">
+        <!-- TODO: replace with your real club email. -->
+        <a class="btn btn--navy" href="mailto:aisolutionsberkeley@gmail.com?subject=Partnership%20enquiry">Email us about a project</a>
+      </div>
+    </div>
+
+    <div class="grid" style="gap:1.4rem">
+      <article class="card">
+        <span class="card-num">01</span>
+        <h3>What you get</h3>
+        <p>A scoped prototype, an evaluation report, documented code, and a final presentation to your team.</p>
+      </article>
+      <article class="card">
+        <span class="card-num">02</span>
+        <h3>What it costs</h3>
+        <p>Nothing. We're a student organization and our compensation is the experience.</p>
+      </article>
+      <article class="card">
+        <span class="card-num">03</span>
+        <h3>Confidentiality</h3>
+        <p>We'll sign your NDA. Anything not cleared for publication stays out of our public write-ups.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ──────────────────────────────────────────────────────────────── -->
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">FAQ</p>
+      <h2>Questions we keep getting</h2>
+    </div>
+
+    <div class="faq reveal">
+      <details>
+        <summary>Do I need to know machine learning to apply?</summary>
+        <p class="answer">
+          No. Roughly half of any good project team is scoping, interviewing,
+          analysis and communication. If you're joining as a builder we do expect
+          real programming experience, but "I've used an LLM API" is not a
+          prerequisite for anyone.
+        </p>
+      </details>
+      <details>
+        <summary>What's the time commitment?</summary>
+        <p class="answer">
+          Plan on 6–8 hours a week during the semester: a team working session, a
+          partner check-in, and your own project work. It climbs in the weeks
+          before a deliverable and drops after.
+        </p>
+      </details>
+      <details>
+        <summary>Are you a technical club or a business club?</summary>
+        <p class="answer">
+          Both, deliberately. The failure mode of a purely technical club is
+          building something nobody asked for; the failure mode of a purely
+          business one is recommending something nobody can build. We staff teams
+          so neither happens.
+        </p>
+      </details>
+      <details>
+        <summary>Can freshmen and transfer students apply?</summary>
+        <p class="answer">
+          Yes, and we'd like you to. Founding cohorts skew upperclassman by
+          default and that's a problem for continuity, so year is not a factor in
+          our decisions.
+        </p>
+      </details>
+      <details>
+        <summary>How is this different from the other Berkeley consulting clubs?</summary>
+        <p class="answer">
+          Scope and output. Traditional consulting clubs deliver a recommendation
+          deck; we deliver a working system plus the evidence it works. If your
+          interest is strategy consulting recruiting, there are excellent clubs on
+          campus built for that — we're built for shipping.
+        </p>
+      </details>
+      <details>
+        <summary>I'm not a student. Can I still work with you?</summary>
+        <p class="answer">
+          Yes — see <a href="#partner">For companies &amp; labs</a>. We're
+          actively looking for founding-semester partners and we'll happily talk
+          through whether a problem is a good fit before you commit.
+        </p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ──────────────────────────────────────────────────────────────── -->
+<section class="section on-navy cta">
+  <div class="wrap reveal">
+    <p class="eyebrow">Founding semester</p>
+    <h2>Clubs are only ever as good as the people who start them.</h2>
+    <p class="lede">
+      Applications for the founding cohort are open now. Partner conversations
+      too — the earlier, the better.
+    </p>
+    <div class="btn-row">
+      <!-- TODO: swap "#" for your application form URL. -->
+      <a class="btn btn--gold" href="#">Apply to join</a>
+      <a class="btn btn--ghost" href="#partner">Partner with us</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ───────────────────────────────────────────────────────────── -->
+<footer class="footer" id="contact">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="#home" style="margin-bottom:1rem">
+          <img src="assets/logo.svg" alt="" width="38" height="38">
+          <span class="brand-text">
+            <span class="brand-name">AI Solutions</span>
+            <span class="brand-sub">at Berkeley</span>
+          </span>
+        </a>
+        <p style="font-size:.93rem;max-width:32ch">
+          Student-run AI consulting at the University of California, Berkeley.
+        </p>
+        <div class="social">
+          <a href="https://www.linkedin.com/company/143752028/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05c.53-.95 1.83-1.95 3.75-1.95C21.4 8.75 22 11.1 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2.05-3.3-2.05 0-2.36 1.57-2.36 3.2V21h-4V9Z"/></svg>
+          </a>
+          <!-- TODO: add your Instagram handle, then uncomment.
+          <a href="https://www.instagram.com/YOUR_HANDLE/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a> -->
+        </div>
+      </div>
+
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#work">What we do</a></li>
+          <li><a href="#process">Process</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Get involved</h4>
+        <ul>
+          <li><a href="#join">Recruitment</a></li>
+          <li><a href="#team">Team</a></li>
+          <li><a href="#partner">Partner with us</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <!-- TODO: replace with your real club email address. -->
+          <li><a href="mailto:aisolutionsberkeley@gmail.com">aisolutionsberkeley@gmail.com</a></li>
+          <li><a href="https://www.linkedin.com/company/143752028/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li>Berkeley, California</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> AI Solutions @ Berkeley. All rights reserved.</span>
+      <span>
+        A registered student organization at UC Berkeley. We are a student group
+        and not an official part of the University of California.
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js?v=1"></script>
+</body>
+</html>
