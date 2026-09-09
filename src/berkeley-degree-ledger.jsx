@@ -7,7 +7,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
    ============================================================ */
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/* Fonts are requested from the page's <head>, not from here — see src/page.html. */
 
 .bdl { --ink:#101F30; --blue:#00325F; --slate:#4A5B6E; --line:#C9D2DB;
   --paper:#E9EDF1; --card:#FFFFFF; --gold:#B8860B; --gold-soft:#F2E3BC;
@@ -69,6 +69,9 @@ const CSS = `
 .bdl-count { font-family:var(--mono); font-size:11.5px; color:var(--slate); flex:0 0 auto; }
 /* Marks the two halves of an either/or requirement, so a block that reads as
    unfinished is visibly the road not taken rather than work left undone. */
+.bdl-link { background:none; border:0; padding:0; font:inherit; color:var(--blue);
+  text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+.bdl-link:hover { color:var(--ink); }
 .bdl-next { display:block; width:100%; text-align:left; background:none; border:0; border-top:1px solid #EDF1F4;
   padding:8px 0; cursor:pointer; }
 .bdl-next:first-of-type { border-top:0; }
@@ -1677,8 +1680,12 @@ function checkOn(item, checkState, auto, igetcFull) {
    ============================================================ */
 const KEY = "berkeley-degree-ledger:v1";
 const BLANK = {
+  /* Deliberately empty. A new ledger belonging to a stranger should not open
+     pre-filled with someone else's degree — a preselected major and minor read
+     as "this is already set up", and the numbers on the first screen would be
+     someone else's progress. */
   profile: { name: "", entry: "freshman", gpa: "", igetc: "none", simultaneous: false,
-    secondCollege: "", dsPath: "data", pathways: {}, majors: ["cogsci"], minors: ["dsminor"] },
+    secondCollege: "", dsPath: "data", pathways: {}, majors: [], minors: [] },
   courses: [], pins: {}, excl: {}, checks: {}, customPrograms: [], certAreas: {},
 };
 
@@ -1966,13 +1973,13 @@ function guessDept(prog) {
 
 /* Every program, grouped so the encoded ones are findable and the rest are
    ordered by college. */
-function ProgramSelect({ value, kind, encoded, onChange, first }) {
+function ProgramSelect({ value, kind, encoded, onChange, first, placeholder }) {
   const idx = indexFor(kind);
   const ls = idx.filter((x) => x.college === LS);
   const cdss = idx.filter((x) => x.college === CDSS);
   return (
     <select className="bdl-sel" value={value} onChange={(e) => onChange(e.target.value)}>
-      <option value="">{first ? (kind === "major" ? "No major loaded" : "No minor") : `Add another ${kind}…`}</option>
+      <option value="">{placeholder || (first ? (kind === "major" ? "No major loaded" : "No minor") : `Add another ${kind}…`)}</option>
       <optgroup label="Requirements included">
         {encoded.map((m) => <option key={m.id} value={m.id}>{m.name}, {m.degree}</option>)}
       </optgroup>
@@ -2443,9 +2450,99 @@ function PairingsView({ p, setProfile, setTab }) {
   );
 }
 
-function SetupView({ p, setProfile, state, setState }) {
+/* What a stranger sees the first time they open the page. The full Setup form
+   is four cards and, on a phone, four screens tall — fine once you know what
+   the tool is, useless as a front door. This asks the two questions everything
+   else keys off, and gets out of the way the moment they are answered. */
+function FirstRun({ p, setProfile, setTab, onDone }) {
+  const set = (k, v) => setProfile(k, v);
+  const go = (t) => { onDone(); setTab(t); };
+  const pickMajor = (v) => setProfile("majors", v ? [v] : []);
+  const pickMinor = (v) => setProfile("minors", v ? [v] : []);
+  return (
+    <div>
+      <p className="bdl-eyebrow">Start here</p>
+      <h2 className="bdl-h2">What are you graduating with?</h2>
+      <p className="bdl-note">
+        Two questions and you have a ledger. Everything runs in this browser and saves to this device —
+        no account, and nothing about your transcript leaves your laptop.
+      </p>
+
+      <div className="bdl-card" style={{ marginBottom: 12 }}>
+        <h3>1 · How you got to Berkeley</h3>
+        <div className="bdl-switch" style={{ marginTop: 4 }}>
+          <button className={p.entry === "freshman" ? "sel" : ""} onClick={() => set("entry", "freshman")}>
+            Started as a freshman
+          </button>
+          <button className={p.entry === "transfer" ? "sel" : ""} onClick={() => set("entry", "transfer")}>
+            Transferred in
+          </button>
+        </div>
+        <p className="bdl-note" style={{ fontSize: 12, margin: "8px 0 0" }}>
+          {p.entry === "transfer"
+            ? "Transfers get the IGETC and Cal-GETC switches, the community-college unit ceiling, and the residence rules that only apply to you."
+            : "You will clear Reading & Composition, Quantitative Reasoning, Foreign Language and the seven breadth courses one at a time. Change this any time."}
+        </p>
+      </div>
+
+      <div className="bdl-card" style={{ marginBottom: 12 }}>
+        <h3>2 · Your major</h3>
+        <label className="bdl-field">
+          <span className="bdl-label">Major</span>
+          <ProgramSelect value={(p.majors || [])[0] || ""} kind="major" encoded={CATALOG.majors}
+            onChange={pickMajor} first placeholder="Choose your major…" />
+        </label>
+        <label className="bdl-field">
+          <span className="bdl-label">Minor — if you have one</span>
+          <ProgramSelect value={(p.minors || [])[0] || ""} kind="minor" encoded={CATALOG.minors}
+            onChange={pickMinor} first placeholder="No minor — skip this" />
+        </label>
+        <p className="bdl-note" style={{ fontSize: 12, margin: 0 }}>
+          The {CATALOG.majors.length + CATALOG.minors.length} programs under <em>Requirements included</em> have their
+          course lists typed in from the Academic Guide and checked against it. Pick any other and you still get the
+          right college's rules, the overlap rules and its own tab — you load its course list once, by pasting the
+          Guide's own text. Not listed at all? There is an <em>add it by name</em> box further down the full setup.
+        </p>
+      </div>
+
+      <div className="bdl-card">
+        <h3>Then what</h3>
+        <p className="bdl-note" style={{ margin: "2px 0 10px" }}>
+          Add the courses you have taken and the ones you are taking now, and every requirement they satisfy closes
+          itself. Nothing else needs filling in — GPA, certification and second majors are all optional and live on
+          the full setup page.
+        </p>
+        <div className="bdl-row">
+          <button className="bdl-btn" disabled={!(p.majors || []).length}
+            onClick={() => go((p.majors || [])[0])}>
+            {(p.majors || []).length ? "Open my major →" : "Pick a major to start"}
+          </button>
+          <button className="bdl-btn ghost" onClick={() => go("courses")}>Add my courses</button>
+        </div>
+        <p className="bdl-note" style={{ fontSize: 12, margin: "10px 0 0" }}>
+          <button className="bdl-link" onClick={onDone}>Skip this — show me the full setup</button>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SetupView({ p, setProfile, state, setState, setTab, courses }) {
   const majors = p.majors || [];
   const minors = p.minors || [];
+  /* The front door is for the visit you arrive on with nothing. It has to
+     survive picking a major — swapping the page out from under someone the
+     instant they answer the question is worse than the form wall it replaced —
+     so what matters is whether the ledger was empty when this view mounted,
+     not whether it is empty right now. Leaving it is an explicit act, and by
+     the next time Setup mounts there is a ledger and the full form is right. */
+  const arrivedEmpty = useRef(null);
+  if (arrivedEmpty.current === null)
+    arrivedEmpty.current = !majors.length && !minors.length && !(courses || []).length
+      && !(state.customPrograms || []).length;
+  const [introDone, setIntroDone] = useState(false);
+  if (arrivedEmpty.current && !introDone)
+    return <FirstRun p={p} setProfile={setProfile} setTab={setTab} onDone={() => setIntroDone(true)} />;
   const selected = [
     ...majors.map((id) => CATALOG.majors.find((m) => m.id === id)),
     ...minors.map((id) => CATALOG.minors.find((m) => m.id === id)),
@@ -2506,7 +2603,7 @@ function SetupView({ p, setProfile, state, setState }) {
           </label>
         )).slice(0, Math.min(minors.length + 1, 3))}
         <p className="bdl-note" style={{ fontSize: 12, marginTop: -4 }}>
-          The three marked <em>requirements included</em> are typed in and checked against the Academic Guide.
+          The {CATALOG.majors.length + CATALOG.minors.length} marked <em>requirements included</em> are typed in and checked against the Academic Guide.
           Every other program gives you the right college rules and its own tab, and asks you to load its
           requirements once — the list of names is a way to find your program, not a source of requirements.
           Not listed? Add it by name at the bottom of this page.
@@ -3223,10 +3320,12 @@ export default function App() {
     if (!ready || landed.current) return;
     landed.current = true;
     if (hashTab()) return;
-    if (!courses.length) return;
+    /* Having named a major is enough — the setup form has nothing left to tell
+       someone who has already answered it. */
+    if (!courses.length && !(p.majors || []).length) return;
     const first = audits.find((a) => a.prog.type === "major");
     if (first) setTab(first.prog.id);
-  }, [ready, courses.length, audits, setTab]);
+  }, [ready, courses.length, audits, setTab, p.majors]);
 
   const exportJSON = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -3274,7 +3373,8 @@ export default function App() {
       <main className="bdl-wrap">
         <div className="bdl-cols">
           <div>
-            {tab === "setup" && <SetupView p={p} setProfile={setProfile} state={state} setState={setState} />}
+            {tab === "setup" && <SetupView p={p} setProfile={setProfile} state={state} setState={setState}
+              setTab={setTab} courses={courses} />}
             {tab === "pairings" && <PairingsView p={p} setProfile={setProfile} setTab={setTab} />}
             {tab === "courses" && <CoursesView courses={courses} setState={setState} audits={audits} />}
             {tab === "grad" && <GraduationView audits={audits} checks={state.checks} auto={auto}
