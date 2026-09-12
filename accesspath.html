@@ -209,6 +209,35 @@ h2.ftitle{font-size:27px;font-weight:700;line-height:1.2;margin-bottom:10px}
 .uitext h4{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
 .uitext p{font-size:15px;color:var(--ink-2)}
 
+/* ---------- process page ---------- */
+.steps{margin-top:10px}
+.step{position:relative;padding-left:58px;padding-bottom:28px}
+.step:last-child{padding-bottom:0}
+.step::before{
+  content:"";position:absolute;left:17px;top:38px;bottom:2px;
+  width:2px;background:var(--line);
+}
+.step:last-child::before{display:none}
+.step .num{
+  position:absolute;left:0;top:0;width:36px;height:36px;border-radius:50%;
+  border:2px solid var(--accent);color:var(--accent);background:var(--frame);
+  display:grid;place-items:center;
+  font-family:var(--font-display);font-weight:700;font-size:14px;
+  font-variant-numeric:tabular-nums;
+}
+.step h3{font-size:17.5px;font-weight:600;margin-bottom:5px;padding-top:6px}
+.step p{font-size:16.5px;color:var(--ink-2);max-width:76ch}
+.keyq{
+  margin-top:34px;padding:22px 24px;border-radius:12px;
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+}
+.keyq h3{
+  font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:11px;font-weight:700;
+}
+.keyq p{font-size:16.5px;color:var(--ink);max-width:82ch}
+.keyq p + p{margin-top:9px;color:var(--ink-2)}
+
 /* ---------- decisions page ---------- */
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-bottom:38px}
 .dec h3{font-family:var(--font-display);font-size:17px;font-weight:600;margin-bottom:7px}
@@ -497,6 +526,7 @@ footer.deck-foot{
     <nav aria-label="Deck pages">
       <a href="#p1">Cover</a>
       <a href="#p2">Problem</a>
+      <a href="#process">Process</a>
       <a href="#p3">Preferences</a>
       <a href="#p4">Route comparison</a>
       <a href="#p5">Live rerouting</a>
@@ -575,7 +605,7 @@ footer.deck-foot{
     <dt>Out of scope</dt>
     <dd class="quiet">
       The prompt covers mobility, vision and hearing. I picked mobility and went
-      deeper on it instead of covering all three shallowly. Page 06 has where I'd
+      deeper on it instead of covering all three shallowly. Page 07 has where I'd
       take the other two.
     </dd>
   </dl>
@@ -595,9 +625,78 @@ footer.deck-foot{
   </div>
 </section>
 
-<!-- ============ 3 SCREEN 1 ============ -->
+<!-- ============ 3 PROCESS ============ -->
+<section class="frame" id="process">
+  <div class="fh"><span class="n">03</span><span class="lbl">How I worked through it</span></div>
+
+  <h2 class="ftitle">Getting from the prompt to three screens</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="num">1</span>
+      <h3>Narrowed the prompt down to one thing</h3>
+      <p>
+        The prompt covers mobility, vision and hearing. Covering all three would
+        have meant three shallow features, so I took mobility on its own. It's
+        the case where failure is most binary. A route either works or it
+        doesn't, and there isn't much in between to design around.
+      </p>
+    </div>
+
+    <div class="step">
+      <span class="num">2</span>
+      <h3>Wrote down what actually ends a trip</h3>
+      <p>
+        Stairs. A grade too steep to push up. A door with a step and no ramp. An
+        elevator that's out. Construction across the sidewalk. I made this list
+        before thinking about any screens, and it turned into the vocabulary for
+        the whole app. Those five things are what the toggles, the map markers
+        and the warnings all name.
+      </p>
+    </div>
+
+    <div class="step">
+      <span class="num">3</span>
+      <h3>Noticed the list splits in two</h3>
+      <p>
+        Stairs, grade and entrances are fixed. You could know about them a week
+        ahead. Elevators and construction change day to day, sometimes hour to
+        hour. These are two different problems and they need two different
+        answers: one you solve before you leave, one you can only solve while
+        you're already out there.
+      </p>
+    </div>
+
+    <div class="step">
+      <span class="num">4</span>
+      <h3>That split is what gave me the screens</h3>
+      <p>
+        Say what you need, compare the routes that meet it, then deal with it
+        when something changes on you. Three screens, one for each stage of the
+        same trip. The structure came out of the problem rather than me deciding
+        up front that I wanted three screens.
+      </p>
+    </div>
+  </div>
+
+  <div class="keyq">
+    <h3>The question I kept coming back to</h3>
+    <p>
+      If the accessible route is slower, why would anyone take it?
+    </p>
+    <p>
+      Every version where the app quietly picked the accessible route on its own
+      felt like it was hiding something, and I don't think people keep trusting
+      an app that does that. So screen 2 shows both routes and names the exact
+      reason the faster one won't work. The app's job is to make a case, not to
+      make the decision.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 4 SCREEN 1 ============ -->
 <section class="frame" id="p3">
-  <div class="fh"><span class="n">03</span><span class="lbl">Screen 1 · Accessibility preferences</span></div>
+  <div class="fh"><span class="n">04</span><span class="lbl">Screen 1 · Accessibility preferences</span></div>
 
   <h2 class="ftitle">What counts as accessible isn't the same for everyone, so the app asks</h2>
   <p class="flede">
@@ -703,7 +802,7 @@ footer.deck-foot{
 
 <!-- ============ 4 SCREEN 2 ============ -->
 <section class="frame" id="p4">
-  <div class="fh"><span class="n">04</span><span class="lbl">Screen 2 · Route comparison</span></div>
+  <div class="fh"><span class="n">05</span><span class="lbl">Screen 2 · Route comparison</span></div>
 
   <h2 class="ftitle">The recommendation has to explain itself</h2>
   <p class="flede">
@@ -852,7 +951,7 @@ footer.deck-foot{
 
 <!-- ============ 5 SCREEN 3 ============ -->
 <section class="frame" id="p5">
-  <div class="fh"><span class="n">05</span><span class="lbl">Screen 3 · Live obstacle &amp; rerouting</span></div>
+  <div class="fh"><span class="n">06</span><span class="lbl">Screen 3 · Live obstacle &amp; rerouting</span></div>
 
   <h2 class="ftitle">A route can stop being accessible while you're already on it</h2>
   <p class="flede">
@@ -971,7 +1070,7 @@ footer.deck-foot{
 
 <!-- ============ 6 DECISIONS ============ -->
 <section class="frame" id="p6">
-  <div class="fh"><span class="n">06</span><span class="lbl">Design decisions &amp; next steps</span></div>
+  <div class="fh"><span class="n">07</span><span class="lbl">Design decisions &amp; next steps</span></div>
 
   <h2 class="ftitle">Three decisions the whole thing rests on</h2>
 
