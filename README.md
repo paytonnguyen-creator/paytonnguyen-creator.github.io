@@ -201,6 +201,16 @@ footer.
 take, how many servings, and roughly what that looks like on the plate. It plans
 from that day's actual menu, so the plan changes when the menu does.
 
+It's built for me, so there's no setup. `ME` at the top of `crossroads/app.js`
+holds my numbers: 5′9″, 155 lb, lifting 3–5×/week, a daily matcha latte
+(240 kcal, 12 g protein), cutting 1 lb a week. That works out to 2,140 kcal and
+155 g protein a day, or about 950 kcal and 72 g protein per meal. The page
+opens on the next meal as a checklist (item, ounces, palm-size cue, station),
+with **Swap** to cycle three alternatives. Weigh-ins, the full menu and **My
+numbers** sit in drawers underneath. Edits and weigh-ins are saved on the
+phone, and only the fields that differ from `ME` are stored, so changing `ME`
+later still takes effect. After 9 pm it shows tomorrow.
+
 ```
 crossroads/planner.js            the model, no DOM: parses Cal Dining's XML, works out
                                  targets, picks the meals. Runs in the page and in Node
