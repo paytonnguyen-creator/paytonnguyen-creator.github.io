@@ -357,7 +357,7 @@
   /* "Beef Tri Tip Roasted AF HALAL" -> "Beef Tri Tip Roasted HALAL": drop the kitchen's
    * internal codes and the station echoed into the name. Display only — matching
    * and filtering use the full name. */
-  var CODES = /\s+(AF|SG|RTU|EVENT|GENERAL|Salad Bar|\d+(\.\d+)?\s?oz)(?=\s|$)/g;
+  var CODES = /\s+(AF|SG|RTU|EVENT|GENERAL|GBC|GW|LXD|CAT|HS|\(HS\)|Salad Bar|\d+(\.\d+)?\s?oz)(?=\s|$)/g;
   function displayName(name) {
     var out = String(name).replace(CODES, '').replace(CODES, '').replace(/\s+/g, ' ').trim();
     return out || name;
@@ -439,18 +439,22 @@
 
   var COUNTED = /^(each|ea|piece|pieces|pc|slice|slices|item)$/i;
 
-  function multsFor(item, role) {
+  function multsFor(item, role, whole) {
     // Nobody can ask for half a burger: counted items come in whole numbers.
-    if (item.serving && COUNTED.test(item.serving.unit)) return role === 'protein' ? [1, 2] : [1];
+    if (whole || (item.serving && COUNTED.test(item.serving.unit))) return role === 'carb' ? [1] : [1, 2];
     return MULTS[role];
   }
 
   function headWord(item) { return item.name.toLowerCase().split(/\s+/)[0].replace(/(es|s)$/, ''); }
 
-  function options(list, role, maxCount) {
+  function options(list, role, maxCount, whole) {
     var singles = [];
     list.forEach(function (it) {
-      multsFor(it, role).forEach(function (m) { singles.push([pick(it, m, role)]); });
+      multsFor(it, role, whole).forEach(function (m) {
+        var p = pick(it, m, role);
+        if (whole) p.whole = true;
+        singles.push([p]);
+      });
     });
     var out = singles.slice();
     if (maxCount > 1) {
@@ -485,10 +489,11 @@
     if (!c.proteins.length && !c.carbs.length) return { plans: [], candidates: c };
     var avoid = opts.avoidKeys || {};
 
-    var pOpts = options(c.proteins, 'protein', 2);
+    var whole = !!(meal && meal.whole);
+    var pOpts = options(c.proteins, 'protein', 2, whole);
     if (!pOpts.length) pOpts = [[]];
-    var cOpts = [[]].concat(options(c.carbs, 'carb', 1));
-    var vOpts = [[]].concat(options(c.veg, 'veg', 2));
+    var cOpts = [[]].concat(options(c.carbs, 'carb', 1, whole));
+    var vOpts = [[]].concat(options(c.veg, 'veg', 2, whole));
     var vegAvailable = c.veg.length > 0;
 
     function sideCost(group) {
@@ -606,7 +611,10 @@
   function slotMeal(loc, slot) {
     var m = findMeal(loc, slot === 'lunch' ? ['Lunch', 'Brunch'] : ['Dinner']);
     if (m || !loc || !loc.meals) return m;
-    var rest = loc.meals.filter(function (x) { return x.name !== 'Breakfast'; });
+    // Only a genuinely all-day menu stands in: a café that posts just "Lunch"
+    // is closed by dinner, not serving lunch twice.
+    var named = /^(Breakfast|Brunch|Lunch|Dinner|Late Night)$/;
+    var rest = loc.meals.filter(function (x) { return !named.test(x.name); });
     return rest.length === 1 ? rest[0] : null;
   }
 
@@ -614,7 +622,13 @@
    * directly. Both come back as { date, locations: [...] }. */
   function normalizeDay(day) {
     if (!day) return null;
-    if (day.locations) return day;
+    if (day.locations) {
+      // Cafés sell whole items: nobody orders half a wrap.
+      day.locations.forEach(function (l) {
+        if (l.kind === 'cafe') (l.meals || []).forEach(function (m) { m.whole = true; });
+      });
+      return day;
+    }
     return {
       date: day.date, fetchedAt: day.fetchedAt,
       locations: [{ key: 'Crossroads', name: 'Crossroads', kind: 'hall', source: day.source, meals: day.meals || [] }]
@@ -652,6 +666,8 @@
 
   function portion(p) {
     var it = p.item, s = it.serving;
+    // At a café you order items, not ounces.
+    if (p.whole) return { servings: p.mult + (p.mult === 1 ? ' item' : ' items'), amount: null, cue: 'Order ' + p.mult };
     var servings = frac(p.mult) + (p.mult <= 1 ? ' serving' : ' servings');
     if (!s) return { servings: servings, amount: null, cue: null };
     var qty = s.qty * p.mult, unit = s.unit.toLowerCase();

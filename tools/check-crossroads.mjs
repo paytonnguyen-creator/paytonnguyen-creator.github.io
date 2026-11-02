@@ -229,6 +229,25 @@ test('a café posting one all-day menu serves both lunch and dinner', () => {
   assert.equal(P.slotMeal(hall, 'lunch').name, 'Lunch');
   assert.equal(P.slotMeal(hall, 'dinner').name, 'Dinner');
   assert.equal(P.slotMeal({ meals: [{ name: 'Breakfast', items: [] }] }, 'lunch'), null);
+  // A café that only posts Lunch is closed by dinner, not open for it.
+  const lunchOnly = { meals: [{ name: 'Breakfast', items: [] }, { name: 'Lunch', items: lunch.items }] };
+  assert.equal(P.slotMeal(lunchOnly, 'lunch').name, 'Lunch');
+  assert.equal(P.slotMeal(lunchOnly, 'dinner'), null);
+});
+
+test('café items are planned in whole items only', () => {
+  const d = P.normalizeDay({ date: 'x', locations: [{ key: 'Gateway_Cafe', kind: 'cafe', meals: [{ name: 'Lunch', items: lunch.items }] }] });
+  const meal = P.slotMeal(d.locations[0], 'lunch');
+  assert.equal(meal.whole, true);
+  const mt = P.mealTargets(P.computeTargets(him), him);
+  const plans = P.planMeal(meal, mt.lunch, {}).plans;
+  assert.ok(plans.length);
+  for (const p of plans) for (const x of p.picks) {
+    assert.equal(x.mult % 1, 0, `${x.mult}× ${x.item.name}`);
+    assert.equal(P.portion(x).cue, 'Order ' + x.mult);
+  }
+  assert.equal(P.displayName('Wrap Chicken Souvlaki GW'), 'Wrap Chicken Souvlaki');
+  assert.equal(P.displayName('Chicken Tikka Masala MONSOON'), 'Chicken Tikka Masala MONSOON');
 });
 
 test('old Crossroads-only day files read as one location', () => {
