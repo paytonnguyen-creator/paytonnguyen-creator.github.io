@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crossroads Cut Planner</title>
+<meta name="description" content="Plans lunch and dinner at UC Berkeley's Crossroads dining hall for a cut: what to take, how much, and why, rebuilt from each day's menu.">
+<meta name="theme-color" content="#003262">
+<link rel="stylesheet" href="app.css?v=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003262'/><text x='50' y='68' font-size='46' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23fdb515' text-anchor='middle'>XR</text></svg>">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <div class="bar-inner">
+    <a class="mono" href="../index.html" aria-label="Payton Nguyen — home">PN</a>
+    <span class="bar-title">Crossroads Cut Planner</span>
+    <button class="btn ghost" id="open-settings" type="button">My stats</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="hero" aria-labelledby="day-title">
+    <p class="kicker">Crossroads · lunch &amp; dinner plan</p>
+    <h1 id="day-title">Loading today’s menu…</h1>
+    <div class="days" id="days" role="tablist" aria-label="Choose a day"></div>
+  </section>
+
+  <div id="notice" class="notice" hidden></div>
+
+  <section id="settings" class="card settings" hidden aria-labelledby="settings-title">
+    <h2 id="settings-title">Your stats</h2>
+    <p class="muted" id="settings-intro">Used to work out your cut targets. Saved on this device only and never sent anywhere.</p>
+    <form id="settings-form" novalidate>
+      <fieldset class="grid">
+        <legend class="visually-hidden">Body</legend>
+        <div class="field">
+          <span class="label" id="sex-label">Sex <small>(for the calorie formula)</small></span>
+          <div class="seg" role="radiogroup" aria-labelledby="sex-label">
+            <label><input type="radio" name="sex" value="male" required> Male</label>
+            <label><input type="radio" name="sex" value="female"> Female</label>
+          </div>
+        </div>
+        <label class="field"><span class="label">Age</span>
+          <input type="number" name="age" min="16" max="80" inputmode="numeric" required></label>
+        <div class="field">
+          <span class="label" id="height-label">Height</span>
+          <div class="pair" aria-labelledby="height-label">
+            <label><input type="number" name="heightFt" min="4" max="7" inputmode="numeric" aria-label="Feet" required><span>ft</span></label>
+            <label><input type="number" name="heightInRem" min="0" max="11.5" step="0.5" inputmode="decimal" aria-label="Inches" required><span>in</span></label>
+          </div>
+        </div>
+        <label class="field"><span class="label">Weight</span>
+          <span class="unit"><input type="number" name="weightLb" min="80" max="450" step="0.1" inputmode="decimal" required><span>lb</span></span></label>
+        <label class="field wide"><span class="label">Activity</span>
+          <select name="activity" id="activity"></select></label>
+        <label class="field wide"><span class="label">Cut pace</span>
+          <select name="rateLb">
+            <option value="0.5">Gentle — 0.5 lb a week (easiest to keep muscle)</option>
+            <option value="0.75">Steady — 0.75 lb a week</option>
+            <option value="1">Standard — 1 lb a week</option>
+            <option value="1.5">Aggressive — 1.5 lb a week</option>
+          </select></label>
+      </fieldset>
+
+      <fieldset class="grid">
+        <legend>Outside lunch &amp; dinner</legend>
+        <p class="muted wide">Breakfast, snacks, protein shakes — whatever you eat that isn’t lunch or dinner at Crossroads. Put 0 if nothing.</p>
+        <label class="field"><span class="label">Calories</span>
+          <span class="unit"><input type="number" name="otherKcal" min="0" max="2000" step="10" inputmode="numeric"><span>kcal</span></span></label>
+        <label class="field"><span class="label">Protein</span>
+          <span class="unit"><input type="number" name="otherProtein" min="0" max="200" inputmode="numeric"><span>g</span></span></label>
+        <label class="field wide"><span class="label">Bigger meal</span>
+          <select name="lunchShare">
+            <option value="0.5">Even split</option>
+            <option value="0.6">Bigger lunch</option>
+            <option value="0.4">Bigger dinner</option>
+          </select></label>
+      </fieldset>
+
+      <fieldset class="grid">
+        <legend>Food preferences</legend>
+        <label class="field wide"><span class="label">Diet</span>
+          <select name="diet">
+            <option value="any">Anything</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+          </select></label>
+        <div class="field wide">
+          <span class="label">Avoid (allergens)</span>
+          <div class="checks" id="avoid"></div>
+        </div>
+        <label class="field wide"><span class="label">Never suggest <small>(comma-separated words)</small></span>
+          <input type="text" name="dislikes" placeholder="e.g. tofu, mushroom, pork" autocomplete="off"></label>
+      </fieldset>
+
+      <p class="error" id="settings-error" role="alert" hidden></p>
+      <div class="actions">
+        <button class="btn primary" type="submit">Build my plan</button>
+        <button class="btn ghost" type="button" id="close-settings">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="targets" class="card targets" hidden aria-labelledby="targets-title"></section>
+
+  <section id="meals" aria-live="polite"></section>
+
+  <section id="day-total" class="card" hidden></section>
+
+  <section class="card tips" id="tips" hidden aria-labelledby="tips-title">
+    <h2 id="tips-title">Plating it at Crossroads</h2>
+    <ul>
+      <li><strong>Protein first.</strong> Get the main from its station before anything else, then build around it.</li>
+      <li><strong>Ask for the portion.</strong> At a served station, ask for a double portion of the protein rather than going back for seconds of everything.</li>
+      <li><strong>Half the plate is vegetables.</strong> Leafy greens from the salad bar are close to free; take as much as you like.</li>
+      <li><strong>Sauces and dressings on the side.</strong> Two tablespoons of ranch is ~140 kcal the plan doesn’t include.</li>
+      <li><strong>Skip the drink calories.</strong> Water, sparkling water, black coffee or tea.</li>
+      <li><strong>Desserts aren’t in the plan.</strong> If you have one, it comes out of tomorrow’s margin — the weekly trend is what matters.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="menu-card" hidden aria-labelledby="menu-title">
+    <h2 id="menu-title">Everything on today’s menu</h2>
+    <p class="muted">Per serving, leanest first. <span class="tag lean">Lean</span> marks at least 30 g of protein per 300 kcal.</p>
+    <div id="menu"></div>
+  </section>
+
+  <section class="card" id="weigh" hidden aria-labelledby="weigh-title">
+    <h2 id="weigh-title">Weigh-ins</h2>
+    <p class="muted">Weigh in the morning, after the bathroom, 3+ times a week. Scale weight swings by a few pounds of water day to day, so the plan reads the 7-day average against the week before.</p>
+    <form id="weigh-form" class="weigh-form">
+      <label><span class="label">Date</span><input type="date" name="date" required></label>
+      <label><span class="label">Weight</span><span class="unit"><input type="number" name="lb" min="80" max="450" step="0.1" inputmode="decimal" required><span>lb</span></span></label>
+      <button class="btn primary" type="submit">Log</button>
+    </form>
+    <div id="trend"></div>
+    <ol class="log" id="log"></ol>
+  </section>
+
+</main>
+
+<footer class="foot wrap">
+  <p id="source"></p>
+  <p>Nutrition figures are Cal Dining’s own, which they note can vary with sourcing and portioning. Targets are estimates to steer by, not medical advice — if you have a medical condition or a history of disordered eating, talk to a clinician or the Cal Dining dietitian first.</p>
+</footer>
+
+<script src="planner.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

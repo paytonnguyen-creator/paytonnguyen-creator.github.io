@@ -13,6 +13,7 @@ ai-support-automation.html        support-automation write-up
 pickleball-court-demand.html      court-congestion write-up
 outer-banks-release-strategy.html release-strategy simulator (interactive)
 degree-ledger/index.html          Berkeley requirement tracker (interactive)
+crossroads/                       Crossroads cut planner (interactive, menus refresh daily)
 src/                              the tracker's React source
 assets/                           styling, script, portrait, résumé
 outputs/figures/                  charts for the retention case study
@@ -193,6 +194,66 @@ say so on the page.
 
 Requirements change between catalog years — the page carries that caveat in its
 footer.
+
+## Crossroads Cut Planner
+
+`crossroads/` plans lunch and dinner at Crossroads for a cut: which items to
+take, how many servings, and roughly what that looks like on the plate. It plans
+from that day's actual menu, so the plan changes when the menu does.
+
+```
+crossroads/planner.js            the model, no DOM: parses Cal Dining's XML, works out
+                                 targets, picks the meals. Runs in the page and in Node
+crossroads/app.js, app.css       the page
+crossroads/data/                 one JSON file per day plus index.json, written by the Action
+tools/fetch-crossroads.mjs       fetches today + 6 days and writes crossroads/data/
+tools/check-crossroads.mjs       tests (npm run check:crossroads)
+tools/fixtures/crossroads-sample.xml
+                                 synthetic test fixture — real structure, invented items
+.github/workflows/crossroads-menus.yml
+                                 runs the fetcher every morning and commits what changed
+```
+
+**Where the menu comes from.** Cal Dining publishes one XML file per location
+per day at
+`dining.berkeley.edu/wp-content/uploads/menus-exportimport/Crossroads_YYYYMMDD.xml`,
+with nutrition for every item. The browser can't read it from another origin, so
+the **Update Crossroads menus** workflow fetches it at about 5 AM and again late
+morning, then commits it to `crossroads/data/`. Pages redeploys after each run
+through the `workflow_run` trigger in `pages.yml`, because a push made with
+`GITHUB_TOKEN` doesn't start other workflows. Run the updater by hand from the
+Actions tab ("Run workflow") any time. A day that isn't posted yet is skipped
+quietly. The job goes red only if the site can't be reached or a file stops
+parsing, which means the export format changed.
+
+Each `<menu>` names its own nutrient columns, so values are matched by name
+("Protein (g)"), not by position. If Cal Dining adds or reorders a column,
+nothing shifts.
+
+**Targets.** Mifflin–St Jeor × an activity multiplier gives maintenance. The cut
+subtracts 500 kcal per pound per week. The pace is capped at 1% of bodyweight a
+week and calories never go below 1,500 (men) / 1,200 (women). Protein is 1 g per
+lb, taken off a BMI-25 weight above a BMI of 28. Fat is at least 0.3 g/lb or 20%
+of calories, and carbs are the rest. Breakfast and snacks come off the top, and
+lunch and dinner split what's left.
+
+**Planning.** Every item is sorted into protein / starch / vegetable /
+treat / drink / condiment from its name, station, serving unit and macros. Treats,
+drinks and condiments never go into a plan. The best few in each role are
+combined (1–2 proteins, 0–1 starch, 0–2 vegetables, at sensible serving
+multiples) and scored against the meal's target:
+- Anything within ±4% of the calorie target counts as on target.
+- Going over costs more than going under.
+- Missing protein costs nearly as much as missing calories.
+- Extra items, half servings and repeating lunch at dinner each add a small cost.
+
+Three alternatives are kept per meal, each built on a different main. Dinner's
+target shifts to absorb whatever the chosen lunch over- or undershot.
+
+**Weigh-ins** compare the latest 7-day average with the week before. With two
+weeks of data the page suggests ±150 kcal if the pace is under half the target
+or faster than is safe, and applies it on request. Stats, choices and weigh-ins
+live in the visitor's `localStorage` only.
 
 ## Notes
 
