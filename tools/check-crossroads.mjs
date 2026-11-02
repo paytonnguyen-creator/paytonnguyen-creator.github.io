@@ -84,6 +84,43 @@ test('sorts items into sensible roles', () => {
   assert.equal(role('Lemonade'), 'drink');
 });
 
+test('handles Cal Dining\'s noun-first names (as seen in the live export)', () => {
+  const it = (name, kcal, protein, qty, station = 'Centerplate', extra = {}) =>
+    ({ name, station, serving: { qty, unit: 'oz' }, n: { kcal, protein, fat: 5, carbs: 10, fiber: 2, sugar: 2, ...extra }, allergens: [], diet: [] });
+  const role = i => P.classify(i);
+  assert.equal(role(it('Dressing Ranch RTU', 98, 1, 1, 'Salad Bar')), 'condiment');
+  assert.equal(role(it('Oil Olive Salad Bar', 128, 0, 0.5, 'Salad Bar')), 'condiment');
+  assert.equal(role(it('Sauce Arrabiata', 61, 2, 4.5, 'Pasta')), 'condiment');
+  assert.equal(role(it('Pumpkin Seeds', 158, 8.6, 1, 'Salad Bar')), 'condiment');
+  assert.equal(role(it('Cranberries Dried', 140, 0, 1.25, 'Salad Bar')), 'condiment');
+  assert.equal(role(it('Topping Tofu Paprika Rosemary', 138, 12.6, 3, 'Salad Bar')), 'protein');
+  assert.equal(role(it('Beef Tri Tip Roasted AF HALAL', 269, 28, 4)), 'protein');
+  assert.equal(role(it('Lentils Savory AF', 167, 11.5, 5.4)), 'carb');
+  assert.equal(role(it('Beans Green Garlic Sauteed', 53, 1.3, 3.5)), 'veg');
+  assert.equal(role(it('Rice Brown', 150, 3.1, 4)), 'carb');
+  assert.equal(role(it('Soup Chicken Tortilla', 111, 8.3, 8, 'Soup')), 'mixed');
+  assert.equal(role(it('Moroccan Honey-Glazed Carrots EVENT', 147, 0.8, 4)), 'mixed'); // 37 kcal/oz: not "a vegetable" for planning
+  assert.equal(role(it('Beets Steamed AF', 683, 25.6, 56, 'Salad Bar')), 'skip');    // a whole pan listed as one serving
+});
+
+test('items whose macros contradict their calories stay out of plans', () => {
+  const bad = { name: 'Sausage Apple Maple VEGAN', station: 'Center Plate', serving: { qty: 1.6, unit: 'oz' },
+    n: { kcal: 111.7, protein: 10, fat: 1.2, carbs: 321, fiber: 2, sugar: 3 }, allergens: [], diet: ['vegan'] };
+  assert.equal(P.suspect(bad), true);
+  assert.equal(P.eligible(bad, {}), false);
+  assert.equal(P.suspect(byName(lunch, 'Grilled Lemon Herb Chicken Breast')), false);
+  for (const m of day.meals) for (const i of m.items) assert.equal(P.suspect(i), false, i.name);
+});
+
+test('display names drop kitchen codes but keep diet labels', () => {
+  assert.equal(P.displayName('Beef Tri Tip Roasted AF HALAL'), 'Beef Tri Tip Roasted HALAL');
+  assert.equal(P.displayName('Dressing Ranch RTU'), 'Dressing Ranch');
+  assert.equal(P.displayName('Beet Red Sliced Salad Bar'), 'Beet Red Sliced');
+  assert.equal(P.displayName('Roll Dinner Assorted Square 1.2oz'), 'Roll Dinner Assorted Square');
+  assert.equal(P.displayName('Noodle Pho VEGAN SG'), 'Noodle Pho VEGAN');
+  assert.equal(P.displayName('AF'), 'AF');
+});
+
 // ── targets ──
 test('Mifflin–St Jeor with a 1 lb/week deficit', () => {
   const t = P.computeTargets(him);
@@ -128,6 +165,8 @@ for (const [who, prof] of [['him', him], ['her', her]]) {
       }
       const anchors = plan[k].plans.map(p => p.picks.slice().sort((a, b) => b.protein - a.protein)[0].item.name);
       assert.equal(new Set(anchors).size, anchors.length, 'alternatives are built on different mains');
+      const sets = plan[k].plans.map(p => p.picks.filter(x => x.role === 'protein').map(x => x.item.name).sort().join('+'));
+      assert.equal(new Set(sets).size, sets.length, 'alternatives use different proteins, not just different amounts');
     }
   });
 

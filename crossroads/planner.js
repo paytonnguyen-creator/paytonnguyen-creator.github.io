@@ -307,7 +307,16 @@
   var DRINK = w('juice|soda|lemonade|smoothies?|latte|coffee|tea|horchata|agua fresca|kombucha|cocoa|hot chocolate|milkshake|punch|beverages?');
   var DRINK_STATION = w('beverages?|drinks?');
   var CONDIMENT_END = /\b(dressing|vinaigrette|sauce|gravy|salsa|aioli|mayo|mayonnaise|ketchup|mustard|syrup|jam|jelly|butter|cream cheese|sour cream|guacamole|relish|chutney|pesto|toppings?|croutons?|dip|spread|glaze|honey|sprinkles|seasoning|oil|margarine|creamer)\s*$/i;
+  // Cal Dining names things noun-first ("Dressing Ranch RTU", "Oil Olive Salad
+  // Bar", "Sauce Arrabiata"), so the first word is checked as well as the last.
+  var CONDIMENT_FIRST = /^(dressings?|sauces?|vinaigrettes?|gravy|salsa|aioli|mayo|mayonnaise|ketchup|mustard|syrup|jam|jelly|butter|relish|chutney|pesto|croutons?|dips?|spreads?|glaze|honey|sprinkles|seasonings?|oils?|vinegars?|margarine|creamer|condiments?)\b/i;
+  var CONDIMENT_ANY = w('dressings?|vinaigrettes?|condiments?');
+  // Salad-bar extras: a spoonful is fine, but they aren't a plate's vegetables.
+  var TOPPING = w('seeds?|nuts|almonds?|walnuts?|pecans?|cashews?|pistachios?|raisins?|dried|croutons?|granola|bacon bits|tortilla strips|wonton strips|chips|olives?|parmesan|shredded cheese|cheese shredded|feta|cotija');
   var SMALL_UNIT = /\b(tbsp|tsp|tablespoons?|teaspoons?|packets?)\b/i;
+  var SOUP = w('soups?|stew|chowder|chili|broth|bisque|gumbo|pho|ramen');
+  var GREEN_BEAN = /\b(green|string|wax)\s+beans?\b|\bbeans?\s+(green|string|wax)\b/i;
+  var LEGUME = w('lentils?|chickpeas?|garbanzos?|dal|dahl|daal|black[- ]eyed peas|beans?|hummus|freekeh');
   var VEG = w('salad|vegetables?|veggies?|broccoli|broccolini|greens|spinach|kale|chard|lettuce|romaine|arugula|carrots?|zucchini|cauliflower|asparagus|cabbage|brussels sprouts|squash|bok choy|green beans|peppers?|mushrooms?|eggplant|cucumbers?|tomato(es)?|onions?|beets?|celery|snap peas|edamame|okra|slaw|radish(es)?|sprouts|fruit|melon|berries|apple|orange|banana|pineapple|grapes');
   var VEG_STATION = w('salad|salad bar|vegetables?|greens|produce|fruit');
   var CARB = w('rice|quinoa|pasta|penne|spaghetti|linguine|rigatoni|fusilli|noodles?|potato(es)?|fries|tots|bread|rolls?|tortillas?|couscous|farro|grains?|buns?|polenta|oats|oatmeal|corn|bulgur|pita|naan|bagels?|biscuits?|macaroni|mac|lo mein|chow mein|udon|soba|ramen|orzo|gnocchi|yams?|beans|lentils|risotto|stuffing|toast');
@@ -318,23 +327,55 @@
     var name = item.name, station = item.station || '';
     var kcal = per(item, 'kcal'), protein = per(item, 'protein');
     var unit = item.serving ? item.serving.unit : '';
+    var oz = item.serving && /^(oz|ounces?)$/i.test(unit) ? item.serving.qty : null;
     if (kcal < 15) return 'skip';
+    // A whole hotel pan listed as one serving ("Beets Steamed, 56 oz") can't be planned around.
+    if (oz && oz > 24) return 'skip';
     if (TREAT.test(name) || TREAT_STATION.test(station)) return 'treat';
     if (/fl\.?\s*oz/i.test(unit) && !/soup|chowder|chili|stew|broth/i.test(name)) return 'drink';
     if (DRINK.test(name) || DRINK_STATION.test(station)) return 'drink';
     // "Baked Tofu with Ginger Glaze" is tofu; "Ginger Glaze" on its own is a condiment.
     var base = name.split(/\s+(?:with|in|over|on|and|&)\s+/i)[0];
-    if (CONDIMENT_END.test(base) || SMALL_UNIT.test(unit)) return 'condiment';
+    if (CONDIMENT_END.test(base) || CONDIMENT_FIRST.test(name) || CONDIMENT_ANY.test(name) || SMALL_UNIT.test(unit)) return 'condiment';
     var pd = (protein * 4) / kcal;
-    if ((protein >= 10 && pd >= 0.25) || (protein >= 5 && pd >= 0.3)) return 'protein';
-    if ((VEG.test(name) || VEG_STATION.test(station)) && kcal <= 160 && !CARB.test(name)) return 'veg';
-    if (kcal <= 100 && per(item, 'carbs') <= 15 && per(item, 'fiber') >= 1.5) return 'veg';
+    var isProtein = (protein >= 10 && pd >= 0.25) || (protein >= 5 && pd >= 0.3);
+    // Soups and stews only count as a main when they really are one.
+    if (SOUP.test(name)) return protein >= 15 && pd >= 0.3 ? 'protein' : 'mixed';
+    // Beans and lentils carry protein, but on a plate they're the starch. (Green beans are a vegetable.)
+    if (LEGUME.test(name) && !GREEN_BEAN.test(name) && !/tofu|tempeh|seitan/i.test(name)) return 'carb';
+    if (isProtein) return 'protein';
+    // Vegetables are light: past ~35 kcal an ounce it's oil, honey or a topping doing the work.
+    var light = oz ? kcal / oz <= 35 : kcal <= 160;
+    if (TOPPING.test(name) && !light) return 'condiment';
+    if ((VEG.test(name) || GREEN_BEAN.test(name) || VEG_STATION.test(station)) && kcal <= 160 && light && !CARB.test(name)) return 'veg';
+    if (kcal <= 100 && light && per(item, 'carbs') <= 15 && per(item, 'fiber') >= 1.5) return 'veg';
     if (CARB.test(name)) return 'carb';
+    if (TOPPING.test(name)) return 'condiment';
     return 'mixed';
+  }
+
+  /* "Beef Tri Tip Roasted AF HALAL" -> "Beef Tri Tip Roasted HALAL": drop the kitchen's
+   * internal codes and the station echoed into the name. Display only — matching
+   * and filtering use the full name. */
+  var CODES = /\s+(AF|SG|RTU|EVENT|GENERAL|Salad Bar|\d+(\.\d+)?\s?oz)(?=\s|$)/g;
+  function displayName(name) {
+    var out = String(name).replace(CODES, '').replace(CODES, '').replace(/\s+/g, ' ').trim();
+    return out || name;
+  }
+
+  /* Protein, carbs and fat should roughly add up to the calories. The live export
+   * has had items that don't (a sausage listed at 112 kcal and 321 g of carbs),
+   * and a plan built on a typo is worse than one without that item. */
+  function suspect(item) {
+    var n = item.n;
+    if (n.kcal == null || n.kcal < 50) return false;
+    var est = (n.protein || 0) * 4 + (n.carbs || 0) * 4 + (n.fat || 0) * 9;
+    return est > n.kcal * 1.6 + 40 || est < n.kcal * 0.5 - 40;
   }
 
   function eligible(item, prefs) {
     if (item.n.kcal == null || item.n.protein == null) return false;
+    if (suspect(item)) return false;
     var diet = item.diet || [];
     if (prefs.diet === 'vegan' && diet.indexOf('vegan') < 0) return false;
     if (prefs.diet === 'vegetarian' && diet.indexOf('vegan') < 0 && diet.indexOf('vegetarian') < 0) return false;
@@ -385,7 +426,7 @@
     return { proteins: proteins, carbs: carbs, veg: veg, roles: roles };
   }
 
-  var MULTS = { protein: [0.5, 1, 1.5, 2], carb: [0.5, 1, 1.5], veg: [1, 2] };
+  var MULTS = { protein: [0.5, 1, 1.5, 2], carb: [0.5, 1, 1.5, 2], veg: [1, 2] };
 
   function pick(item, mult, role) {
     return {
@@ -404,6 +445,8 @@
     return MULTS[role];
   }
 
+  function headWord(item) { return item.name.toLowerCase().split(/\s+/)[0].replace(/(es|s)$/, ''); }
+
   function options(list, role, maxCount) {
     var singles = [];
     list.forEach(function (it) {
@@ -416,6 +459,8 @@
           if (singles[i][0].item === singles[j][0].item) continue;
           // Half a scoop of a second main is clutter, not a plan.
           if (singles[i][0].mult < 1 || singles[j][0].mult < 1) continue;
+          // Rainbow carrots and baby carrots are one vegetable, not two.
+          if (role === 'veg' && headWord(singles[i][0].item) === headWord(singles[j][0].item)) continue;
           out.push([singles[i][0], singles[j][0]]);
         }
       }
@@ -457,7 +502,8 @@
     var pCost = pOpts.map(function (g) {
       // Two mains is fine; a mountain of meat isn't a balanced plate.
       var servings = g.reduce(function (s, p) { return s + p.mult; }, 0);
-      return sideCost(g) + (g.length > 1 ? 0.04 : 0) + (servings > 2.5 ? 0.1 : 0);
+      // One main and a proper side beats two mains topped up to the calories.
+      return sideCost(g) + (g.length > 1 ? 0.12 : 0) + (servings > 2.5 ? 0.1 : 0);
     });
     var cCost = cOpts.map(sideCost), vCost = vOpts.map(sideCost);
     var pSum = pOpts.map(function (g) { return sumPicks([g]); });
@@ -493,8 +539,17 @@
       }
     }
 
+    // Alternatives must differ in what the protein is, not just how much of it:
+    // "1½ chicken breast + 1 thigh" and "1 breast + 1½ thigh" are the same choice.
+    var seenSets = {};
     var plans = Object.keys(best).map(function (k) { return best[k]; })
       .sort(function (x, y) { return x.score - y.score; })
+      .filter(function (r) {
+        var sig = pOpts[r.a].map(function (p) { return itemKey(p.item); }).sort().join('+') || 'none';
+        if (seenSets[sig]) return false;
+        seenSets[sig] = true;
+        return true;
+      })
       .slice(0, opts.alternatives || 3)
       .map(function (r) {
         var picks = pOpts[r.a].concat(cOpts[r.b], vOpts[r.v]);
@@ -627,6 +682,8 @@
     computeTargets: computeTargets,
     mealTargets: mealTargets,
     classify: classify,
+    displayName: displayName,
+    suspect: suspect,
     eligible: eligible,
     planMeal: planMeal,
     planDay: planDay,
