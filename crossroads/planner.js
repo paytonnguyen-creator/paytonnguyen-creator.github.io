@@ -531,6 +531,8 @@
             0.8 * Math.max(0, protein - target.protein * 1.35) / target.protein +
             0.6 * Math.max(0, fat - target.fat) / Math.max(1, target.fat) +
             0.05 * (pOpts[a].length + cOpts[b].length + vOpts[v].length) +
+            // Past four things to grab, a plate gets hard to follow in line.
+            (pOpts[a].length + cOpts[b].length + vOpts[v].length > 4 ? 0.15 : 0) +
             pCost[a] + cCost[b] + vCost[v] +
             (vegAvailable && !vOpts[v].length ? 0.06 : 0);
           var key = anchor ? itemKey(anchor.item) : 'carb:' + itemKey(cOpts[b][0].item);
