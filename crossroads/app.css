@@ -156,6 +156,7 @@ summary .muted { font-weight: 500; font-size: .85rem; margin-left: .3rem; }
 .tag { display: inline-block; font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: .05rem .35rem; border-radius: 4px; background: #eee; color: var(--body); vertical-align: 1px; }
 .tag.lean { background: #e3ecf7; color: var(--berkeley); }
 .tag.plan { background: var(--gold); color: var(--berkeley); }
+.tag.warn { background: #fbeceb; color: var(--over); }
 
 /* ── weigh-ins ── */
 .weigh-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: .6rem; align-items: end; margin: .6rem 0 .4rem; }

@@ -190,7 +190,7 @@
 
   function anchorName(plan) {
     var top = plan.picks.slice().sort(function (a, b) { return b.protein - a.protein; })[0];
-    return top ? top.item.name : 'Plan';
+    return top ? P.displayName(top.item.name) : 'Plan';
   }
 
   function shortName(name) {
@@ -206,7 +206,7 @@
         fallbackName.toLowerCase() + ' on this day.</p></article>';
     }
     var m = s.meal;
-    var hours = m.start && m.end ? '<span class="hours">' + esc(m.start) + ' – ' + esc(m.end) + '</span>' : '';
+    var hours = m.start && m.end ? '<span class="hours">' + esc(fmtTime(m.start)) + ' – ' + esc(fmtTime(m.end)) + '</span>' : '';
     if (!s.plans.length) {
       return '<article class="card meal"><header class="m-head"><h2>' + esc(m.name) + '</h2>' + hours + '</header>' +
         '<p class="muted">Nothing on this menu fits your filters. Loosen the diet or allergen settings, or browse the full menu below.</p></article>';
@@ -226,7 +226,7 @@
       return '<li class="pick">' +
         '<div class="p-main">' +
         '<span class="role ' + pk.role + '">' + (ROLE[pk.role] || 'Side') + '</span>' +
-        '<span class="p-name">' + esc(pk.item.name) + '</span>' +
+        '<span class="p-name">' + esc(P.displayName(pk.item.name)) + '</span>' +
         '<span class="p-station">' + esc(pk.item.station) + '</span>' +
         '</div>' +
         '<div class="p-portion"><strong>' + esc(por.servings) + '</strong>' + (amount ? '<span>' + esc(amount) + '</span>' : '') + '</div>' +
@@ -295,11 +295,13 @@
         var inPlan = slot && chosenKeys[slot + '|' + i.name];
         var serving = i.serving ? esc(trimNum(i.serving.qty) + ' ' + i.serving.unit) : '';
         return '<tr class="' + (ok ? '' : 'off') + (inPlan ? ' inplan' : '') + '">' +
-          '<th scope="row"><span class="mi-name">' + esc(i.name) + '</span>' +
+          '<th scope="row"><span class="mi-name">' + esc(P.displayName(i.name)) + '</span>' +
           (lean ? ' <span class="tag lean">Lean</span>' : '') +
           (inPlan ? ' <span class="tag plan">In plan</span>' : '') +
           (role === 'treat' ? ' <span class="tag">Treat</span>' : '') +
-          '<span class="mi-sub">' + esc(i.station) + (serving ? ' · ' + serving : '') + (ok ? '' : ' · filtered out') + '</span></th>' +
+          (P.suspect(i) ? ' <span class="tag warn">Check label</span>' : '') +
+          '<span class="mi-sub">' + esc(i.station) + (serving ? ' · ' + serving : '') +
+          (P.suspect(i) ? ' · Cal Dining’s numbers don’t add up, so it’s left out of plans' : ok ? '' : ' · filtered out') + '</span></th>' +
           '<td>' + n0(i.n.kcal) + '</td><td>' + n0(i.n.protein || 0) + '</td><td>' + n0(i.n.fat || 0) + '</td><td>' + n0(i.n.carbs || 0) + '</td></tr>';
       }).join('');
       return '<details' + (m.name === open ? ' open' : '') + ' data-meal="' + esc(m.name) + '"><summary>' + esc(m.name) +
@@ -309,6 +311,15 @@
     }).join('');
     $('menu').innerHTML = html;
     card.hidden = false;
+  }
+
+  // The export gives 24-hour times ("16:30"); older files said "4:30 PM".
+  function fmtTime(t) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(String(t).trim());
+    if (!m) return t;
+    var h = +m[1], ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + (m[2] === '00' ? '' : ':' + m[2]) + ' ' + ap;
   }
 
   function density(i) { return i.n.kcal ? ((i.n.protein || 0) / i.n.kcal) * 100 : 0; }

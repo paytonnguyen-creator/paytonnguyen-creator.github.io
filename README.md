@@ -238,8 +238,13 @@ of calories, and carbs are the rest. Breakfast and snacks come off the top, and
 lunch and dinner split what's left.
 
 **Planning.** Every item is sorted into protein / starch / vegetable /
-treat / drink / condiment from its name, station, serving unit and macros. Treats,
-drinks and condiments never go into a plan. The best few in each role are
+treat / drink / condiment from its name, station, serving unit and macros. Cal
+Dining names things noun-first ("Dressing Ranch RTU", "Rice Brown"), so both
+ends of a name are checked. Beans and lentils count as the starch. A
+"vegetable" has to be under ~35 kcal an ounce; above that, oil, honey or a
+topping is doing the work. Treats, drinks, condiments and salad-bar toppings
+never go into a plan, and neither does an item whose listed serving is a whole
+pan. The best few in each role are
 combined (1–2 proteins, 0–1 starch, 0–2 vegetables, at sensible serving
 multiples) and scored against the meal's target:
 - Anything within ±4% of the calorie target counts as on target.
