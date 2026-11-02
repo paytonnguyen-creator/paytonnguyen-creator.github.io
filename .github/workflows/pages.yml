@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # The menu updater commits with GITHUB_TOKEN, which doesn't fire `push`.
+  workflow_run:
+    workflows: ["Update Crossroads menus"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -17,6 +21,9 @@ concurrency:
 
 jobs:
   deploy:
+    # After a menu update, deploy whenever it got as far as committing — even a
+    # run where one day failed may have saved the others.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion != 'cancelled' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages

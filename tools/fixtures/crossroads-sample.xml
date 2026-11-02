@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SYNTHETIC TEST FIXTURE. The structure mirrors Cal Dining's Eatec export
+     (menus-exportimport/Crossroads_YYYYMMDD.xml); every item and number here is
+     invented for tools/check-crossroads.mjs. It is not a real menu. -->
+<EatecExchange>
+  <menu mealperiodname="Fall - Breakfast" servedate="20261102" location="Crossroads" mealstarttime="7:00 AM" mealendtime="10:30 AM">
+    <nutrients>Calories (kcal)|Total Lipid/Fat (g)|Saturated fatty acid (g)|Trans Fat (g)|Cholesterol (mg)|Sodium (mg)|Carbohydrate (g)|Total Dietary Fiber (g)|Sugar (g)|Protein (g)|Vitamin A (iu)|Vitamin C (mg)|Calcium (mg)|Iron (mg)|Water (g)|Ash (g)|Vitamin A (rae)|Potassium (mg)|Vitamin D(iu)|Carbon Footprint (kg CO2)|</nutrients>
+    <recipes>
+      <recipe id="1003" category="Breakfast" description="Scrambled Eggs" shortName="Scrambled Eggs" servingSize="4" servingSizeUnit="oz" nutrients="180|13|4|0|0|300|2|0|1|13|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">Yes</allergen><allergen id="Egg">Yes</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">Yes</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+
+    </recipes>
+  </menu>
+  <menu mealperiodname="Fall - Lunch" servedate="20261102" location="Crossroads" mealstarttime="11:00 AM" mealendtime="2:00 PM">
+    <nutrients>Calories (kcal)|Total Lipid/Fat (g)|Saturated fatty acid (g)|Trans Fat (g)|Cholesterol (mg)|Sodium (mg)|Carbohydrate (g)|Total Dietary Fiber (g)|Sugar (g)|Protein (g)|Vitamin A (iu)|Vitamin C (mg)|Calcium (mg)|Iron (mg)|Water (g)|Ash (g)|Vitamin A (rae)|Potassium (mg)|Vitamin D(iu)|Carbon Footprint (kg CO2)|</nutrients>
+    <recipes>
+      <recipe id="1004" category="Grill" description="Grilled Lemon Herb Chicken Breast" shortName="Grilled Lemon Herb Chicken Breast" servingSize="4" servingSizeUnit="oz" nutrients="170|4|1|0|0|380|1|0|0|31|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1005" category="Entree" description="Teriyaki Salmon" shortName="Teriyaki Salmon" servingSize="4" servingSizeUnit="oz" nutrients="240|11|2|0|0|520|8|0|6|25|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">Yes</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">Yes</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1006" category="Entree" description="Beef &amp; Broccoli" shortName="Beef &amp; Broccoli" servingSize="6" servingSizeUnit="oz" nutrients="310|14|5|0|0|780|12|2|6|30|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">Yes</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1007" category="Vegan Entree" description="Baked Tofu with Ginger Glaze" shortName="Baked Tofu with Ginger Glaze" servingSize="4" servingSizeUnit="oz" nutrients="180|9|1|0|0|410|8|1|4|16|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">Yes</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1008" category="Entree" description="Steamed Brown Rice" shortName="Steamed Brown Rice" servingSize="4" servingSizeUnit="oz" nutrients="125|1|0|0|0|5|26|2|0|3|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1009" category="Entree" description="Garlic Roasted Broccoli" shortName="Garlic Roasted Broccoli" servingSize="3" servingSizeUnit="oz" nutrients="60|3|0|0|0|140|6|3|1|3|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1010" category="Pasta" description="Penne Pasta" shortName="Penne Pasta" servingSize="5" servingSizeUnit="oz" nutrients="220|1|0|0|0|5|44|2|1|8|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1011" category="Pasta" description="Marinara Sauce" shortName="Marinara Sauce" servingSize="3" servingSizeUnit="oz" nutrients="60|2|0|0|0|350|9|2|6|2|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1012" category="Pizza" description="Pepperoni Pizza" shortName="Pepperoni Pizza" servingSize="1" servingSizeUnit="each" nutrients="310|13|6|0|0|720|34|2|4|13|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">Yes</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1013" category="Salad Bar" description="Romaine Lettuce" shortName="Romaine Lettuce" servingSize="1" servingSizeUnit="cup" nutrients="8|0|0|0|0|4|2|1|1|1|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1014" category="Salad Bar" description="Cherry Tomatoes" shortName="Cherry Tomatoes" servingSize="0.5" servingSizeUnit="cup" nutrients="14|0|0|0|0|4|3|1|2|1|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1015" category="Salad Bar" description="Garbanzo Beans" shortName="Garbanzo Beans" servingSize="0.25" servingSizeUnit="cup" nutrients="70|1|0|0|0|120|11|3|2|4|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1016" category="Salad Bar" description="Ranch Dressing" shortName="Ranch Dressing" servingSize="2" servingSizeUnit="Tbsp" nutrients="140|14|2|0|0|260|2|0|1|0|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">Yes</allergen><allergen id="Egg">Yes</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">Yes</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1017" category="Salad Bar" description="Hard Boiled Egg" shortName="Hard Boiled Egg" servingSize="1" servingSizeUnit="each" nutrients="70|5|2|0|0|60|0|0|0|6|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">Yes</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">Yes</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1018" category="Soup" description="Chicken Tortilla Soup" shortName="Chicken Tortilla Soup" servingSize="8" servingSizeUnit="fl oz" nutrients="150|5|1|0|0|890|15|2|3|11|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1019" category="Dessert" description="Chocolate Chip Cookie" shortName="Chocolate Chip Cookie" servingSize="1" servingSizeUnit="each" nutrients="210|10|6|0|0|150|28|1|17|2|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">Yes</allergen><allergen id="Egg">Yes</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">Yes</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1020" category="Beverages" description="Lemonade" shortName="Lemonade" servingSize="12" servingSizeUnit="fl oz" nutrients="150|0|0|0|0|10|40|0|38|0|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1021" category="Grill" description="Seasoned Fries" shortName="Seasoned Fries" servingSize="4" servingSizeUnit="oz" nutrients="320|16|3|0|0|540|40|4|0|4|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1000" category="Grill" description="Grilled Lemon Herb Chicken Breast" shortName="Grilled Lemon Herb Chicken Breast" servingSize="4" servingSizeUnit="oz" nutrients="170|4|1|0|0|380|1|0|0|31|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1001" category="Monday Nov 2, 2026" description="Garden Side Salad" shortName="Garden Side Salad" servingSize="1" servingSizeUnit="cup" nutrients="20|0|0|0|0|15|4|2|2|1|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1002" category="Grill" description="Grilled Veggie Burger" shortName="Veggie Burger" servingSize="1" servingSizeUnit="each" nutrients="290|-0.4|1|0|0|610|36|6|5|17|0|0|0|0|0|0|0|0|0|0.4|">
+        <allergens><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">Yes</allergen><allergen id="Gluten">Yes</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice></dietaryChoices>
+      </recipe>
+    </recipes>
+  </menu>
+  <menu mealperiodname="Fall - Dinner" servedate="20261102" location="Crossroads" mealstarttime="5:00 PM" mealendtime="9:00 PM">
+    <nutrients>Calories (kcal)|Total Lipid/Fat (g)|Saturated fatty acid (g)|Trans Fat (g)|Cholesterol (mg)|Sodium (mg)|Carbohydrate (g)|Total Dietary Fiber (g)|Sugar (g)|Protein (g)|Vitamin A (iu)|Vitamin C (mg)|Calcium (mg)|Iron (mg)|Water (g)|Ash (g)|Vitamin A (rae)|Potassium (mg)|Vitamin D(iu)|Carbon Footprint (kg CO2)|</nutrients>
+    <recipes>
+      <recipe id="1022" category="Carvery" description="Roast Turkey Breast" shortName="Roast Turkey Breast" servingSize="4" servingSizeUnit="oz" nutrients="150|2|1|0|0|560|2|0|1|29|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1023" category="Entree" description="Shrimp Stir Fry" shortName="Shrimp Stir Fry" servingSize="6" servingSizeUnit="oz" nutrients="220|8|1|0|0|820|12|2|5|24|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">Yes</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">Yes</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1024" category="Vegan Entree" description="Black Bean &amp; Quinoa Bowl" shortName="Black Bean &amp; Quinoa Bowl" servingSize="8" servingSizeUnit="oz" nutrients="300|6|1|0|0|420|48|11|3|13|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1025" category="Vegan Entree" description="Lentil Dal" shortName="Lentil Dal" servingSize="6" servingSizeUnit="oz" nutrients="210|4|1|0|0|480|32|9|3|13|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1026" category="Carvery" description="Mashed Potatoes" shortName="Mashed Potatoes" servingSize="4" servingSizeUnit="oz" nutrients="140|5|3|0|0|330|20|2|2|3|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">Yes</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">Yes</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1027" category="Entree" description="Jasmine Rice" shortName="Jasmine Rice" servingSize="4" servingSizeUnit="oz" nutrients="150|0|0|0|0|0|33|0|0|3|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1028" category="Entree" description="Steamed Green Beans" shortName="Steamed Green Beans" servingSize="3" servingSizeUnit="oz" nutrients="30|0|0|0|0|80|6|3|1|2|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1029" category="Entree" description="Roasted Carrots" shortName="Roasted Carrots" servingSize="3" servingSizeUnit="oz" nutrients="55|2|0|0|0|150|9|3|5|1|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1030" category="Grill" description="Grilled Lemon Herb Chicken Breast" shortName="Grilled Lemon Herb Chicken Breast" servingSize="4" servingSizeUnit="oz" nutrients="170|4|1|0|0|380|1|0|0|31|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1031" category="Comfort" description="Mac &amp; Cheese" shortName="Mac &amp; Cheese" servingSize="6" servingSizeUnit="oz" nutrients="380|18|10|0|0|820|38|1|4|15|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">Yes</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">Yes</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1032" category="Salad Bar" description="Spinach" shortName="Spinach" servingSize="1" servingSizeUnit="cup" nutrients="7|0|0|0|0|24|1|1|0|1|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">No</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">No</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">Yes</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1033" category="Carvery" description="Brown Gravy" shortName="Brown Gravy" servingSize="2" servingSizeUnit="fl oz" nutrients="30|1|0|0|0|300|4|0|0|1|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">No</allergen><allergen id="Egg">No</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">No</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+      <recipe id="1034" category="Dessert" description="Fudge Brownie" shortName="Fudge Brownie" servingSize="1" servingSizeUnit="each" nutrients="260|13|5|0|0|140|35|1|24|3|0|0|0|0|0|0|0|0|0|0.3|">
+        <allergens><allergen id="Milk">Yes</allergen><allergen id="Egg">Yes</allergen><allergen id="Fish">No</allergen><allergen id="Shellfish">No</allergen><allergen id="Tree Nuts">No</allergen><allergen id="Peanuts">No</allergen><allergen id="Wheat">Yes</allergen><allergen id="Soybeans">No</allergen><allergen id="Sesame">No</allergen><allergen id="Gluten">Yes</allergen><allergen id="Alcohol">No</allergen></allergens>
+        <dietaryChoices><dietaryChoice id="Vegan Option">No</dietaryChoice><dietaryChoice id="Vegetarian Option">Yes</dietaryChoice><dietaryChoice id="Halal">No</dietaryChoice></dietaryChoices>
+      </recipe>
+
+    </recipes>
+  </menu>
+</EatecExchange>

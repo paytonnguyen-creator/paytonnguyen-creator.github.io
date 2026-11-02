@@ -4,7 +4,9 @@
   "description": "Build tooling for the site. Nothing here ships to the browser \u2014 the pages are plain HTML and the Degree Ledger is bundled into a single file ahead of time.",
   "scripts": {
     "build:ledger": "node tools/build-ledger.mjs",
-    "check": "node tools/check-subjects.mjs && node tools/check-data.mjs"
+    "check": "node tools/check-subjects.mjs && node tools/check-data.mjs && node tools/check-crossroads.mjs",
+    "check:crossroads": "node tools/check-crossroads.mjs",
+    "fetch:crossroads": "node tools/fetch-crossroads.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.25.10",
