@@ -197,9 +197,17 @@ footer.
 
 ## Crossroads Cut Planner
 
-`crossroads/` plans lunch and dinner at Crossroads for a cut: which items to
-take, how many servings, and roughly what that looks like on the plate. It plans
-from that day's actual menu, so the plan changes when the menu does.
+`crossroads/` plans lunch and dinner at Berkeley's dining locations for a cut:
+where to go, which items to take, how many servings, and roughly what that looks
+like on the plate. It plans from each day's actual menus, about a week ahead,
+so the plan changes when the menus do.
+
+Each meal has a row of location chips: Crossroads, Cafe 3, Foothill, Clark
+Kerr, and whichever cafés posted nutrition. Each chip shows the protein in
+that spot's best plate and a ✓ when it fits the target. Tapping one re-plans
+the meal from there, and lunch and dinner can come from different places. The
+★ "usual spot" (Crossroads) is the default and can be changed under **My
+numbers**.
 
 It's built for me, so there's no setup. `ME` at the top of `crossroads/app.js`
 holds my numbers: 5′9″, 155 lb, lifting 3–5×/week, a daily matcha latte
@@ -215,8 +223,8 @@ later still takes effect. After 9 pm it shows tomorrow.
 crossroads/planner.js            the model, no DOM: parses Cal Dining's XML, works out
                                  targets, picks the meals. Runs in the page and in Node
 crossroads/app.js, app.css       the page
-crossroads/data/                 one JSON file per day plus index.json, written by the Action
-tools/fetch-crossroads.mjs       fetches today + 6 days and writes crossroads/data/
+crossroads/data/                 one JSON file per day (every location) plus index.json, written by the Action
+tools/fetch-crossroads.mjs       fetches every location for today + 9 days and writes crossroads/data/
 tools/check-crossroads.mjs       tests (npm run check:crossroads)
 tools/fixtures/crossroads-sample.xml
                                  synthetic test fixture — real structure, invented items
@@ -224,10 +232,13 @@ tools/fixtures/crossroads-sample.xml
                                  runs the fetcher every morning and commits what changed
 ```
 
-**Where the menu comes from.** Cal Dining publishes one XML file per location
+**Where the menus come from.** Cal Dining publishes one XML file per location
 per day at
-`dining.berkeley.edu/wp-content/uploads/menus-exportimport/Crossroads_YYYYMMDD.xml`,
-with nutrition for every item. The browser can't read it from another origin, so
+`dining.berkeley.edu/wp-content/uploads/menus-exportimport/<Location>_YYYYMMDD.xml`
+(`Crossroads`, `Cafe_3`, `Foothill`, `Clark_Kerr_Campus`, and café prefixes,
+listed in `LOCATIONS` in the fetcher), with nutrition for every dining-hall
+item. Menus go up about a week ahead. The fetcher looks 10 days out and keeps
+whatever is posted, and a location that isn't posted that day is skipped. The browser can't read it from another origin, so
 the **Update Crossroads menus** workflow fetches it at about 5 AM and again late
 morning, then commits it to `crossroads/data/`. Pages redeploys after each run
 through the `workflow_run` trigger in `pages.yml`, because a push made with

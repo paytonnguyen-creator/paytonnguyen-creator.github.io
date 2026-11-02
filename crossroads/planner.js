@@ -566,11 +566,14 @@
   }
 
   /* Lunch first; dinner then absorbs whatever lunch over- or under-shot (within
-   * reason) and is steered away from repeating lunch. */
+   * reason) and is steered away from repeating lunch. The two meals can come
+   * from different locations. */
   function planDay(day, targets, prefs, choice) {
+    return planPair(slotMeal(day, 'lunch'), slotMeal(day, 'dinner'), targets, prefs, choice);
+  }
+
+  function planPair(lunchMeal, dinnerMeal, targets, prefs, choice) {
     choice = choice || {};
-    var lunchMeal = findMeal(day, ['Lunch', 'Brunch']);
-    var dinnerMeal = findMeal(day, ['Dinner']);
     var out = { lunch: null, dinner: null };
 
     if (lunchMeal) {
@@ -596,6 +599,26 @@
       out.dinner = { meal: dinnerMeal, target: dt, nominal: targets.dinner, plans: dp.plans, chosen: di };
     }
     return out;
+  }
+
+  /* The meal a location serves for a slot. Dining halls say Lunch/Brunch and
+   * Dinner; a café that posts one all-day menu serves both. */
+  function slotMeal(loc, slot) {
+    var m = findMeal(loc, slot === 'lunch' ? ['Lunch', 'Brunch'] : ['Dinner']);
+    if (m || !loc || !loc.meals) return m;
+    var rest = loc.meals.filter(function (x) { return x.name !== 'Breakfast'; });
+    return rest.length === 1 ? rest[0] : null;
+  }
+
+  /* Day files hold every location; the first ones (Crossroads only) held meals
+   * directly. Both come back as { date, locations: [...] }. */
+  function normalizeDay(day) {
+    if (!day) return null;
+    if (day.locations) return day;
+    return {
+      date: day.date, fetchedAt: day.fetchedAt,
+      locations: [{ key: 'Crossroads', name: 'Crossroads', kind: 'hall', source: day.source, meals: day.meals || [] }]
+    };
   }
 
   function findMeal(day, names) {
@@ -689,6 +712,9 @@
     eligible: eligible,
     planMeal: planMeal,
     planDay: planDay,
+    planPair: planPair,
+    slotMeal: slotMeal,
+    normalizeDay: normalizeDay,
     findMeal: findMeal,
     portion: portion,
     frac: frac,

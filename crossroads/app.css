@@ -64,7 +64,15 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 .m-head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; margin-bottom: .4rem; }
 .m-head h2 { font-size: 1.35rem; display: flex; align-items: center; gap: .5rem; }
 .next { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; background: var(--gold); color: var(--berkeley); border-radius: 6px; padding: .15rem .45rem; }
-.hours { color: var(--faint); font-size: .85rem; font-weight: 600; white-space: nowrap; }
+.hours { color: var(--faint); font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.locs { display: flex; gap: .4rem; overflow-x: auto; margin: .1rem -1rem .3rem; padding: .2rem 1rem .4rem; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.locs::-webkit-scrollbar { display: none; }
+.loc { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: .05rem; border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: .35rem .7rem; font: inherit; font-size: .88rem; font-weight: 700; color: var(--ink); cursor: pointer; min-height: 44px; text-align: left; }
+.loc small { font-weight: 500; font-size: .74rem; color: var(--faint); white-space: nowrap; }
+.loc.on { border-color: var(--berkeley); background: var(--tint); box-shadow: inset 0 0 0 1px var(--berkeley); }
+.loc.on small { color: var(--berkeley); }
+.loc.na { opacity: .5; cursor: default; }
+#menu-loc { margin-bottom: .4rem; }
 
 .items { list-style: none; margin: 0; padding: 0; }
 .item { display: grid; grid-template-columns: 28px 1fr auto; gap: .2rem .7rem; align-items: start; padding: .75rem 0; border-top: 1px solid var(--line); cursor: pointer; }

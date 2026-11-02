@@ -220,6 +220,38 @@ test('an empty or missing meal yields no plans rather than throwing', () => {
   assert.equal(none.dinner, null);
 });
 
+// ── locations ──
+test('a café posting one all-day menu serves both lunch and dinner', () => {
+  const cafe = { key: 'Golden_Bear_Cafe', meals: [{ name: 'Breakfast', items: [] }, { name: 'All Day', items: lunch.items }] };
+  assert.equal(P.slotMeal(cafe, 'lunch').name, 'All Day');
+  assert.equal(P.slotMeal(cafe, 'dinner').name, 'All Day');
+  const hall = { key: 'Crossroads', meals: day.meals };
+  assert.equal(P.slotMeal(hall, 'lunch').name, 'Lunch');
+  assert.equal(P.slotMeal(hall, 'dinner').name, 'Dinner');
+  assert.equal(P.slotMeal({ meals: [{ name: 'Breakfast', items: [] }] }, 'lunch'), null);
+});
+
+test('old Crossroads-only day files read as one location', () => {
+  const old = { date: '2026-11-02', fetchedAt: 'x', source: 'u', meals: day.meals };
+  const d = P.normalizeDay(old);
+  assert.equal(d.locations.length, 1);
+  assert.equal(d.locations[0].key, 'Crossroads');
+  assert.equal(d.locations[0].meals, day.meals);
+  const fresh = { date: '2026-11-02', locations: [{ key: 'Cafe_3', meals: [] }] };
+  assert.equal(P.normalizeDay(fresh), fresh);
+});
+
+test('lunch and dinner can come from different locations', () => {
+  const mt = P.mealTargets(P.computeTargets(him), him);
+  const pair = P.planPair(lunch, dinner, mt, { diet: 'any', avoid: [] });
+  assert.ok(pair.lunch.plans.length && pair.dinner.plans.length);
+  const lunchOnly = P.planPair(lunch, null, mt, {});
+  assert.equal(lunchOnly.dinner, null);
+  const dinnerOnly = P.planPair(null, dinner, mt, {});
+  assert.equal(dinnerOnly.lunch, null);
+  assert.equal(dinnerOnly.dinner.target.kcal, mt.dinner.kcal);
+});
+
 // ── portions & trend ──
 test('portions read in servings, amounts and hand-size cues', () => {
   const chicken = byName(lunch, 'Grilled Lemon Herb Chicken Breast');

@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Payton’s Cut Plan</title>
-<meta name="description" content="Payton’s lunch and dinner at Crossroads for a cut: what to grab and how much, rebuilt from each day’s menu.">
+<meta name="description" content="Payton’s lunch and dinner at Berkeley’s dining halls for a cut: where to go, what to grab and how much, rebuilt from each day’s menus.">
 <meta name="theme-color" content="#003262">
 <meta name="robots" content="noindex">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cut Plan">
-<link rel="stylesheet" href="app.css?v=4">
+<link rel="stylesheet" href="app.css?v=5">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003262'/><text x='50' y='68' font-size='46' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23fdb515' text-anchor='middle'>XR</text></svg>">
 </head>
 <body>
@@ -19,7 +19,7 @@
   <div class="bar-inner">
     <a class="mono" href="../index.html" aria-label="Payton Nguyen — home">PN</a>
     <span class="bar-title">Payton’s Cut Plan</span>
-    <span class="bar-sub">Crossroads</span>
+    <span class="bar-sub">Cal Dining</span>
   </div>
 </header>
 
@@ -68,6 +68,7 @@
     <details id="menu-card">
       <summary>Full menu</summary>
       <div class="panel">
+        <label class="field"><span class="label">Location</span><select id="menu-loc" aria-label="Menu location"></select></label>
         <p class="muted small">Per serving, most protein per calorie first. Items in today’s plan are marked.</p>
         <div id="menu"></div>
       </div>
@@ -104,6 +105,8 @@
               <span class="unit"><input type="number" name="otherKcal" min="0" max="2000" step="10" inputmode="numeric"><span>kcal</span></span></label>
             <label class="field"><span class="label">…its protein</span>
               <span class="unit"><input type="number" name="otherProtein" min="0" max="200" inputmode="numeric"><span>g</span></span></label>
+            <label class="field wide"><span class="label">Usual spot <small>(★ — plans start here)</small></span>
+              <select name="home"></select></label>
             <label class="field wide"><span class="label">Diet</span>
               <select name="diet"><option value="any">Anything</option><option value="vegetarian">Vegetarian</option><option value="vegan">Vegan</option></select></label>
             <div class="field wide">
@@ -130,7 +133,7 @@
   <p>Calories and macros are Cal Dining’s own numbers, which they say can vary with portioning. Saved on this phone only. Targets are estimates to steer by, not medical advice.</p>
 </footer>
 
-<script src="planner.js?v=4"></script>
-<script src="app.js?v=4"></script>
+<script src="planner.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
