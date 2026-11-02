@@ -14,7 +14,8 @@
     activity: 'moderate',          // lifts 3–5×/week
     rateLb: 1,                     // 1 lb/week ≈ 0.65% of bodyweight
     otherKcal: 240, otherProtein: 12, // daily matcha latte (grande, 2% milk)
-    lunchShare: 0.5, diet: 'any', avoid: [], dislikes: [], kcalAdjust: 0
+    lunchShare: 0.5, diet: 'any', avoid: [], dislikes: [], kcalAdjust: 0,
+    home: 'Crossroads'             // where a meal plans by default
   };
   var ALLERGENS = ['Milk', 'Egg', 'Fish', 'Shellfish', 'Tree Nuts', 'Peanuts', 'Wheat', 'Gluten', 'Soybeans', 'Sesame', 'Pork', 'Alcohol'];
   var ROLE_ORDER = ['protein', 'mixed', 'carb', 'veg'];
@@ -81,7 +82,8 @@
       var today = pacificToday();
       var dates = (idx.dates || []).filter(function (d) { return d >= today; });
       if (!dates.length) dates = (idx.dates || []).slice(-1);
-      state.index = { dates: dates, updatedAt: idx.updatedAt };
+      state.index = { dates: dates, updatedAt: idx.updatedAt, locations: idx.locations };
+      fillSettings();
       if (!dates.length) {
         $('day-title').textContent = 'No menu yet';
         showNotice('Crossroads menus haven’t been fetched yet. They update every morning.');
@@ -93,7 +95,7 @@
       var lateNight = pick === today && pacificHour() >= 21 && dates.indexOf(addDays(today, 1)) >= 0 && !hash;
       if (lateNight) pick = addDays(today, 1);
       return selectDate(pick).then(function () {
-        if (lateNight) showNotice('Crossroads is closed for tonight. Here’s tomorrow’s plan.');
+        if (lateNight) showNotice('Dining halls are closed for tonight. Here’s tomorrow’s plan.');
       });
     }).catch(function () {
       $('day-title').textContent = 'Couldn’t load the menu';
@@ -109,7 +111,7 @@
     $('day-title').textContent = dayLabel(iso) === 'Today' ? 'Today · ' + fmtDay(iso, { weekday: 'long', month: 'short', day: 'numeric' })
       : fmtDay(iso, { weekday: 'long', month: 'short', day: 'numeric' });
     return getJson('data/' + iso + '.json').then(function (day) {
-      state.day = day;
+      state.day = P.normalizeDay(day);
       hideNotice();
       render();
     }).catch(function () {
@@ -149,13 +151,59 @@
     renderSource();
     if (!state.day) { $('meals').innerHTML = ''; $('day-total').hidden = true; $('menu').innerHTML = ''; return; }
 
-    var plan = P.planDay(state.day, mt, prefs(), state.choice);
+    var lunchLoc = pickLoc('lunch'), dinnerLoc = pickLoc('dinner');
+    var plan = P.planPair(lunchLoc && P.slotMeal(lunchLoc, 'lunch'), dinnerLoc && P.slotMeal(dinnerLoc, 'dinner'), mt, prefs(), state.choice);
+    if (plan.lunch) plan.lunch.loc = lunchLoc;
+    if (plan.dinner) plan.dinner.loc = dinnerLoc;
     var order = ['lunch', 'dinner'];
     var next = nextMeal(plan);
     if (next === 'dinner') order = ['dinner', 'lunch'];
-    $('meals').innerHTML = order.map(function (slot) { return mealCard(slot, plan[slot], next === slot); }).join('');
+    $('meals').innerHTML = order.map(function (slot) {
+      var target = plan[slot] ? plan[slot].target : mt[slot];
+      return mealCard(slot, plan[slot], next === slot, locChips(slot, target, plan[slot] && plan[slot].loc));
+    }).join('');
     renderDayTotal(plan, t);
     renderMenu(plan);
+  }
+
+  /* ── locations ── */
+  function locsServing(slot) {
+    return state.day.locations.filter(function (l) { return P.slotMeal(l, slot); });
+  }
+
+  // The location a meal plans from: today's pick for it, else your usual hall,
+  // else the first dining hall that serves it.
+  function pickLoc(slot) {
+    var serving = locsServing(slot);
+    var want = [state.choice[slot + 'Loc'], state.me.home];
+    for (var i = 0; i < want.length; i++) {
+      for (var j = 0; j < serving.length; j++) if (serving[j].key === want[i]) return serving[j];
+    }
+    var halls = serving.filter(function (l) { return l.kind === 'hall'; });
+    return halls[0] || serving[0] || null;
+  }
+
+  function fitOf(plan, target) {
+    if (!plan) return null;
+    var t = plan.totals, off = Math.abs(t.kcal - target.kcal) / target.kcal;
+    return { protein: t.protein, kcal: t.kcal, good: off <= 0.08 && t.protein >= target.protein * 0.9 };
+  }
+
+  // One chip per place serving this meal, each showing how well its best
+  // plate fits — so choosing where to eat is a glance, not a guess.
+  function locChips(slot, target, current) {
+    var serving = locsServing(slot);
+    if (serving.length < 2) return '';
+    var rank = function (l) { return (l.key === state.me.home ? 0 : l.kind === 'hall' ? 1 : 2); };
+    serving = serving.slice().sort(function (a, b) { return rank(a) - rank(b); });
+    return '<div class="locs" role="tablist" aria-label="Where to eat ' + slot + '">' + serving.map(function (l) {
+      var best = P.planMeal(P.slotMeal(l, slot), target, prefs(), { alternatives: 1 }).plans[0];
+      var fit = fitOf(best, target), on = current && current.key === l.key;
+      return '<button type="button" role="tab" class="loc' + (on ? ' on' : '') + (fit ? '' : ' na') + '" aria-selected="' + !!on +
+        '" data-loc="' + esc(l.key) + '" data-slot="' + slot + '"' + (fit ? '' : ' disabled') + '>' +
+        '<span>' + esc(l.name) + (l.key === state.me.home ? ' ★' : '') + '</span>' +
+        '<small>' + (fit ? (fit.good ? '✓ ' : '') + fit.protein + 'g protein' : 'no nutrition info') + '</small></button>';
+    }).join('') + '</div>';
   }
 
   /* Which meal is coming up, if the shown day is today. */
@@ -173,18 +221,19 @@
     return p.picks.slice().sort(function (a, b) { return ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role); });
   }
 
-  function mealCard(slot, s, isNext) {
+  function mealCard(slot, s, isNext, chips) {
     var title = slot === 'lunch' ? 'Lunch' : 'Dinner';
-    if (!s) return '<article class="card meal off"><h2>' + title + '</h2><p class="muted">Crossroads isn’t serving ' + title.toLowerCase() + ' this day.</p></article>';
+    if (!s) return '<article class="card meal off"><h2>' + title + '</h2><p class="muted">No dining location has posted ' + title.toLowerCase() + ' for this day.</p></article>';
     var m = s.meal;
-    var head = '<header class="m-head"><h2>' + esc(m.name) + (isNext ? ' <span class="next">Up next</span>' : '') + '</h2>' +
-      (m.start && m.end ? '<span class="hours">' + esc(fmtTime(m.start)) + '–' + esc(fmtTime(m.end)) + '</span>' : '') + '</header>';
-    if (!s.plans.length) return '<article class="card meal">' + head + '<p class="muted">Nothing on this menu fits your settings. Check “Full menu” below.</p></article>';
+    var head = '<header class="m-head"><h2>' + esc(slot === 'lunch' && m.name !== 'Brunch' ? 'Lunch' : slot === 'dinner' ? 'Dinner' : m.name) +
+      (isNext ? ' <span class="next">Up next</span>' : '') + '</h2>' +
+      '<span class="hours">' + esc(s.loc ? s.loc.name : '') + (m.start && m.end ? ' · ' + esc(fmtTime(m.start)) + '–' + esc(fmtTime(m.end)) : '') + '</span></header>' + chips;
+    if (!s.plans.length) return '<article class="card meal">' + head + '<p class="muted">Nothing here fits your settings. Pick another spot above, or check “Full menu” below.</p></article>';
 
     var plan = s.plans[s.chosen];
     var rows = sortedPicks(plan).map(function (pk) {
       var por = P.portion(pk);
-      var key = slot + '|' + s.chosen + '|' + pk.item.name;
+      var key = slot + '|' + (s.loc ? s.loc.key : '') + '|' + s.chosen + '|' + pk.item.name;
       var got = !!state.got[key];
       var amount = por.amount ? '<b>' + esc(por.amount) + '</b>' + (por.cue ? ' <span class="cue">' + esc(por.cue.replace(/^≈ /, '≈')) + '</span>' : '')
         : '<b>' + esc(por.cue || por.servings) + '</b>';
@@ -225,20 +274,28 @@
     var inPlan = {};
     ['lunch', 'dinner'].forEach(function (k) {
       var s = plan[k];
-      if (s && s.plans.length) s.plans[s.chosen].picks.forEach(function (pk) { inPlan[s.meal.name + '|' + pk.item.name] = true; });
+      if (s && s.plans.length) s.plans[s.chosen].picks.forEach(function (pk) { inPlan[s.loc.key + '|' + s.meal.name + '|' + pk.item.name] = true; });
     });
+    var locs = state.day.locations;
+    var fallback = (plan.lunch && plan.lunch.loc) || (plan.dinner && plan.dinner.loc) || locs[0];
+    var loc = locs.filter(function (l) { return l.key === state.menuLoc; })[0] || fallback;
+    if (!loc) { $('menu').innerHTML = ''; return; }
+    $('menu-loc').innerHTML = locs.map(function (l) {
+      return '<option value="' + esc(l.key) + '"' + (l === loc ? ' selected' : '') + '>' + esc(l.name) + (l.kind === 'cafe' ? ' (café)' : '') + '</option>';
+    }).join('');
     var pr = prefs();
-    $('menu').innerHTML = state.day.meals.map(function (m) {
+    $('menu').innerHTML = loc.meals.map(function (m) {
       var items = m.items.filter(function (i) { return i.n.kcal != null && i.n.kcal >= 15; }).sort(function (a, b) {
         return (b.n.protein || 0) / b.n.kcal - (a.n.protein || 0) / a.n.kcal;
       });
       var rows = items.map(function (i) {
-        var ok = P.eligible(i, pr), mine = inPlan[m.name + '|' + i.name];
+        var ok = P.eligible(i, pr), mine = inPlan[loc.key + '|' + m.name + '|' + i.name];
         return '<tr class="' + (ok ? '' : 'dim') + (mine ? ' mine' : '') + '"><th scope="row">' + esc(P.displayName(i.name)) +
           (mine ? ' <span class="tag plan">In plan</span>' : '') + (P.suspect(i) ? ' <span class="tag warn">Numbers off</span>' : '') +
           '<small>' + esc(i.station) + (i.serving ? ' · ' + esc(i.serving.qty + ' ' + i.serving.unit) : '') + '</small></th>' +
           '<td>' + n0(i.n.kcal) + '</td><td>' + n0(i.n.protein || 0) + '</td></tr>';
       }).join('');
+      if (!rows) return '<h3>' + esc(m.name) + '</h3><p class="muted small">No nutrition posted for this menu.</p>';
       return '<h3>' + esc(m.name) + '</h3><div class="tablewrap"><table class="menu-table"><thead><tr><th scope="col">Item</th><th scope="col">kcal</th><th scope="col">Protein</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
     }).join('');
   }
@@ -288,6 +345,11 @@
     f.otherKcal.value = me.otherKcal;
     f.otherProtein.value = me.otherProtein;
     f.diet.value = me.diet;
+    var locs = (state.index && state.index.locations) || [{ key: 'Crossroads', name: 'Crossroads', kind: 'hall' }];
+    f.home.innerHTML = locs.map(function (l) {
+      return '<option value="' + esc(l.key) + '">' + esc(l.name) + (l.kind === 'cafe' ? ' (café)' : '') + '</option>';
+    }).join('');
+    f.home.value = me.home;
     f.dislikes.value = (me.dislikes || []).join(', ');
     $('avoid').innerHTML = ALLERGENS.map(function (a) {
       return '<label><input type="checkbox" name="avoid" value="' + esc(a) + '"' + ((me.avoid || []).indexOf(a) >= 0 ? ' checked' : '') + '> ' + esc(a) + '</label>';
@@ -303,7 +365,7 @@
       weightLb: num(f.weightLb, 80, 450, me.weightLb), heightIn: heightIn, age: num(f.age, 16, 80, me.age),
       sex: f.sex.value, activity: f.activity.value, rateLb: parseFloat(f.rateLb.value),
       otherKcal: num(f.otherKcal, 0, 2000, 0), otherProtein: num(f.otherProtein, 0, 200, 0),
-      diet: f.diet.value,
+      diet: f.diet.value, home: f.home.value || me.home,
       avoid: Array.prototype.map.call(f.querySelectorAll('input[name=avoid]:checked'), function (c) { return c.value; }),
       dislikes: f.dislikes.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
     });
@@ -333,6 +395,16 @@
     });
 
     $('meals').addEventListener('click', function (e) {
+      var l = e.target.closest('button[data-loc]');
+      if (l) {
+        var sl = l.dataset.slot;
+        state.choice[sl + 'Loc'] = l.dataset.loc;
+        state.choice[sl] = 0;
+        if (sl === 'lunch') state.choice.dinner = 0;
+        save('xr:choice:' + state.date, state.choice);
+        render();
+        return;
+      }
       var b = e.target.closest('button[data-swap]');
       if (!b) return;
       var slot = b.dataset.swap;
@@ -350,6 +422,11 @@
       if (c.checked) state.got[c.dataset.got] = true; else delete state.got[c.dataset.got];
       c.closest('.item').classList.toggle('got', c.checked);
       save('xr:got:' + state.date, state.got);
+    });
+
+    $('menu-loc').addEventListener('change', function (e) {
+      state.menuLoc = e.target.value;
+      render();
     });
 
     $('settings-form').addEventListener('submit', function (e) {
