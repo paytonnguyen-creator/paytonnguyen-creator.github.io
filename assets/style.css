@@ -557,3 +557,112 @@ td { color: var(--body); }
   text-transform: uppercase; padding: .3rem .62rem;
   border-radius: 6px; line-height: 1.5;
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Interactive timeline (#background)
+   A list that filters and rows that open. Collapsed it reads as a CV;
+   opened it carries what the job actually involved.
+   ───────────────────────────────────────────────────────────────────── */
+
+.tl-filters { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
+
+.tl-chip {
+  font: inherit; font-size: .88rem; font-weight: 500;
+  color: var(--body); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: .45rem 1rem; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.tl-chip b { font-weight: 600; opacity: .55; margin-left: .35rem; font-variant-numeric: tabular-nums; }
+
+/* Each category's chip carries the colour of its dot on the rail, so the three
+   dot colours in the timeline are legible without a separate legend. */
+.tl-chip[data-filter]:not([data-filter="all"])::before {
+  content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  margin-right: .5rem; vertical-align: 1px; border: 2px solid currentColor;
+}
+.tl-chip[data-filter="work"]::before { color: var(--berkeley); }
+.tl-chip[data-filter="edu"]::before  { color: var(--blue); }
+.tl-chip[data-filter="lead"]::before { color: var(--gold); }
+.tl-chip.is-on::before { background: currentColor; }
+.tl-chip:hover { border-color: var(--blue); color: var(--blue); }
+.tl-chip.is-on { background: var(--berkeley); border-color: var(--berkeley); color: #fff; }
+.tl-chip.is-on b { opacity: .7; }
+.tl-chip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.tl-count { font-size: .85rem; color: var(--faint); margin: 0 0 1.5rem; min-height: 1.2em; }
+
+/* The rail is drawn on the list, so it spans whatever is left after filtering
+   rather than leaving a stub hanging past the last visible row. */
+.tl { list-style: none; margin: 0; padding: 0 0 0 1.75rem; position: relative; }
+.tl::before {
+  content: ""; position: absolute; left: 5px; top: .9rem; bottom: .9rem;
+  width: 2px; background: linear-gradient(var(--line), var(--line));
+}
+
+.tl-item { position: relative; border-bottom: 1px solid var(--line); }
+.tl-item:first-child { border-top: 1px solid var(--line); }
+.tl-item[hidden] { display: none; }
+
+/* The dot sits on the row, not the list, so it tracks each row's own height. */
+.tl-item::before {
+  content: ""; position: absolute; left: -1.75rem; top: 1.5rem;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--line);
+  transition: border-color .18s, background .18s, transform .18s;
+}
+.tl-item[data-kind="work"]::before { border-color: var(--berkeley); }
+.tl-item[data-kind="edu"]::before  { border-color: var(--blue); }
+.tl-item[data-kind="lead"]::before { border-color: var(--gold); }
+.tl-item.is-open::before { transform: scale(1.25); }
+.tl-item[data-kind="work"].is-open::before { background: var(--berkeley); }
+.tl-item[data-kind="edu"].is-open::before  { background: var(--blue); }
+.tl-item[data-kind="lead"].is-open::before { background: var(--gold); }
+
+.tl-head {
+  display: grid; grid-template-columns: 11.5rem 1fr auto;
+  align-items: start; gap: 1rem;
+  width: 100%; text-align: left; font: inherit;
+  background: none; border: 0; padding: 1.15rem .5rem 1.15rem 0;
+  cursor: pointer; color: inherit;
+}
+.tl-head:hover .tl-role { color: var(--blue); }
+.tl-head:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; border-radius: 4px; }
+
+.tl-when {
+  font-size: .82rem; font-weight: 600; letter-spacing: .02em;
+  color: var(--faint); padding-top: .18rem; font-variant-numeric: tabular-nums;
+}
+.tl-main { display: block; }
+.tl-role { display: block; font-weight: 600; color: var(--ink); line-height: 1.4; transition: color .15s; }
+.tl-org  { display: block; font-size: .9rem; color: var(--body); margin-top: .15rem; }
+
+.tl-chev {
+  width: 20px; height: 20px; flex: none; margin-top: .2rem;
+  fill: none; stroke: var(--faint); stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: transform .22s ease, stroke .15s;
+}
+.tl-item.is-open .tl-chev { transform: rotate(180deg); stroke: var(--blue); }
+
+/* Height is animated by the script, which measures the inner block. A plain
+   max-height guess either clips long rows or makes short ones drift open. */
+.tl-body { height: 0; overflow: hidden; transition: height .26s ease; }
+.tl-inner { padding: 0 2rem 1.4rem 0; }
+.tl-inner p { margin: 0 0 .7rem; color: var(--body); font-size: .96rem; }
+.tl-inner ul:not(.chips) { margin: 0; padding-left: 1.1rem; color: var(--body); font-size: .96rem; }
+.tl-inner ul:not(.chips) li { margin-bottom: .45rem; }
+.tl-inner ul:not(.chips) li::marker { color: var(--faint); }
+.tl-inner .chips { margin-top: .6rem; }
+
+.tl-foot { margin-top: 2.5rem; }
+
+@media (max-width: 720px) {
+  .tl-head { grid-template-columns: 1fr auto; gap: .5rem 1rem; padding-right: 0; }
+  .tl-when { grid-column: 1 / -1; padding-top: 0; }
+  .tl-inner { padding-right: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-body, .tl-chev, .tl-item::before { transition: none; }
+}

@@ -174,7 +174,11 @@
 
     <div class="prose">
       <p>
-        I'm a double major in Data Science and Cognitive Science at UC Berkeley, with a domain emphasis in Business &amp; Industrial Analytics.
+        I'm a double major in Data Science and Cognitive Science at UC Berkeley, with a
+        domain emphasis in Business &amp; Industrial Analytics. Right now I'm interning at
+        <strong>RSM US LLP</strong> on AI, product and analytics engagements, and I cofounded
+        <strong>AI Solutions @ Berkeley</strong>, a student consulting group that has signed
+        client work with Life360, Eightfold AI and Squarelink.
       </p>
       <p>
         Cognitive science is the study of how people actually decide — the
@@ -203,8 +207,15 @@
         right, and I'd rather earn that transition than skip it.
       </p>
       <p>
-        Outside all of this I play tennis and pickleball, coach juniors, and
-        translate at medical outreach clinics in Vietnam and Little Saigon.
+        I got here the long way — Irvine Valley College to Occidental to Berkeley,
+        three institutions in three years. That's partly why I built the
+        <a href="degree-ledger/">Degree Ledger</a>: transfer rules are genuinely hard
+        to reason about, and I'd already had to.
+      </p>
+      <p>
+        Outside all of this I play tennis for Cal's club team, taught juniors for three
+        years at Great Park, and translate at medical outreach clinics in Vietnam and
+        Little Saigon.
       </p>
     </div>
   </div>
@@ -527,6 +538,12 @@
       </article>
 
       <article class="card">
+        <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M18 16 10 24l8 8M30 16l8 8-8 8M27 12l-6 24"/></svg>
+        <h3>JavaScript</h3>
+        <p>Degree Ledger · Interactive tools</p>
+      </article>
+
+      <article class="card">
         <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 8c-8 0-14 5-14 12 0 4 2 7 5 9v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5c3-2 5-5 5-9 0-7-6-12-14-12z"/><path d="M19 34h10"/></svg>
         <h3>Cognitive science</h3>
         <p>Decision-making · Why users behave that way</p>
@@ -549,39 +566,76 @@
 <!-- ── BACKGROUND ─────────────────────────────────────────────────────── -->
 <section class="sec" id="background">
   <div class="wrap">
-    <h2 class="sec-title">Background</h2>
+    <h2 class="sec-title">The path here.</h2>
     <div class="rule" aria-hidden="true"></div>
 
-    <div class="bg-grid">
+    <p class="prose" style="margin-bottom:2rem">
+      Three institutions in three years, with the work stacked on top. Filter it,
+      or open any row for what the job actually involved.
+    </p>
 
-      <div class="bg-col">
-        <h3 class="bg-title">Education</h3>
+    <!-- Filters. Real buttons in a toolbar: the timeline below is a list that
+         gets shorter, not a set of tab panels, so tab semantics would lie. -->
+    <div class="tl-filters" role="group" aria-label="Filter the timeline">
+      <button type="button" class="tl-chip is-on" data-filter="all">Everything <b></b></button>
+      <button type="button" class="tl-chip" data-filter="work">Work <b></b></button>
+      <button type="button" class="tl-chip" data-filter="edu">Education <b></b></button>
+      <button type="button" class="tl-chip" data-filter="lead">Leadership <b></b></button>
+    </div>
+    <p class="tl-count" aria-live="polite"></p>
 
-        <p class="org">University of California, Berkeley</p>
-        <p class="org-note">
-          Double major: Data Science &amp; Cognitive Science<br>
-          Domain emphasis: Business &amp; Industrial Analytics<br>
-          Expected May 2028
-        </p>
+    <ol class="tl">
 
-        <p class="org">Occidental College</p>
-        <p class="org-note">GPA 4.00</p>
+      <li class="tl-item" data-kind="work">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Oct 2026 — Present</span>
+          <span class="tl-main">
+            <span class="tl-role">Catamaran Managed Services Intern — AI, Product &amp; Analytics</span>
+            <span class="tl-org">RSM US LLP · San Francisco</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <ul>
+            <li>Support AI-enabled digital product engagements for managed services clients across analytics and product strategy.</li>
+            <li>Translate client requirements into product and process recommendations for UX and digital transformation work.</li>
+          </ul>
+        </div></div>
+      </li>
 
-        <p class="org">Irvine Valley College</p>
-        <p class="org-note">Primary transfer institution · GPA 3.88 · IGETC certified</p>
+      <li class="tl-item" data-kind="lead">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Sep 2026 — Present</span>
+          <span class="tl-main">
+            <span class="tl-role">Cofounder · VP of Operations &amp; Strategy</span>
+            <span class="tl-org">AI Solutions @ Berkeley</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <ul>
+            <li>Cofounded a student consulting organization delivering AI solutions to companies, and built its operations from nothing.</li>
+            <li>Secured client projects with Life360, Eightfold AI and Squarelink — scoping goals, timelines and final deliverables.</li>
+          </ul>
+        </div></div>
+      </li>
 
-        <p class="org-note" style="margin-top:1.4rem">
-          The pairing is deliberate: cognitive science supplies the hypotheses
-          about why people behave a certain way, data science decides which of
-          them survive.
-        </p>
-      </div>
-
-      <div class="bg-col">
-        <h3 class="bg-title">Coursework</h3>
-        <ul class="chips">
-            <li>Foundations of Data Science</li>
+      <li class="tl-item" data-kind="edu">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Aug 2026 — May 2028</span>
+          <span class="tl-main">
+            <span class="tl-role">B.A. Data Science &amp; B.A. Cognitive Science</span>
+            <span class="tl-org">University of California, Berkeley</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>Domain emphasis in Business &amp; Industrial Analytics. The pairing is
+             deliberate: cognitive science supplies the hypotheses about why people
+             behave a certain way, data science decides which of them survive.</p>
+          <ul class="chips">
             <li>Computational Models of Cognition</li>
+            <li>Foundations of Data Science</li>
             <li>Statistics</li>
             <li>Data Structures in C++</li>
             <li>Linear Algebra</li>
@@ -590,48 +644,144 @@
             <li>Microeconomics</li>
             <li>Macroeconomics</li>
           </ul>
+        </div></div>
+      </li>
 
-        <h3 class="bg-title" style="margin-top:2rem">Languages</h3>
-        <ul class="chips">
-          <li>Vietnamese — fluent</li>
-          <li>Spanish — intermediate</li>
-        </ul>
-      </div>
+      <li class="tl-item" data-kind="lead">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Sep 2026 — Present</span>
+          <span class="tl-main">
+            <span class="tl-role">Team member</span>
+            <span class="tl-org">Cal Club Tennis</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>Competitive club tennis at Berkeley, alongside a full course load and the internship.</p>
+        </div></div>
+      </li>
 
-      <div class="bg-col">
-        <h3 class="bg-title">Experience</h3>
+      <li class="tl-item" data-kind="work">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">May — Aug 2026</span>
+          <span class="tl-main">
+            <span class="tl-role">Business Operations Intern</span>
+            <span class="tl-org">DirectPath Financial · Costa Mesa</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <ul>
+            <li>Traced account-opening pipelines end to end, closing status visibility gaps between advisors and the back office.</li>
+            <li>Diagnosed recurring documentation exceptions through log review, fixing root causes to cut rework.</li>
+            <li>Audited correspondence, check and gift logs for SEC retention compliance at a FINRA/SEC-regulated broker-dealer.</li>
+          </ul>
+        </div></div>
+      </li>
 
-        <p class="org">DirectPath Financial</p>
-        <p class="org-note">
-          Business Operations Intern, May–Aug 2026. Traced account-opening and
-          documentation pipelines end to end to find where status visibility
-          broke down between advisors and the back office, and diagnosed
-          recurring documentation exceptions through structured log review at a
-          FINRA/SEC-regulated broker-dealer.
-        </p>
+      <li class="tl-item" data-kind="edu">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Jun 2025 — May 2026</span>
+          <span class="tl-main">
+            <span class="tl-role">Primary transfer institution · IGETC certified</span>
+            <span class="tl-org">Irvine Valley College</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>GPA 3.88 / 4.00. Full IGETC certification filed — the transfer path that
+             the Degree Ledger project later encoded for everyone else.</p>
+        </div></div>
+      </li>
 
-        <p class="org">Great Park Tennis Academy</p>
-        <p class="org-note">
-          Tennis instructor since 2023. Track player performance across sessions
-          to find where athletes plateau, then rebuild practice blocks around
-          those gaps.
-        </p>
-      </div>
+      <li class="tl-item" data-kind="edu">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Aug — Dec 2025</span>
+          <span class="tl-main">
+            <span class="tl-role">Bachelor of Arts, undeclared</span>
+            <span class="tl-org">Occidental College · Los Angeles</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>GPA 4.00 / 4.00, carried alongside NCAA Division III varsity tennis.</p>
+        </div></div>
+      </li>
 
-      <div class="bg-col">
-        <h3 class="bg-title">Beyond the classroom</h3>
+      <li class="tl-item" data-kind="lead">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Aug — Dec 2025</span>
+          <span class="tl-main">
+            <span class="tl-role">NCAA Division III varsity student-athlete</span>
+            <span class="tl-org">Occidental College Men's Tennis</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>Roughly fifteen hours a week of practice and competition against a 4.00 semester.</p>
+        </div></div>
+      </li>
 
-        <p class="org">NCAA Division III tennis</p>
-        <p class="org-note">Student-athlete at Occidental — roughly 15 hours a week of practice and competition alongside a full course load.</p>
+      <li class="tl-item" data-kind="lead">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Sep — Dec 2025</span>
+          <span class="tl-main">
+            <span class="tl-role">Associate</span>
+            <span class="tl-org">Occidental College Finance Club</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>Produced company and industry analysis, and authored investment write-ups
+             presented to club membership.</p>
+        </div></div>
+      </li>
 
-        <p class="org">Occidental Finance Club</p>
-        <p class="org-note">Associate. Analyzed public companies, then presented investment recommendations and defended the assumptions behind them.</p>
+      <li class="tl-item" data-kind="work">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Jun 2023 — Aug 2026</span>
+          <span class="tl-main">
+            <span class="tl-role">Tennis instructor</span>
+            <span class="tl-org">Great Park Tennis Academy · Irvine</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>Led group instruction for junior players over three years, tracking
+             development to identify plateaus and rebuilding practice plans around them.</p>
+        </div></div>
+      </li>
 
-        <p class="org">ACEing Autism · M.E.M.O.</p>
-        <p class="org-note">75+ hours coaching children with autism; medical outreach missions in Vietnam and Little Saigon as a Vietnamese–English translator.</p>
-      </div>
+      <li class="tl-item" data-kind="lead">
+        <button type="button" class="tl-head" aria-expanded="false">
+          <span class="tl-when">Jul 2023 — Jul 2026</span>
+          <span class="tl-main">
+            <span class="tl-role">Volunteer</span>
+            <span class="tl-org">M.E.M.O. Medical Outreach · Vietnam &amp; California</span>
+          </span>
+          <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tl-body"><div class="tl-inner">
+          <p>Supported patient intake and Vietnamese–English translation on medical
+             missions in Vietnam and at a Little Saigon clinic.</p>
+        </div></div>
+      </li>
 
+    </ol>
+
+    <div class="tl-foot">
+      <h3 class="bg-title">Languages &amp; interests</h3>
+      <ul class="chips">
+        <li>Vietnamese — fluent</li>
+        <li>Spanish — intermediate</li>
+        <li>Tennis</li>
+        <li>Pickleball</li>
+        <li>Basketball</li>
+        <li>Fitness</li>
+        <li>Travel</li>
+      </ul>
     </div>
+
   </div>
 </section>
 
