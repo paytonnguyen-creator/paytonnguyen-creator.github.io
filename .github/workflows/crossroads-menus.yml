@@ -1,0 +1,60 @@
+name: Update Crossroads menus
+
+# Pulls Crossroads' menus from Cal Dining every morning and commits them to
+# crossroads/data/, which the planner page reads. Pages then redeploys through
+# the workflow_run trigger in pages.yml: a push made with GITHUB_TOKEN doesn't
+# start other workflows on its own.
+
+on:
+  schedule:
+    # 13:17 UTC is 5:17 AM PST / 6:17 AM PDT. The second run catches menus
+    # that get posted or corrected later in the morning.
+    - cron: "17 13 * * *"
+    - cron: "47 17 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - crossroads/planner.js
+      - tools/fetch-crossroads.mjs
+      - tools/check-crossroads.mjs
+      - .github/workflows/crossroads-menus.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crossroads-menus
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test the parser and planner
+        run: node tools/check-crossroads.mjs
+
+      - name: Fetch the next 7 days
+        run: node tools/fetch-crossroads.mjs
+
+      # Runs even when one day failed, so the days that did come through are
+      # still saved; the job stays red so the failure gets noticed.
+      - name: Commit if anything changed
+        if: ${{ !cancelled() }}
+        run: |
+          git add crossroads/data
+          if git diff --cached --quiet; then
+            echo "Menus unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898293+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update Crossroads menus"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Payton’s Cut Plan</title>
+<meta name="description" content="Payton’s lunch and dinner at Berkeley’s dining halls for a cut: where to go, what to grab and how much, rebuilt from each day’s menus.">
+<meta name="theme-color" content="#003262">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cut Plan">
+<link rel="stylesheet" href="app.css?v=6">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003262'/><text x='50' y='68' font-size='46' font-weight='bold' font-family='Helvetica,Arial,sans-serif' fill='%23fdb515' text-anchor='middle'>XR</text></svg>">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <div class="bar-inner">
+    <a class="mono" href="../index.html" aria-label="Payton Nguyen — home">PN</a>
+    <span class="bar-title">Payton’s Cut Plan</span>
+    <span class="bar-sub">Cal Dining</span>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="hero" aria-labelledby="day-title">
+    <h1 id="day-title">Loading today’s menu…</h1>
+    <p class="goal" id="goal"></p>
+    <div class="days" id="days" role="tablist" aria-label="Choose a day"></div>
+  </section>
+
+  <div id="notice" class="notice" role="status" hidden></div>
+
+  <section id="meals" aria-live="polite"></section>
+
+  <p class="daytotal" id="day-total" hidden></p>
+
+  <div class="more">
+    <details id="weigh">
+      <summary>Weigh in <span class="sum-hint" id="weigh-hint"></span></summary>
+      <div class="panel">
+        <form id="weigh-form" class="weigh-form">
+          <label><span class="label">Today’s weight</span>
+            <span class="unit"><input type="number" name="lb" min="80" max="450" step="0.1" inputmode="decimal" required><span>lb</span></span></label>
+          <button class="btn primary" type="submit">Log</button>
+        </form>
+        <div id="trend"></div>
+        <ol class="log" id="log"></ol>
+      </div>
+    </details>
+
+    <details id="tips">
+      <summary>How to plate it</summary>
+      <div class="panel">
+        <ul class="tips">
+          <li><strong>Protein first.</strong> Get the main, then build around it.</li>
+          <li><strong>Ounces → hands.</strong> A palm-sized piece of cooked meat or fish, about as thick as your palm, is 3–4 oz.</li>
+          <li><strong>Greens are free.</strong> Lettuce, spinach and cucumber barely register. Pile them on.</li>
+          <li><strong>Dressing on the side.</strong> One ladle of ranch is ~100 kcal that isn’t in the plan. Vinegar or salsa instead.</li>
+          <li><strong>No drink calories.</strong> Water, sparkling water, black coffee or tea. Your matcha is already counted.</li>
+          <li><strong>Had dessert?</strong> Don’t skip the next meal to make up for it. The weekly weigh-in average is what matters.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details id="menu-card">
+      <summary>Full menu</summary>
+      <div class="panel">
+        <label class="field"><span class="label">Location</span><select id="menu-loc" aria-label="Menu location"></select></label>
+        <p class="muted small">Per serving, most protein per calorie first. Items in today’s plan are marked.</p>
+        <div id="menu"></div>
+      </div>
+    </details>
+
+    <details id="settings">
+      <summary>My numbers <span class="sum-hint" id="me-hint"></span></summary>
+      <div class="panel">
+        <form id="settings-form" novalidate>
+          <div class="grid">
+            <label class="field"><span class="label">Weight</span>
+              <span class="unit"><input type="number" name="weightLb" min="80" max="450" step="0.1" inputmode="decimal"><span>lb</span></span></label>
+            <div class="field">
+              <span class="label" id="height-label">Height</span>
+              <div class="pair" role="group" aria-labelledby="height-label">
+                <label><input type="number" name="heightFt" min="4" max="7" inputmode="numeric" aria-label="Feet"><span>ft</span></label>
+                <label><input type="number" name="heightInRem" min="0" max="11.5" step="0.5" inputmode="decimal" aria-label="Inches"><span>in</span></label>
+              </div>
+            </div>
+            <label class="field"><span class="label">Age</span>
+              <input type="number" name="age" min="16" max="80" inputmode="numeric"></label>
+            <label class="field"><span class="label">Sex</span>
+              <select name="sex"><option value="male">Male</option><option value="female">Female</option></select></label>
+            <label class="field wide"><span class="label">Training</span>
+              <select name="activity" id="activity"></select></label>
+            <label class="field wide"><span class="label">Cut pace</span>
+              <select name="rateLb">
+                <option value="0.5">Gentle: 0.5 lb a week</option>
+                <option value="0.75">Steady: 0.75 lb a week</option>
+                <option value="1">Standard: 1 lb a week</option>
+                <option value="1.25">Faster: 1.25 lb a week</option>
+              </select></label>
+            <label class="field"><span class="label">Daily matcha / other</span>
+              <span class="unit"><input type="number" name="otherKcal" min="0" max="2000" step="10" inputmode="numeric"><span>kcal</span></span></label>
+            <label class="field"><span class="label">…its protein</span>
+              <span class="unit"><input type="number" name="otherProtein" min="0" max="200" inputmode="numeric"><span>g</span></span></label>
+            <label class="field wide"><span class="label">Usual spot <small>(★ — plans start here)</small></span>
+              <select name="home"></select></label>
+            <label class="field wide"><span class="label">Diet</span>
+              <select name="diet"><option value="any">Anything</option><option value="vegetarian">Vegetarian</option><option value="vegan">Vegan</option></select></label>
+            <div class="field wide">
+              <span class="label">Allergies</span>
+              <div class="checks" id="avoid"></div>
+            </div>
+            <label class="field wide"><span class="label">Never suggest <small>(comma-separated)</small></span>
+              <input type="text" name="dislikes" placeholder="e.g. tofu, mushroom, pork" autocomplete="off"></label>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="submit">Save</button>
+            <button class="btn ghost" type="button" id="reset-me">Reset to defaults</button>
+          </div>
+          <p class="muted small" id="me-math"></p>
+        </form>
+      </div>
+    </details>
+  </div>
+
+</main>
+
+<footer class="foot wrap">
+  <p id="source"></p>
+  <p>Calories and macros are Cal Dining’s own numbers, which they say can vary with portioning. Saved on this phone only. Targets are estimates to steer by, not medical advice.</p>
+</footer>
+
+<script src="planner.js?v=6"></script>
+<script src="app.js?v=6"></script>
+</body>
+</html>
