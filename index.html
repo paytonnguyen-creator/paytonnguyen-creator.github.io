@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Payton Nguyen — Strategy &amp; Analytics</title>
-<meta name="description" content="Payton Nguyen — double major in Data Science and Cognitive Science at UC Berkeley. Case studies on customer behavior and product strategy, for strategy, consulting and analyst roles.">
+<meta name="description" content="Payton Nguyen studies Data Science and Cognitive Science at UC Berkeley, turning insights about customer behavior into product and strategy decisions.">
 
 <!-- Link previews (Slack, LinkedIn, iMessage). Update og:url if the site moves. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Payton Nguyen — Strategy &amp; Analytics">
-<meta property="og:description" content="Cognitive science for why people decide the way they do; data science for checking whether I'm right. Case studies in customer behavior and product strategy.">
+<meta property="og:description" content="Understanding people. Testing ideas. Turning data into decisions. Explore Payton Nguyen's work in customer behavior, analytics, and product strategy.">
 <meta property="og:url" content="https://paytonnguyen-creator.github.io/">
 <meta name="twitter:card" content="summary">
 
@@ -174,38 +174,34 @@
 
     <div class="prose">
       <p>
-        I'm a double major in Data Science and Cognitive Science at UC Berkeley, with a
-        domain emphasis in Business &amp; Industrial Analytics. I intern at
-        <strong>RSM US LLP</strong> on AI, product and analytics engagements, and I
-        cofounded <strong>AI Solutions @ Berkeley</strong>, a student consulting group
-        with client work from Life360 and Squarelink.
+        I'm studying Data Science and Cognitive Science at UC Berkeley, with an emphasis
+        in Business &amp; Industrial Analytics. At <strong>RSM US LLP</strong>, I work on AI,
+        product, and analytics engagements as an intern. I also cofounded
+        <strong>AI Solutions @ Berkeley</strong>, a student consulting group with client
+        projects for Life360 and Squarelink.
       </p>
       <p>
-        Cognitive science studies how people actually decide: the models they build,
-        what they notice, and the systematic ways they get it wrong. Strategy and
-        product work ask the same questions — why this customer left, what they'll do
-        if we change something, which story about their behavior is the true one. Most
-        people reach those questions through business coursework. I'm reaching them
-        through the discipline that studies the behavior itself.
+        Cognitive science helps me understand how people make decisions. Data science
+        lets me test those explanations. I bring both to questions about customer
+        behavior and product strategy.
       </p>
       <p>
-        Data science is the check. A convincing story about users is easy to tell and
-        hard to test. The most useful thing I've learned is how often the biggest
-        finding turns out to be a confound, and that catching it takes both habits at
-        once: distrust your own inference, then control for it.
+        My work starts with a decision, tests the evidence, and ends with a recommendation.
+        I look closely at alternative explanations, especially when a finding seems obvious.
       </p>
       <p>
-        I got here the long way — Irvine Valley College to Occidental to Berkeley,
-        three institutions in three years. That's partly why I built the
-        <a href="degree-ledger/">Degree Ledger</a>: transfer rules are genuinely hard to
-        reason about, and I'd already had to. Longer term I'm aiming at product
-        management, and I want the analyst years first, because that's where you find
-        out whether your instincts about people hold up.
+        I'm seeking opportunities in strategy, consulting, insights, analytics, and
+        operations, with a long-term goal of product management.
       </p>
       <p>
-        Outside this I play for Cal's club tennis team, taught juniors for three years
-        at Great Park, and translate at medical outreach clinics in Vietnam and Little
-        Saigon.
+        My path through Irvine Valley College, Occidental, and Berkeley inspired
+        <a href="degree-ledger/">Degree Ledger</a>, a tool that helps students navigate
+        complex degree and transfer requirements.
+      </p>
+      <p>
+        Outside work, I play for Cal's club tennis team and translate at medical outreach
+        clinics in Vietnam and Little Saigon. I also spent three years coaching junior
+        tennis players at Great Park.
       </p>
     </div>
   </div>
@@ -220,8 +216,7 @@
     <h2 class="sec-title">Projects</h2>
     <div class="rule" aria-hidden="true"></div>
     <p class="sec-sub">
-      Written up as case studies rather than repos — the question, what the
-      data actually said, and the recommendation I'd defend in a room.
+      Interactive tools and case studies that turn evidence into practical decisions.
     </p>
 
     <!--
@@ -302,11 +297,11 @@
         </a>
         <h3><a href="outer-banks-release-strategy.html">Thirty billing dates</a></h3>
         <div class="rule rule-left" aria-hidden="true"></div>
-        <p class="proj-tag">Ten episodes can drop in one night or over ten weeks. The gap is worth millions, and nobody outside Netflix can settle it — so I built the argument rather than assert an answer.</p>
+        <p class="proj-tag">Release all ten episodes at once or spread them across ten weeks? Explore the tradeoff between signups and renewals in a simulator built on explicit assumptions, without Netflix subscriber data.</p>
         <ul class="hollow">
-          <li><strong>An interactive simulator, not a write-up</strong> — 13,000 simulated households over 182 days, five release patterns run against the same people and the same billing dates, recomputing live in the browser as you drag the assumptions.</li>
-          <li>Found the two objectives rank the patterns in <em>opposite</em> orders: signups follow concentration, renewals follow spread — so the decision is an exchange rate, not a best practice.</li>
-          <li>Found the winning pattern wins by less than the swing from any single assumption, and said so on the page — the tool reports whether the <em>recommendation</em> flips, not just how far the number moves.</li>
+          <li><strong>Simulated 13,000 households over 182 days</strong>, comparing five release patterns with live, adjustable assumptions.</li>
+          <li>Found opposing priorities in the model: concentrated releases favor signups; staggered releases favor renewals.</li>
+          <li>Found the winning margin was smaller than swings caused by the assumptions; showed when changing them reverses the recommendation.</li>
           <li>Tech: JavaScript, agent-based simulation, Web Worker, hand-drawn SVG</li>
         </ul>
         <a class="proj-link" href="outer-banks-release-strategy.html">Open the simulator →</a>
@@ -385,15 +380,13 @@
         </a>
         <h3><a href="degree-ledger/">Degree Ledger</a></h3>
         <div class="rule rule-left" aria-hidden="true"></div>
-        <p class="proj-tag">Berkeley scatters a degree's rules across four pages, then asks you to reconcile them. This does it in one place, for any L&amp;S major, and tells you what's left between you and the walk.</p>
+        <p class="proj-tag">A clearer path to graduation. Degree Ledger brings Berkeley's major, minor, college, and transfer requirements into one tracker so students can see what remains.</p>
         <ul class="hollow">
-          <li><strong>Every L&amp;S and CDSS major and minor</strong> — pick yours and it gets its own tab, the right college's requirements and the overlap rules. Thirteen ship with their course lists typed in from the Academic Guide, branches included: 28 data-science emphases, 19 applied-maths clusters, five political-science subfields. Load any other by pasting the Guide's own text.</li>
-          <li>L&amp;S and CDSS are different colleges with different rules, so the requirements follow your major rather than a default — and certification only closes blocks where its effect is documented.</li>
-          <li><strong>Built for the combination</strong> — a pairings tab for the L&amp;S majors usually taken with a CDSS program: how many courses count for both, which emphasis fits, one click to set up both colleges. A major in each is a simultaneous degree, which is where the overlap allowance bites.</li>
-          <li>One click for transfers: say your IGETC or Cal-GETC certification is filed and eleven blocks close themselves — with the four things it <em>doesn't</em> cover named upfront.</li>
-          <li>Enforces what actually catches people: unit ceilings, upper-division minimums, the courses a major and minor may not both count, and the bar a second degree adds.</li>
-          <li>Every tab is its own address, so the back button and bookmarks work. A "next up" panel names the blocks closest to closing.</li>
-          <li>Runs entirely in the browser — no account, no server, no transcript leaving your laptop.</li>
+          <li><strong>Supports every L&amp;S and CDSS major and minor.</strong> Thirteen programs include course lists checked against the Academic Guide; others load from pasted Guide requirements.</li>
+          <li>Applies each college's requirements, transfer certifications, course overlap rules, and unit limits.</li>
+          <li>Helps students compare major pairings and plan simultaneous degrees across L&amp;S and CDSS.</li>
+          <li>Shows remaining requirements and next steps, with bookmarkable tabs.</li>
+          <li>Runs entirely in the browser and saves locally. No account required; transcript data stays on the device.</li>
           <li>Tech: React, esbuild, client-side state, no backend</li>
         </ul>
         <a class="proj-link" href="degree-ledger/">Open the tracker →</a>
@@ -402,11 +395,11 @@
       <article class="proj">
         <h3><a href="case-study.html">Why 62% of customers never came back</a></h3>
         <div class="rule rule-left" aria-hidden="true"></div>
-        <p class="proj-tag">Should the next dollar of retention effort buy a model that predicts who returns, or a treatment for everyone?</p>
+        <p class="proj-tag">What brings customers back? An analysis of repeat purchases that tests whether retention efforts should focus on prediction or a second-purchase program.</p>
         <ul class="hollow">
-          <li>Analysed the real CDNOW transaction log — 23,570 customers, 67,591 orders — chosen for a cohort design where the repeat window is fully observed for every customer.</li>
-          <li>Found the first order barely predicts return (hold-out AUC 0.576), and that the largest apparent lever collapsed by 82% under statistical control — so it was rejected rather than recommended.</li>
-          <li>Recommended a timed second-purchase program over a propensity model, with the opportunity sized and explicit kill criteria in a PRD.</li>
+          <li>Analyzed 67,591 real CDNOW orders from 23,570 customers, with a fully observed repeat-purchase window.</li>
+          <li>Found weak predictive value in first orders (holdout AUC: 0.576); statistical controls reduced the strongest apparent effect by 82%.</li>
+          <li>Recommended a timed second-purchase program, with an opportunity estimate and clear stop criteria.</li>
           <li>Tech: Python, pandas, scikit-learn</li>
         </ul>
         <a class="proj-link" href="case-study.html">Read the case study →</a>
@@ -415,11 +408,11 @@
       <article class="proj">
         <h3><a href="ai-support-automation.html">The 92% that wasn't</a></h3>
         <div class="rule rule-left" aria-hidden="true"></div>
-        <p class="proj-tag">A vendor demos a support AI at 92.4% accuracy. How much of a live queue clears with no human — and is the next dollar better spent on the model, or the routing around it?</p>
+        <p class="proj-tag">A support AI achieves 92.4% in-scope accuracy. How much work can it safely automate? This case study tests the business case and the value of human handoffs.</p>
         <ul class="hollow">
-          <li>Rebuilt the business case on a benchmark that includes 1,200 requests the system was never designed to handle — the traffic most intent datasets leave out, and the reason demo numbers don't survive a real queue.</li>
-          <li>Found the abstention rule worth $211k per 100,000 contacts against $50k for a <em>flawless</em> classifier, so the recommendation was to spend first on handoff design rather than model quality.</li>
-          <li>Showed the business-case number exceeds the physical ceiling by 23%, and that the obvious health metric improves as the queue degrades — a monitoring trap, with the fix in the risk register.</li>
+          <li>Rebuilt the benchmark business case to include 1,200 requests outside the system's intended scope.</li>
+          <li>Estimated gains of $211k per 100,000 contacts from better routing, versus $50k from a flawless classifier upgrade.</li>
+          <li>Found the business-case estimate exceeded the feasible ceiling by 23% and identified a metric that could mask declining performance.</li>
           <li>Tech: Python, scikit-learn, pandas</li>
         </ul>
         <a class="proj-link" href="ai-support-automation.html">Read the case study →</a>
@@ -428,11 +421,11 @@
       <article class="proj">
         <h3><a href="pickleball-court-demand.html">The pickleball bottleneck</a></h3>
         <div class="rule rule-left" aria-hidden="true"></div>
-        <p class="proj-tag">Open play rations courts by making people queue. What does that queue cost, and does telling players in advance move any of it?</p>
+        <p class="proj-tag">Less waiting, fewer wasted trips. A court-demand simulation explores how forecasts and rotation rules could improve open play.</p>
         <ul class="hollow">
-          <li>Simulated 843,581 court visits across five parks over four years of <em>real</em> NOAA weather, keeping the assumed layer and the emergent layer strictly separate — and labelling on every chart which one it is.</li>
-          <li>Found the queue hides its own congestion: 6× the demand gives 9× the wait but <em>52×</em> the walk-aways, so counting the line measures only the survivors — and that darkness, not crowding, causes the most wasted trips.</li>
-          <li>Established an irreducible forecast error of 2.18 minutes, so the product ships four states rather than a number — then recommended a free rotation-rule change that beats my own app and buys 75% of a court expansion.</li>
+          <li>Simulated 843,581 visits across five parks using four years of real NOAA weather, clearly labeling assumptions and modeled results.</li>
+          <li>Found that 6× the demand produced 9× the wait and 52× the walkaways in the simulation; darkness caused the most wasted trips.</li>
+          <li>Used four congestion states to reflect forecast uncertainty, then recommended a free rotation-rule change that outperformed the app in the model.</li>
           <li>Tech: Python, pandas, scikit-learn, discrete-event simulation</li>
         </ul>
         <a class="proj-link" href="pickleball-court-demand.html">Read the case study →</a>
@@ -447,32 +440,30 @@
     <h2 class="sec-title">How I work through a problem.</h2>
     <div class="rule" aria-hidden="true"></div>
     <p class="sec-sub">
-      All three case studies above follow four beats, and so does everything else I
-      work on — a habit borrowed from research method: say what would prove you
-      wrong before you look. Analysis isn't finished until it changes what
-      someone does.
+      Four steps guide my work, from defining the decision to making a recommendation
+      that can be tested.
     </p>
 
     <ol class="steps">
       <li>
         <span class="step-n">01</span>
         <h3>Frame the real question</h3>
-        <p>The stated problem is rarely the actual problem. Before touching data I write down what decision this is meant to inform, and what answer would change it.</p>
+        <p>Define the decision, who it affects, and what evidence would change it.</p>
       </li>
       <li>
         <span class="step-n">02</span>
         <h3>Interrogate the data</h3>
-        <p>Clean it, then try to break my own hypothesis. Confirmation bias shows up fastest in your own charts.</p>
+        <p>Clean the data, check assumptions, and test competing explanations.</p>
       </li>
       <li>
         <span class="step-n">03</span>
         <h3>Find the mechanism</h3>
-        <p>A correlation isn't an insight. I push until I can name a plausible reason people behave the way the numbers say, and state what would disprove it.</p>
+        <p>Connect the pattern to a plausible explanation of behavior and identify what would disprove it.</p>
       </li>
       <li>
         <span class="step-n">04</span>
         <h3>Make the call</h3>
-        <p>One recommendation, the tradeoff it carries, and how you'd know within a quarter whether it worked.</p>
+        <p>Recommend an action, explain the tradeoff, and define how to measure success.</p>
       </li>
     </ol>
   </div>
@@ -536,13 +527,13 @@
       <article class="card">
         <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 8c-8 0-14 5-14 12 0 4 2 7 5 9v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5c3-2 5-5 5-9 0-7-6-12-14-12z"/><path d="M19 34h10"/></svg>
         <h3>Cognitive science</h3>
-        <p>Decision-making · Why users behave that way</p>
+        <p>Decision-making · User behavior</p>
       </article>
 
       <article class="card">
         <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M12 8h18l8 8v24a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/><path d="M30 8v8h8M17 26h14M17 33h10"/></svg>
         <h3>Product thinking</h3>
-        <p>PRDs · Success &amp; kill criteria</p>
+        <p>PRDs · Success &amp; stop criteria</p>
       </article>
 
     </div>
@@ -560,8 +551,8 @@
     <div class="rule" aria-hidden="true"></div>
 
     <p class="prose" style="margin-bottom:2rem">
-      Three institutions in three years, with the work stacked on top. Filter it, or
-      open any row for what the job involved.
+      My experience across work, education, and leadership. Filter by category or open
+      a role to learn more.
     </p>
 
     <!-- Filters. Real buttons in a toolbar: the timeline below is a list that
@@ -587,8 +578,8 @@
         </button>
         <div class="tl-body"><div class="tl-inner">
           <ul>
-            <li>Support AI-enabled product engagements for managed services clients, across analytics and product strategy.</li>
-            <li>Turn client requirements into product and process recommendations for UX and digital transformation work.</li>
+            <li>Support AI, analytics, and product strategy engagements for managed services clients.</li>
+            <li>Turn client requirements into recommendations for UX, digital products, and processes.</li>
           </ul>
         </div></div>
       </li>
@@ -604,8 +595,8 @@
         </button>
         <div class="tl-body"><div class="tl-inner">
           <ul>
-            <li>Cofounded a student consulting group delivering AI solutions to companies, and built its operations from nothing.</li>
-            <li>Secured client projects with Life360 and Squarelink, scoping goals, timelines and deliverables.</li>
+            <li>Cofounded an AI consulting organization and established its operations.</li>
+            <li>Secured projects with Life360 and Squarelink, defining goals, timelines, and deliverables.</li>
           </ul>
         </div></div>
       </li>
@@ -620,8 +611,8 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>Domain emphasis in Business &amp; Industrial Analytics. The pairing is deliberate:
-             cognitive science supplies the hypotheses, data science decides which survive.</p>
+          <p>Domain emphasis in Business &amp; Industrial Analytics, combining the study
+             of human behavior with data analysis and statistical testing.</p>
           <ul class="chips">
             <li>Computational Models of Cognition</li>
             <li>Foundations of Data Science</li>
@@ -646,7 +637,7 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>Competitive club tennis, alongside a full course load and the internship.</p>
+          <p>Compete for Berkeley's club tennis team while balancing coursework and an internship.</p>
         </div></div>
       </li>
 
@@ -661,9 +652,9 @@
         </button>
         <div class="tl-body"><div class="tl-inner">
           <ul>
-            <li>Traced account-opening pipelines end to end, closing visibility gaps between advisors and the back office.</li>
-            <li>Diagnosed recurring documentation exceptions through log review, fixing root causes to cut rework.</li>
-            <li>Audited correspondence, check and gift logs for SEC retention compliance at a FINRA/SEC-regulated broker-dealer.</li>
+            <li>Mapped account-opening workflows to improve status visibility between advisors and back-office teams.</li>
+            <li>Reviewed documentation logs and addressed recurring issues to reduce rework.</li>
+            <li>Audited correspondence, check, and gift logs for SEC retention compliance at a FINRA/SEC-regulated broker-dealer.</li>
           </ul>
         </div></div>
       </li>
@@ -678,8 +669,8 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>GPA 3.88 / 4.00, full IGETC certification filed — the transfer path the
-             Degree Ledger later encoded for everyone else.</p>
+          <p>GPA: 3.88 / 4.00. Completed IGETC certification; this transfer experience
+             helped shape Degree Ledger.</p>
         </div></div>
       </li>
 
@@ -693,7 +684,7 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>GPA 4.00 / 4.00, carried alongside NCAA Division III varsity tennis.</p>
+          <p>Earned a 4.00 / 4.00 GPA while competing in NCAA Division III varsity tennis.</p>
         </div></div>
       </li>
 
@@ -707,7 +698,7 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>Fifteen hours a week of practice and competition, against a 4.00 semester.</p>
+          <p>Balanced about 15 hours of weekly practice and competition with a 4.00 semester GPA.</p>
         </div></div>
       </li>
 
@@ -721,8 +712,7 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>Company and industry analysis, written up as investment memos and presented
-             to club membership.</p>
+          <p>Analyzed companies and industries and presented investment write-ups to the club.</p>
         </div></div>
       </li>
 
@@ -736,8 +726,8 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>Three years of group instruction for junior players, tracking development to
-             spot plateaus and rebuilding practice plans around them.</p>
+          <p>Coached junior players for three years, tracking progress and adapting
+             practice plans to address plateaus.</p>
         </div></div>
       </li>
 
@@ -751,8 +741,8 @@
           <svg class="tl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="tl-body"><div class="tl-inner">
-          <p>Patient intake and Vietnamese–English translation on medical missions in
-             Vietnam and at a Little Saigon clinic.</p>
+          <p>Supported patient intake and Vietnamese–English translation at medical
+             outreach clinics in Vietnam and Little Saigon.</p>
         </div></div>
       </li>
 
@@ -780,9 +770,8 @@
     <h2 class="sec-title">Get in touch.</h2>
     <div class="rule" aria-hidden="true"></div>
     <p class="sec-sub">
-      I'm looking for internships in strategy, consulting, insights, analytics
-      and anything adjacent — on the way to product management, the long way
-      round. Happy to argue about anything on this site.
+      I'm seeking internships in strategy, consulting, insights, analytics, and
+      operations. Let's connect about opportunities, projects, or ideas.
     </p>
     <div class="hero-actions hero-actions-row">
       <a class="ghost-btn" href="mailto:paytonnguyen@berkeley.edu">Email</a>
