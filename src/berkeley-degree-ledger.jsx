@@ -2527,7 +2527,7 @@ function FirstRun({ p, setProfile, setTab, onDone }) {
   );
 }
 
-function SetupView({ p, setProfile, state, setState, setTab, courses }) {
+function SetupView({ p, setProfile, state, setState, setTab, courses, shape }) {
   const majors = p.majors || [];
   const minors = p.minors || [];
   /* The front door is for the visit you arrive on with nothing. It has to
@@ -2615,17 +2615,37 @@ function SetupView({ p, setProfile, state, setState, setTab, courses }) {
         {selected.filter((prog) => prog.pathways).map((prog) => (
           <PathwayPicker key={prog.id} prog={prog} p={p} setProfile={setProfile} showName />
         ))}
-        <label className="bdl-check" style={{ borderBottom: 0 }}>
-          <input type="checkbox" checked={p.simultaneous} onChange={(e) => setProfile("simultaneous", e.target.checked)} />
-          <span>I'm pursuing a simultaneous degree
-            <small>Two bachelor's degrees at once, usually across two colleges. Adds the extra rules to the graduation check.</small></span>
-        </label>
-        {p.simultaneous && (
-          <label className="bdl-field" style={{ marginTop: 10 }}>
-            <span className="bdl-label">Second college or school</span>
-            <input className="bdl-in" value={p.secondCollege} placeholder="e.g. Computing, Data Science, and Society"
-              onChange={(e) => setProfile("secondCollege", e.target.value)} />
-          </label>
+        {/* Where the majors are already in two colleges there is nothing to
+            declare — that is a simultaneous degree by definition, and asking
+            the student to tick a box to be told so only hid the rules from the
+            people in it. The checkbox remains for the arrangement the colleges
+            cannot reveal: two degrees inside one college. */}
+        {shape && shape.crossCollege ? (
+          <div className="bdl-check" style={{ borderBottom: 0 }}>
+            <span className="bdl-glyph" style={{ color: "var(--blue)" }}>■</span>
+            <span>This is a simultaneous degree
+              <small>
+                Your majors sit in {shape.colleges.join(" and ")}. Two majors in two colleges cannot be a double
+                major — a double major is two majors inside one degree — so both colleges' requirement sets apply
+                and the simultaneous-degree rules are on the graduation check.
+              </small></span>
+          </div>
+        ) : (
+          <>
+            <label className="bdl-check" style={{ borderBottom: 0 }}>
+              <input type="checkbox" checked={p.simultaneous} onChange={(e) => setProfile("simultaneous", e.target.checked)} />
+              <span>I'm pursuing a simultaneous degree
+                <small>Two bachelor's degrees at once. Pick majors in two different colleges and this is worked out for
+                  you; tick it by hand for two degrees inside one college.</small></span>
+            </label>
+            {p.simultaneous && (
+              <label className="bdl-field" style={{ marginTop: 10 }}>
+                <span className="bdl-label">Second college or school</span>
+                <input className="bdl-in" value={p.secondCollege} placeholder="e.g. Computing, Data Science, and Society"
+                  onChange={(e) => setProfile("secondCollege", e.target.value)} />
+              </label>
+            )}
+          </>
         )}
       </div>
 
@@ -2948,7 +2968,7 @@ function ProgramView({ audit, courses, checks, setChecks, auto, igetcFull, entry
   );
 }
 
-function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings, courses }) {
+function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings, courses, shape }) {
   const rows = [];
   for (const a of audits) {
     const t = progressTotals(a.groups, a.byGroup, checks, auto, igetcFull, p.entry, courses);
@@ -2999,12 +3019,13 @@ function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings, c
         <div className="bdl-stat"><span>Units still in progress</span><b>{stats.inprog}</b></div>
       </div>
 
-      {p.simultaneous && (
+      {shape.simultaneous && (
         <div className="bdl-card" style={{ marginBottom: 12 }}>
           <h3>Simultaneous degree</h3>
           <p className="bdl-note" style={{ marginBottom: 8 }}>
-            Two bachelor's degrees awarded at the same time{p.secondCollege ? `, here across L&S and ${p.secondCollege}` : ""}.
-            The pieces that catch people out:
+            Two bachelor's degrees awarded at the same time{shape.secondCollege ? `, here across L&S and ${shape.secondCollege}` : ""}.
+            {shape.crossCollege && " You are shown this because your majors sit in two different colleges, which cannot be a double major — a double major is two majors inside one degree."}
+            {" "}The pieces that catch people out:
           </p>
           {[
             "Both colleges' full requirement sets have to be met — breadth, essential skills, unit rules, the lot. Where they differ, you do both.",
@@ -3150,6 +3171,32 @@ export default function App() {
     };
   }, [audits, courses, stats, p.gpa]);
 
+  /* ---- what shape is this degree? ----
+     Two majors in two different colleges is not a double major — it cannot be
+     one, since a double major is two majors inside a single degree. It is a
+     simultaneous degree, and the app already knows it from the colleges it
+     routed: `programs` adds both college requirement sets for exactly this
+     case. Making the student also find a checkbox on the setup page to say so
+     meant the simultaneous-degree rules stayed hidden from the people most
+     likely to need them. The checkbox still stands for the case the colleges
+     cannot reveal — two degrees inside one college — so it is OR-ed, never
+     overridden. */
+  const degreeShape = useMemo(() => {
+    const majors = audits.filter((a) => a.prog.type === "major");
+    const colleges = [...new Set(majors.map((a) => a.prog.college).filter(Boolean))];
+    const crossCollege = colleges.length > 1;
+    return {
+      crossCollege,
+      colleges,
+      simultaneous: crossCollege || !!p.simultaneous,
+      /* The second college to name on the graduation check: the one that is not
+         the student's own, where we can tell, else whatever they typed. */
+      secondCollege: crossCollege
+        ? colleges.find((c) => /Computing, Data Science/.test(c)) || colleges[1]
+        : p.secondCollege,
+    };
+  }, [audits, p.simultaneous, p.secondCollege]);
+
   /* ---- rule warnings ----
      The L&S overlap policy is stricter than any individual program's own
      wording, and it is the one that binds: ONE upper-division course total may
@@ -3195,19 +3242,32 @@ export default function App() {
         }
       }
 
-    /* two upper-division courses between simultaneous-degree majors */
+    /* Overlap between two majors. The allowance depends on which arrangement
+       you are in, and those are not the same thing: two majors in two colleges
+       is a simultaneous degree, which carries the two-upper-division-course
+       allowance; two majors inside one college is a double major on a single
+       degree, whose limit is set by the college and the two departments. This
+       used to apply the simultaneous-degree number to both, which quietly
+       asserted a figure for double majors that nothing here establishes. The
+       shared courses are still worth surfacing in that case — they are just
+       presented as something to confirm rather than as a limit already broken. */
     for (let i = 0; i < majorAudits.length; i++)
       for (let j = i + 1; j < majorAudits.length; j++) {
-        const a = new Set(udOf(majorAudits[i]));
-        const shared = udOf(majorAudits[j]).filter((id) => a.has(id));
-        const both = `${majorAudits[i].prog.name} and ${majorAudits[j].prog.name}`;
-        if (shared.length > 2) {
-          const w = { tone: "bad", text: `${label(shared)} are all counting toward both ${both}. At most two upper-division courses may overlap between two majors.` };
-          push(majorAudits[i].prog.id, w); push(majorAudits[j].prog.id, w);
-        } else if (shared.length === 2) {
-          const w = { tone: "warn", text: `${label(shared)} are your two allowed upper-division overlaps between ${both}. Nothing else may double count between them.` };
-          push(majorAudits[i].prog.id, w); push(majorAudits[j].prog.id, w);
+        const A = majorAudits[i], B = majorAudits[j];
+        const a = new Set(udOf(A));
+        const shared = udOf(B).filter((id) => a.has(id));
+        if (!shared.length) continue;
+        const both = `${A.prog.name} and ${B.prog.name}`;
+        const twoColleges = A.prog.college && B.prog.college && A.prog.college !== B.prog.college;
+        let w;
+        if (!twoColleges) {
+          w = { tone: "warn", text: `${label(shared)} ${shared.length === 1 ? "is counting" : "are counting"} toward both ${both}. Those are two majors in one college, so this is a double major on a single degree rather than a simultaneous degree, and the ceiling on double counting is set by your college and the two departments. This ledger does not have that figure — check it with both major advisers before you rely on these courses twice.` };
+        } else if (shared.length > 2) {
+          w = { tone: "bad", text: `${label(shared)} are all counting toward both ${both}. Those majors sit in different colleges, so this is a simultaneous degree, and at most two upper-division courses may overlap between the two majors — the rest have to be swapped out.` };
+        } else {
+          w = { tone: "warn", text: `${label(shared)} ${shared.length === 1 ? "is one of your two" : "are your two"} allowed upper-division overlaps between ${both}, the simultaneous-degree allowance for majors in two different colleges. ${shared.length === 1 ? "One more may double count between them." : "Nothing else may double count between them."}` };
         }
+        push(A.prog.id, w); push(B.prog.id, w);
       }
 
     /* a minor's own department rule, where it has one */
@@ -3374,10 +3434,10 @@ export default function App() {
         <div className="bdl-cols">
           <div>
             {tab === "setup" && <SetupView p={p} setProfile={setProfile} state={state} setState={setState}
-              setTab={setTab} courses={courses} />}
+              setTab={setTab} courses={courses} shape={degreeShape} />}
             {tab === "pairings" && <PairingsView p={p} setProfile={setProfile} setTab={setTab} />}
             {tab === "courses" && <CoursesView courses={courses} setState={setState} audits={audits} />}
-            {tab === "grad" && <GraduationView audits={audits} checks={state.checks} auto={auto}
+            {tab === "grad" && <GraduationView audits={audits} checks={state.checks} auto={auto} shape={degreeShape}
               igetcFull={igetcFull} p={p} stats={stats} warnings={allWarnings} courses={courses} />}
             {current && (
               <ProgramView audit={current} courses={courses} checks={state.checks} setChecks={setChecks}
