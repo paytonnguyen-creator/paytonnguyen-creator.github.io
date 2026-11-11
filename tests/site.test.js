@@ -11,14 +11,16 @@ const bad=[]; const ok=(c,m)=>{console.log((c?'  ok    ':'  BUG   ')+m); if(!c)b
 
   console.log('\n— the résumé content is on the page —');
   const body = await p.locator('body').innerText();
-  for (const s of ['RSM US LLP','AI Solutions @ Berkeley','Life360','Eightfold AI','Squarelink',
+  for (const s of ['RSM US LLP','AI Solutions @ Berkeley','Life360','Squarelink',
                    'Cal Club Tennis','DirectPath Financial','Irvine Valley College','Occidental College',
                    'M.E.M.O.','Great Park Tennis Academy','JavaScript'])
     ok(body.includes(s), `mentions ${s}`);
   ok(/Aug 2026 — May 2028/.test(body), 'Berkeley dates match the résumé');
 
-  console.log('\n— nothing the résumé no longer claims —');
+  console.log('\n— nothing we cannot stand behind —');
   ok(!/ACEing Autism/i.test(body), 'ACEing Autism (dropped from the résumé) is gone');
+  /* Corrected by Payton: the club worked with Life360 and Squarelink only. */
+  ok(!/Eightfold/i.test(body), 'Eightfold AI is not claimed anywhere');
 
   console.log('\n— the timeline filters —');
   const vis = async () => (await p.locator('.tl-item:not([hidden])').count());
