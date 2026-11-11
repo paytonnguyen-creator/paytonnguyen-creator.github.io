@@ -11,7 +11,7 @@ const bad=[]; const ok=(c,m)=>{console.log((c?'  ok    ':'  BUG   ')+m); if(!c)b
 
   console.log('\n— the résumé content is on the page —');
   const body = await p.locator('body').innerText();
-  for (const s of ['RSM US LLP','AI Solutions @ Berkeley','Life360','Squarelink',
+  for (const s of ['RSM US LLP','AI Solutions @ Berkeley','Life360','Squarelink AI',
                    'Cal Club Tennis','DirectPath Financial','Irvine Valley College','Occidental College',
                    'M.E.M.O.','Great Park Tennis Academy','JavaScript'])
     ok(body.includes(s), `mentions ${s}`);
@@ -19,8 +19,11 @@ const bad=[]; const ok=(c,m)=>{console.log((c?'  ok    ':'  BUG   ')+m); if(!c)b
 
   console.log('\n— nothing we cannot stand behind —');
   ok(!/ACEing Autism/i.test(body), 'ACEing Autism (dropped from the résumé) is gone');
-  /* Corrected by Payton: the club worked with Life360 and Squarelink only. */
+  /* Corrected by Payton: the club worked with Life360 and Squarelink AI only.
+     Asserting the full name, since a bare "Squarelink" would pass as a
+     substring and let the shortened form creep back. */
   ok(!/Eightfold/i.test(body), 'Eightfold AI is not claimed anywhere');
+  ok(!/Squarelink(?!\s+AI)/.test(body), 'Squarelink is always written "Squarelink AI"');
 
   console.log('\n— the timeline filters —');
   const vis = async () => (await p.locator('.tl-item:not([hidden])').count());
