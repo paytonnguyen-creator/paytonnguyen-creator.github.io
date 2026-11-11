@@ -2,7 +2,7 @@
 
 My personal site — live at **[paytonnguyen-creator.github.io](https://paytonnguyen-creator.github.io/)**.
 
-Cognitive Science major, Data Science minor at UC Berkeley. Case studies on customer behavior and product strategy.
+Data Science and Cognitive Science double major at UC Berkeley. Case studies on customer behavior and product strategy.
 
 ## Layout
 
@@ -23,6 +23,19 @@ docs/                             executive decks
 ```
 
 Plain HTML and CSS — no build step. Deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to `main`. Preview locally with `python3 -m http.server 8000`.
+
+## Portfolio presentation
+
+The homepage uses `assets/portfolio.css` and `assets/main.js` for the Berkeley
+scroll story, keyboard-accessible project tabs, process progression, mobile
+navigation, and experience filters. Sticky scenes become ordinary page content
+on small screens or with reduced motion. Every project and experience detail is
+also available with JavaScript disabled.
+
+Case studies share `assets/editorial.css`; the release simulator keeps its own
+controls and chart palette. Fonts are self-hosted under `assets/fonts/`, with
+their OFL licenses. Campus-image sources and licensing are documented in
+`assets/CAMPANILE-IMAGES.md` and credited in the page footer.
 
 ## Where the analysis lives
 

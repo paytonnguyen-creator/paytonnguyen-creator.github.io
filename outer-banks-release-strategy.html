@@ -13,6 +13,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="assets/style.css?v=6">
 <link rel="stylesheet" href="assets/obx.css?v=3">
+<link rel="stylesheet" href="assets/fonts/fonts.css?v=1">
+<link rel="stylesheet" href="assets/editorial.css?v=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23140a10'/><circle cx='44' cy='62' r='23' fill='%23f2952b'/><rect x='0' y='62' width='100' height='38' fill='%23120608'/><path d='M74 64q-3-30 3-46l5 2q-6 15-3 44z' fill='%23050203'/><g fill='%23050203'><path d='M82 20q13-8 25-3-12 0-20 6z'/><path d='M82 19q10-14 26-15-13 5-22 17z'/><path d='M80 19q2-15-7-25 12 7 11 25z'/><path d='M79 20q-13-9-27-6 14 0 25 10z'/><path d='M79 22q-15 2-24 15 11-11 25-12z'/><circle cx='80' cy='20' r='4'/></g></svg>">
 </head>
 <body class="sub-page obx-page">
@@ -20,15 +22,16 @@
 
 <header class="nav is-solid" id="nav">
   <div class="nav-inner">
-    <a class="monogram" href="index.html" aria-label="Home">PN</a>
-    <nav aria-label="Primary">
+    <a class="monogram wordmark" href="index.html" aria-label="Home"><span class="brand-symbol" aria-hidden="true">PN<span>✦</span></span><span class="brand-copy">PAYTON NGUYEN<small>UC BERKELEY</small></span></a>
+    <nav id="primary-nav" aria-label="Primary">
       <a href="index.html#about">About</a>
       <a href="index.html#approach">Approach</a>
       <a href="index.html#work">Projects</a>
       <a href="index.html#background">Background</a>
       <a href="index.html#contact">Contact</a>
     </nav>
-    <button class="nav-toggle" aria-expanded="false" aria-label="Menu"><span></span></button>
+    <a class="nav-cta" href="mailto:paytonnguyen@berkeley.edu">Let's connect <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M6 6h12v12"/></svg></span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Menu"><span></span></button>
   </div>
 </header>
 
@@ -681,7 +684,7 @@
   <span>Built and hosted on GitHub Pages</span>
 </footer>
 
-<script src="assets/main.js?v=5"></script>
+<script src="assets/main.js?v=7"></script>
 <script src="assets/obx-model.js?v=3"></script>
 <script src="assets/obx-app.js?v=3"></script>
 </body>

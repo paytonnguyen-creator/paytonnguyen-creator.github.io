@@ -1,0 +1,354 @@
+/* Shared reading experience for the portfolio's case studies.
+   The simulator keeps its original chart palette and tool controls. */
+
+.sub-page {
+  --ink: #03274c;
+  --body: #56606f;
+  --faint: #657183;
+  --blue: #03274c;
+  --blue-dk: #70530e;
+  --bg: #f2f3f1;
+  --bg-soft: #e9ece8;
+  --line: rgba(3, 39, 76, .16);
+  --gold: #d8a01d;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --gutter: clamp(20px, 5vw, 72px);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.sub-page a { text-underline-offset: .22em; }
+.sub-page :focus-visible { outline-color: #a37308; outline-offset: 5px; }
+.sub-page .skip:focus { top: .75rem; border-radius: 6px; }
+
+/* The same navigation family as the homepage. */
+.sub-page .nav,
+.sub-page .nav.is-solid {
+  background: rgba(242, 243, 241, .95);
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  box-shadow: none;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.sub-page .nav-inner {
+  width: min(1440px, calc(100% - 2 * var(--gutter)));
+  height: 76px;
+  gap: 2rem;
+}
+.sub-page .monogram,
+.sub-page .nav.is-solid .monogram {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+.sub-page .brand-symbol {
+  position: relative;
+  display: block;
+  font-family: var(--display);
+  font-size: 31px;
+  font-weight: 800;
+  font-variation-settings: "wdth" 95;
+  line-height: 1;
+  letter-spacing: -.13em;
+  padding-right: 5px;
+}
+.sub-page .brand-symbol > span {
+  position: absolute;
+  top: -7px;
+  right: -2px;
+  color: var(--gold);
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.sub-page .brand-copy {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: .16em;
+  white-space: nowrap;
+}
+.sub-page .brand-copy small {
+  display: block;
+  margin-top: 2px;
+  color: #986c0b;
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: .24em;
+}
+.sub-page .nav nav { gap: clamp(15px, 2vw, 28px); margin-left: auto; }
+.sub-page .nav nav a,
+.sub-page .nav.is-solid nav a {
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.sub-page .nav nav a:hover,
+.sub-page .nav nav a.is-active,
+.sub-page .nav.is-solid nav a:hover,
+.sub-page .nav.is-solid nav a.is-active { color: #8b6208; }
+.sub-page .nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 11px 22px;
+  flex: 0 0 auto;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: background .2s ease, transform .2s ease;
+}
+.sub-page .nav-cta:hover { background: #f0b429; color: var(--ink); transform: translateY(-1px); }
+.sub-page .nav-cta svg { display: block; width: 16px; height: 16px; }
+.sub-page .nav-toggle span,
+.sub-page .nav-toggle span::before,
+.sub-page .nav-toggle span::after,
+.sub-page .nav.is-solid .nav-toggle span,
+.sub-page .nav.is-solid .nav-toggle span::before,
+.sub-page .nav.is-solid .nav-toggle span::after { background: var(--ink); }
+
+/* A broad opening, followed by a comfortable reading measure. */
+.sub-page .cs-head { padding: clamp(9rem, 13vw, 12rem) 0 3.5rem; }
+.sub-page:not(.obx-page) .cs-head {
+  background:
+    radial-gradient(ellipse at 90% 15%, rgba(216, 160, 29, .065), transparent 50%),
+    var(--bg);
+}
+.sub-page .cs-head .wrap {
+  width: min(1296px, calc(100% - 2 * var(--gutter)));
+}
+.sub-page .back {
+  margin-bottom: 2.75rem;
+  color: var(--body);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.sub-page .back:hover { color: var(--ink); }
+.sub-page .cs-kicker {
+  margin-bottom: 1.4rem;
+  color: #86600d;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  line-height: 1.6;
+}
+.sub-page .cs-head h1 {
+  max-width: 21ch;
+  margin: 0 0 1.7rem;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(2.5rem, 4.7vw, 4.75rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: -.035em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+.sub-page .cs-lede {
+  max-width: 68ch;
+  color: var(--body);
+  font-size: clamp(1.08rem, 1.5vw, 1.3rem);
+  line-height: 1.6;
+}
+.sub-page .facts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem 2.5rem;
+  margin-top: 3rem;
+  padding-block: 1.75rem;
+}
+.sub-page .facts dt {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: .09em;
+}
+.sub-page .facts dd { color: var(--ink); font-size: 14px; line-height: 1.6; }
+.sub-page .facts a { color: inherit; text-decoration-thickness: 1px; }
+.sub-page .cs-body {
+  width: min(780px, calc(100% - 2 * var(--gutter)));
+  padding-bottom: 6rem;
+  color: var(--body);
+}
+.sub-page .cs-body strong { color: var(--ink); }
+.sub-page .cs-body h2 {
+  margin: 4.25rem 0 1.2rem;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(1.55rem, 2.6vw, 2.25rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 108;
+  letter-spacing: -.025em;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+.sub-page .cs-body h2:first-child { margin-top: 2rem; }
+.sub-page .cs-body h3 {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.sub-page .cs-body p { margin-bottom: 1.5rem; }
+.sub-page .cs-body a { text-decoration-thickness: 1px; }
+.sub-page .cs-body .hollow li { color: var(--body); }
+.sub-page .callout {
+  margin-block: 2.5rem;
+  padding: 1.75rem 2rem;
+  border-left: 3px solid var(--gold);
+  border-radius: 0 6px 6px 0;
+  background: #e8ece9;
+}
+.sub-page .callout-label {
+  margin-bottom: .85rem;
+  color: #64531f;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .09em;
+}
+.sub-page .note {
+  padding: 1.3rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .45);
+  color: var(--body);
+  font-size: .9rem;
+}
+.sub-page .chart { margin-block: 2.5rem; }
+.sub-page .chart img { border-radius: 6px; background: #fff; }
+.sub-page .chart figcaption { color: var(--faint); font-size: 12px; line-height: 1.7; }
+.sub-page th {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+}
+.sub-page .cs-foot-link .back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 12px 22px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+}
+.sub-page .cs-foot-link .back:hover { border-color: var(--ink); }
+.sub-page .foot {
+  width: min(1296px, calc(100% - 2 * var(--gutter)));
+  padding-top: 1.75rem;
+  padding-bottom: 2.5rem;
+  border-top: 1px solid var(--line);
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+/* Preserve the release simulator's original, accessible coastal artwork. */
+.sub-page.obx-page .obx-hero h1 { color: #fff; }
+.sub-page.obx-page .obx-hero .back { color: rgba(255, 255, 255, .75); }
+.sub-page.obx-page .obx-hero .back:hover { color: #f0b93c; }
+.sub-page.obx-page .obx-hero .cs-kicker { color: #f0b93c; }
+.sub-page.obx-page .obx-hero .cs-lede { color: rgba(255, 255, 255, .88); }
+.sub-page.obx-page .obx-hero .facts { border-block-color: rgba(255, 255, 255, .24); }
+.sub-page.obx-page .obx-hero .facts dt { color: rgba(255, 255, 255, .67); }
+.sub-page.obx-page .obx-hero .facts dd { color: #fff; }
+.sub-page.obx-page .obx-hero .facts a { color: #f0b93c; }
+.sub-page.obx-page .cs-body--lead { padding-bottom: 2.5rem; }
+
+@media (max-width: 1050px) {
+  .sub-page .nav-inner { gap: 1.5rem; }
+  .sub-page .nav nav { gap: 16px; }
+  .sub-page .nav-cta { padding-inline: 16px; font-size: 13px; }
+  .sub-page .brand-copy { font-size: 10px; }
+}
+
+@media (max-width: 1050px) {
+  .sub-page .nav-inner { height: 62px; }
+  .sub-page .brand-symbol { font-size: 29px; }
+  .sub-page .brand-copy { font-size: 10px; }
+  .sub-page .brand-copy small { font-size: 7px; }
+  .sub-page .nav-cta { display: none; }
+  .sub-page .nav-toggle { display: block; margin-left: auto; min-width: 44px; min-height: 44px; }
+  .sub-page .nav nav {
+    position: absolute;
+    inset: 62px 0 auto;
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding: 14px var(--gutter) 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    box-shadow: 0 16px 28px rgba(3, 39, 76, .08);
+  }
+  .sub-page .nav.is-open nav { display: flex; }
+  .sub-page .nav.is-open .nav-toggle span { background: transparent !important; }
+  .sub-page .nav.is-open .nav-toggle span::before { transform: translateY(7px) rotate(45deg); }
+  .sub-page .nav.is-open .nav-toggle span::after { transform: translateY(-7px) rotate(-45deg); }
+  .sub-page .nav nav a,
+  .sub-page .nav.is-solid nav a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 10px 0;
+    color: var(--ink);
+    font-size: 16px;
+  }
+  .sub-page .cs-head { padding-top: 8.5rem; }
+  .sub-page .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 540px) {
+  .sub-page { font-size: 16px; line-height: 1.75; }
+  .sub-page .cs-head { padding-top: 7rem; padding-bottom: 2rem; }
+  .sub-page .back { margin-bottom: 2rem; font-size: 10px; }
+  .sub-page .cs-kicker { font-size: 10px; }
+  .sub-page .cs-head h1 {
+    font-size: clamp(2rem, 8.4vw, 2.75rem);
+    font-variation-settings: "wdth" 105;
+    letter-spacing: -.035em;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+  .sub-page .cs-lede { font-size: 17px; }
+  .sub-page .facts { gap: 1.25rem; margin-top: 2rem; padding-block: 1.4rem; }
+  .sub-page .facts dd { font-size: 12px; }
+  .sub-page .cs-body { padding-bottom: 4rem; }
+  .sub-page .cs-body h2 { margin-top: 3rem; font-size: 1.55rem; }
+  .sub-page .callout { padding: 1.35rem; }
+  .sub-page .note { padding: 1.2rem; }
+  .sub-page .foot { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sub-page .nav-cta { transition: none; }
+}
