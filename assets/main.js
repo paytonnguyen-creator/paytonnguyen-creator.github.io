@@ -137,3 +137,63 @@ if (tl) {
   chips.forEach(c => c.addEventListener('click', () => apply(c.dataset.filter)));
   apply('all');
 }
+
+/* ── Figure viewer (case study pages) ────────────────────────────────────
+   Opens any chart full size. The charts are matplotlib exports whose axis
+   labels and annotations are unreadable at column width, so this is the
+   difference between a decorative image and a figure you can actually check. */
+const charts = [...document.querySelectorAll('.chart img')];
+if (charts.length) {
+  const fv = document.createElement('div');
+  fv.className = 'fv';
+  fv.setAttribute('role', 'dialog');
+  fv.setAttribute('aria-modal', 'true');
+  fv.setAttribute('aria-label', 'Figure viewer');
+  fv.innerHTML = '<button class="fv-close" type="button" aria-label="Close figure">✕</button>'
+               + '<img class="fv-img" alt="">'
+               + '<p class="fv-cap"></p>';
+  document.body.appendChild(fv);
+
+  const fvImg = fv.querySelector('.fv-img');
+  const fvCap = fv.querySelector('.fv-cap');
+  const fvClose = fv.querySelector('.fv-close');
+  let lastFocus = null;
+
+  const open = (img) => {
+    lastFocus = document.activeElement;
+    fvImg.src = img.currentSrc || img.src;
+    /* The description goes in the caption, which is real text on the page, so
+       the image itself is decorative here — repeating it in alt would read the
+       whole paragraph twice to a screen reader. */
+    fvImg.alt = '';
+    fvCap.textContent = img.alt || '';
+    fv.classList.add('is-open');
+    document.body.classList.add('fv-lock');
+    fvClose.focus();
+  };
+  const close = () => {
+    fv.classList.remove('is-open');
+    document.body.classList.remove('fv-lock');
+    if (lastFocus) lastFocus.focus();
+  };
+
+  charts.forEach(img => {
+    /* Each chart becomes a real control: reachable by Tab, openable by Enter. */
+    img.tabIndex = 0;
+    img.setAttribute('role', 'button');
+    img.setAttribute('aria-label', 'Expand figure' + (img.alt ? ': ' + img.alt.slice(0, 80) : ''));
+    img.addEventListener('click', () => open(img));
+    img.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(img); }
+    });
+  });
+
+  fvClose.addEventListener('click', close);
+  fv.addEventListener('click', e => { if (e.target === fv) close(); });
+  addEventListener('keydown', e => {
+    if (!fv.classList.contains('is-open')) return;
+    if (e.key === 'Escape') close();
+    /* Only the close button is focusable inside, so the trap is one hop. */
+    if (e.key === 'Tab') { e.preventDefault(); fvClose.focus(); }
+  });
+}

@@ -10,6 +10,7 @@ node tests/ledger.test.js              # the main regression sweep
 node tests/simultaneous.test.js        # L&S x CDSS degree-shape rules
 node tests/site.test.js                # the portfolio home page and its timeline
 node tests/policy.test.js              # the 2026-27 L&S and CDSS college policy
+node tests/casestudies.test.js         # the four case study pages and the figure viewer
 ```
 
 Both exit non-zero on failure, and both fail on any console error or React
