@@ -3,6 +3,12 @@
 Playwright checks that drive the built page the way a student would. They run
 against the real bundle, not the source, so they catch build problems too.
 
+These need `playwright-core`, which is not a dependency of the site itself:
+
+```
+npm i -D playwright-core
+```
+
 ```
 node tools/build-ledger.mjs
 python3 -m http.server 8765 &          # serve the repo root
@@ -11,6 +17,8 @@ node tests/simultaneous.test.js        # L&S x CDSS degree-shape rules
 node tests/site.test.js                # the portfolio home page and its timeline
 node tests/policy.test.js              # the 2026-27 L&S and CDSS college policy
 node tests/casestudies.test.js         # the four case study pages and the figure viewer
+node tests/scenes.test.js              # the home page's scroll-driven scenes and reveals
+node tests/simulator.test.js           # the Outer Banks model: determinism and reactivity
 ```
 
 Both exit non-zero on failure, and both fail on any console error or React
