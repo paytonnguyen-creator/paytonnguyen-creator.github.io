@@ -666,3 +666,60 @@ td { color: var(--body); }
 @media (prefers-reduced-motion: reduce) {
   .tl-body, .tl-chev, .tl-item::before { transition: none; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Figure viewer (case study pages)
+   The charts are detailed matplotlib exports — axis labels, annotations,
+   several series. At the width of a column of prose they are legible as
+   shapes and not much else, so any of them can be opened full size.
+   ───────────────────────────────────────────────────────────────────── */
+
+.chart img { cursor: zoom-in; }
+
+/* The affordance has to be visible without hover, since a touch screen has
+   none. A small corner badge costs nothing and says the figure opens. */
+.chart { position: relative; }
+.chart::after {
+  content: "Expand";
+  position: absolute; top: .55rem; right: .55rem;
+  font-size: .68rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--body); background: rgba(255,255,255,.9);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: .22rem .6rem; pointer-events: none;
+  opacity: .75; transition: opacity .15s, color .15s, border-color .15s;
+}
+.chart:hover::after { opacity: 1; color: var(--blue); border-color: var(--blue); }
+
+.fv {
+  /* Above the fixed nav (100), below the skip link (200) — at 90 the nav sat
+     over the overlay and swallowed clicks on the close button. */
+  position: fixed; inset: 0; z-index: 150;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1rem; padding: clamp(1rem, 4vw, 3rem);
+  background: rgba(10, 14, 20, .92);
+  opacity: 0; pointer-events: none; transition: opacity .18s ease;
+}
+.fv.is-open { opacity: 1; pointer-events: auto; }
+
+.fv-img {
+  max-width: min(1400px, 100%); max-height: calc(100vh - 11rem);
+  width: auto; background: #fff; border-radius: 6px;
+  padding: 1rem; box-shadow: 0 24px 70px rgba(0,0,0,.45);
+}
+.fv-cap {
+  max-width: 62ch; margin: 0; text-align: center;
+  color: #e8ecf1; font-size: .9rem; line-height: 1.55;
+}
+.fv-close {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25);
+  color: #fff; font: inherit; font-size: 1.1rem; line-height: 1;
+}
+.fv-close:hover { background: rgba(255,255,255,.2); }
+.fv-close:focus-visible, .chart img:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+body.fv-lock { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) { .fv { transition: none; } }
