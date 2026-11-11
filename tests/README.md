@@ -9,6 +9,7 @@ python3 -m http.server 8765 &          # serve the repo root
 node tests/ledger.test.js              # the main regression sweep
 node tests/simultaneous.test.js        # L&S x CDSS degree-shape rules
 node tests/site.test.js                # the portfolio home page and its timeline
+node tests/policy.test.js              # the 2026-27 L&S and CDSS college policy
 ```
 
 Both exit non-zero on failure, and both fail on any console error or React

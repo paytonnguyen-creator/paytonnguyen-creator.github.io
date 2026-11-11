@@ -214,7 +214,7 @@ const CSS = `
    `isUpperDiv`, and with it the 36-upper-division-unit count. tools/check-subjects.mjs
    fails the build if a course code is ever added whose subject is missing. */
 const SUBJECTS = ("AEROENG AFRICAM AGRS AMERSTD ANTHRO ARCH ART ASTRON BIOENG BIOLOGY CHEM CHMENG CIVENG " +
-  "CMPBIO COGSCI COMPSCI CPH CYPLAN DATA DEMOG DIGHUM DISSTD ECON EDSTEM EDUC EECS ELENG ENERES ENGIN " +
+  "CDSS CMPBIO COGSCI COMPSCI CPH CYPLAN DATA DEMOG DIGHUM DISSTD ECON EDSTEM EDUC EECS ELENG ENERES ENGIN " +
   "ENGLISH ENVDES ENVECON EPS ESPM ETHSTD FILM GEOG GLOBAL GPP GWS HISTART HISTORY IAS INDENG INFO " +
   "INTEGBI ISF JOURN LDARCH LEGALST LINGUIS LS MATH MBN MCELLBI MECENG MEDIAST MELC MUSIC NATAMST " +
   "NEUROSC NEU NUCENG NUSCTX NWMEDIA PBHLTH PHILOS PHYSICS PLANTBI POLECON POLSCI PSYCH PUBPOL RHETOR " +
@@ -454,6 +454,23 @@ const CERT_LEAVES = [
   "Senior residence",
 ];
 
+/* CDSS reads certification differently from Letters & Science, and the gap is
+   the part that catches people: it clears Reading & Composition and the seven
+   breadth areas, and leaves all three of the technical and social Essential
+   Skills open. CDSS also requires the certification to be complete before you
+   matriculate for it to clear anything here. */
+const CERT_CLEARS_CDSS = [
+  "Reading & Composition, Parts A and B",
+  "All seven breadth areas",
+];
+const CERT_LEAVES_CDSS = [
+  "Computational Reasoning — certification does not cover it; approved transfer coursework can",
+  "Statistical Reasoning — same",
+  "Human & Social Dynamics of Data and Technology — same",
+  "American Cultures, and American History & Institutions",
+  "The 120-unit total, the 36 upper-division units, and CDSS senior residence",
+];
+
 /* The ten IGETC / Cal-GETC areas, for students who are partially certified.
    These are ticked by hand rather than mapped onto L&S blocks automatically:
    partial certification is evaluated course by course by the College, and a
@@ -482,41 +499,95 @@ const CERT_AREAS = [
    Cal-GETC is documented against the L&S requirements; what it does for CDSS's
    own Computational, Statistical and Human/Social Dynamics requirements is a
    question for a CDSS adviser, and guessing would be worse than asking. */
+/* The courses CDSS publishes for Human and Social Dynamics of Data and
+   Technology. Cross-listings are one course, not three — a student who takes
+   DATA C104 has not also taken HISTORY C184D. Two entries the sheet marks as
+   not yet offered are carried with a note rather than dropped, so a student who
+   sees them in the catalog knows why they are greyed out here. */
+const CDSS_HSDDT = [
+  "AMERSTDC134/AFRICAMC134", "ANTHRO168", "BIOENG100", "CDSS60", "CYPLAN101",
+  "DATA94", "DATAC104/HISTORYC184D/STSC104", "DATAC4AC/STSC4AC", "DIGHUM100",
+  "ESPMC167/PBHLTHC160", "HISTORY30", "HISTORY133D", "HISTORY183B",
+  "INFO101", "INFO103", "INFO134", "INFO188", "ISF60", "ISF100D", "ISF100J",
+  "LEGALST190", "LS22", "LS25", "NWMEDIA133", "NWMEDIA151AC",
+  "PHILOS5", "PHILOS121", "POLECON156", "POLSCI132C",
+  "PUBPOL147", "PUBPOLC151", "RHETOR173", "STSC100/HISTORYC182C/ISFC100G",
+];
+
 const CDSS_COLLEGE = {
   id: "cdss", type: "college", name: "Computing, Data Science & Society requirements",
   college: "Computing, Data Science, and Society",
-  note: "These replace the Letters & Science requirements — you clear your own college's list, not both. Requirement names follow the Academic Guide; open the CDSS college page for what each one takes.",
+  note: "These replace the Letters & Science requirements — you clear your own college's list, not both. Three of the four Essential Skills are cleared outright by some CDSS majors, and this tab does that for you once the major is on your ledger.",
+  rules: [
+    "A single course satisfies only one of the seven breadth areas.",
+    "At most two breadth courses may come from one department or department cluster.",
+    "A second-semester foreign language course may satisfy International Studies — this is a CDSS allowance, not an L&S one.",
+    "Full IGETC or Cal-GETC certification must be completed before you matriculate to clear the college requirements it covers.",
+    "Adding a second major or a minor is not on its own a reason for an extra semester beyond the CDSS limit.",
+  ],
   sections: [
-    { id: "essential", name: "Essential skills", groups: [
+    { id: "essential", name: "Essential skills",
+      note: "Four of them. Computational Reasoning, Statistical Reasoning and Human & Social Dynamics are satisfied outright by some majors — where yours does it, the block closes itself and says so.", groups: [
       CK("cdss_rc", "Reading & Composition", [
-        { id: "cdss_rca", label: "R&C Part A", desc: "C- or better." },
-        { id: "cdss_rcb", label: "R&C Part B", desc: "C- or better, and it has to come after Part A." },
+        { id: "cdss_rca", label: "R&C Part A", desc: "C- or better.", igetc: true },
+        { id: "cdss_rcb", label: "R&C Part B", desc: "C- or better, and it has to come after Part A.", igetc: true },
       ]),
-      CK("cdss_comp", "CDSS Computational Reasoning", [
+      CK("cdss_comp", "Computational Reasoning", [
         { id: "cdss_comp", label: "Computational Reasoning satisfied",
-          desc: "A CDSS-specific requirement with no Letters & Science equivalent. Check the college page for the approved list." },
+          desc: "Programming, algorithms, iteration and data structures. A Computer Science or Data Science major clears this outright. Certification does NOT — IGETC and Cal-GETC leave this one open, though individually approved transfer coursework can satisfy it.",
+          auto: "cdssComp" },
       ]),
-      CK("cdss_hsd", "Human and Social Dynamics of Data and Technology", [
-        { id: "cdss_hsd", label: "Human and Social Dynamics satisfied",
-          desc: "CDSS-specific. Distinct from the Human Contexts and Ethics course inside the major itself — confirm whether one course can do both." },
+      CK("cdss_stat", "Statistical Reasoning", [
+        { id: "cdss_stat", label: "Statistical Reasoning satisfied",
+          desc: "Statistical problem solving, uncertainty, estimation and prediction. A Statistics or Data Science major clears this outright. Certification does NOT cover it.",
+          auto: "cdssStat" },
       ]),
-      CK("cdss_stat", "CDSS Statistical Reasoning", [
-        { id: "cdss_stat", label: "Statistical Reasoning satisfied", desc: "CDSS-specific. Often cleared by the major's own statistics course." },
+      G("cdss_hsd", "Human & Social Dynamics of Data and Technology", 1, CDSS_HSDDT, {
+        note: "One course, C- or better. A Data Science major clears this outright — if that is your major the block above the list closes itself. Certification does NOT cover it. PUB POL 145 and PUB POL 138A are on the published list but marked not yet offered, so they are left off here; some CDSS, DATA and LEGALST entries only count on particular topics, so confirm yours. BIOENG 100 counts for this college requirement but was removed from the Data Science major's own Human Contexts and Ethics requirement from Fall 2025 — the two lists are not the same list.",
+        hint: "One course from the college's published list." }),
+      CK("cdss_hsd_auto", "Human & Social Dynamics — cleared by your major", [
+        { id: "cdss_hsd_auto", label: "Satisfied outright by the Data Science major",
+          desc: "Shown only so the reason is visible. If this is ticked, the course list above is already covered.",
+          auto: "cdssHsd" },
       ]),
     ]},
-    { id: "breadth", name: "Seven-course breadth", note: "CDSS runs its own breadth list. It is not identical to the L&S seven-course breadth, so do not assume a course that counts for one counts for the other.", groups: [
-      CK("cdss_b", "CDSS Breadth", [
-        { id: "cdss_breadth", label: "CDSS breadth requirement satisfied",
-          desc: "Confirm the current area list on the college page. If you transferred with a filed certification, ask a CDSS adviser what it covers here — that answer is not the same as the Letters & Science one." },
+    { id: "breadth", name: "Seven-course breadth",
+      note: "The same seven areas as Letters & Science, but CDSS runs its own approved list — do not assume a course that counts for one counts for the other. One course per area, at most two from any one department, C- or Pass accepted. Full certification clears all seven.", groups: [
+      CK("cdss_b", "CDSS breadth areas", [
+        { id: "cdss_b_arts", label: "Arts & Literature", igetc: true },
+        { id: "cdss_b_bio", label: "Biological Science", igetc: true },
+        { id: "cdss_b_hist", label: "Historical Studies", igetc: true },
+        { id: "cdss_b_intl", label: "International Studies", desc: "A second-semester foreign language course may satisfy this one.", igetc: true },
+        { id: "cdss_b_phil", label: "Philosophy & Values", igetc: true },
+        { id: "cdss_b_phys", label: "Physical Science", igetc: true },
+        { id: "cdss_b_soc", label: "Social & Behavioral Sciences", igetc: true },
       ]),
     ]},
     { id: "units", name: "Units & academic standing", groups: [
-      CK("cdss_units", "CDSS unit and academic requirements", [
+      CK("cdss_units", "Unit requirements", [
         { id: "units120", label: "120 total units earned", desc: "Tracked from My courses.", auto: "units120" },
-        { id: "cdss_ud", label: "Upper-division unit minimum met", desc: "Confirm the current figure with your adviser; the ledger tracks your upper-division total under Where you stand." },
-        { id: "cdss_gpa", label: "Minimum GPA in the major and overall", desc: "Tracked from the GPA you enter under Setup.", auto: "gpa" },
+        { id: "ud36", label: "36 upper-division units", desc: "Tracked from My courses.", auto: "ud36" },
+        { id: "cdss_pe", label: "No more than 4 units of Physical Education counted" },
+        { id: "cdss_ss", label: "No more than 16 units of Special Studies counted", desc: "The 97, 98, 99, 197, 198 and 199 series." },
+        { id: "cdss_300", label: "No more than 6 units of courses numbered 300–499 counted" },
         { id: "ccc70", label: "No more than 70 units transferred from community colleges",
           desc: "Transfer students only.", transferOnly: true, auto: "ccc70" },
+      ]),
+      CK("cdss_gpa", "Grade point averages", [
+        { id: "cdss_gpa", label: "2.0 overall UC GPA", desc: "Tracked from the GPA you enter under Setup.", auto: "gpa" },
+        { id: "cdss_majgpa", label: "2.0 in upper-division and graduate courses in the major" },
+      ]),
+    ]},
+    { id: "residence", name: "Senior residence & time to degree",
+      note: "Residence is the requirement a late transfer into CDSS is most likely to miss: you can finish every course the major asks for and still not have spent enough terms in the college.", groups: [
+      CK("cdss_res", "Senior residence", [
+        { id: "cdss_res_units", label: "24 units completed in CDSS after reaching 90 units" },
+        { id: "cdss_res_terms", label: "At least two terms in residence in CDSS after reaching 90 units",
+          desc: "A term counts as residence only if you pass at least 6 units in it. Approved study abroad has its own provisions." },
+      ]),
+      CK("cdss_sem", "Semester limit", [
+        { id: "cdss_sem", label: "On track within the CDSS semester limit",
+          desc: "Eight semesters if you started at Berkeley, five if you transferred in. Adding a second major or a minor is not on its own a reason for another one." },
       ]),
     ]},
   ],
@@ -1361,6 +1432,10 @@ const CATALOG = {
    Guide, the "Something else" option takes any name you type. */
 const LS = "Letters & Science";
 const CDSS = "Computing, Data Science, and Society";
+/* The Computer Science minor is run by Engineering, not CDSS — the two CS
+   programs sit in different colleges, and a minor's college decides whose
+   overlap rules apply to it. */
+const COE = "Engineering";
 
 const PROGRAM_INDEX = [
   /* --- Letters & Science: Arts & Humanities --- */
@@ -1431,7 +1506,7 @@ const PROGRAM_INDEX = [
   ["Urban Studies", "B.A.", LS, "major"],
 
   /* --- Computing, Data Science & Society --- */
-  ["Computer Science", "Minor", CDSS, "minor"],
+  ["Computer Science", "Minor", COE, "minor"],
 
   /* --- Minors most often paired with an L&S major --- */
   ["Anthropology", "Minor", LS, "minor"],
@@ -2204,7 +2279,7 @@ function AddProgram({ state, setState }) {
    filed IGETC or Cal-GETC closes eleven blocks at once. Everything else here is
    a checkbox the student owns, because the College evaluates those case by
    case and a tracker that guesses is worse than one that asks. */
-function Clearances({ p, setProfile, state, setState }) {
+function Clearances({ p, setProfile, state, setState, inCDSS }) {
   const cert = p.igetc || "none";
   const areas = state.certAreas || {};
   const setArea = (id, v) => setState((s) => ({ ...s, certAreas: { ...(s.certAreas || {}), [id]: v } }));
@@ -2257,13 +2332,20 @@ function Clearances({ p, setProfile, state, setState }) {
       {cert === "full" && (
         <div style={{ marginTop: 13 }}>
           <Flag tone="ok">
-            <span><b>Eleven blocks just closed.</b> They show a <em>certified</em> tag on the Letters &amp; Science
+            <span><b>Blocks just closed by themselves.</b> They show a <em>certified</em> tag on your college
               and University tabs, and they cannot be un-ticked by hand while certification is set to full.</span>
           </Flag>
+          {inCDSS && (
+            <Flag>
+              <span><b>CDSS counts certification differently.</b> It clears Reading &amp; Composition and the
+                seven breadth areas and nothing else — all three of the other Essential Skills stay open. It also
+                has to be complete before you matriculate to clear anything at all.</span>
+            </Flag>
+          )}
           <span className="bdl-label">Certification covers</span>
-          <ul className="bdl-ledgerlist">{CERT_CLEARS.map((c) => <li key={c}>{c}</li>)}</ul>
+          <ul className="bdl-ledgerlist">{(inCDSS ? CERT_CLEARS_CDSS : CERT_CLEARS).map((c) => <li key={c}>{c}</li>)}</ul>
           <span className="bdl-label" style={{ marginTop: 11, display: "block" }}>You still owe</span>
-          <ul className="bdl-ledgerlist no">{CERT_LEAVES.map((c) => <li key={c}>{c}</li>)}</ul>
+          <ul className="bdl-ledgerlist no">{(inCDSS ? CERT_LEAVES_CDSS : CERT_LEAVES).map((c) => <li key={c}>{c}</li>)}</ul>
         </div>
       )}
 
@@ -2584,7 +2666,8 @@ function SetupView({ p, setProfile, state, setState, setTab, courses, shape }) {
         </div>
       </div>
 
-      <Clearances p={p} setProfile={setProfile} state={state} setState={setState} />
+      <Clearances p={p} setProfile={setProfile} state={state} setState={setState}
+        inCDSS={!!(shape && shape.colleges || []).some((c) => /Computing, Data Science/.test(c))} />
 
       <div className="bdl-card" style={{ marginBottom: 12 }}>
         <h3>Programs</h3>
@@ -3029,10 +3112,12 @@ function GraduationView({ audits, checks, auto, igetcFull, p, stats, warnings, c
           </p>
           {[
             "Both colleges' full requirement sets have to be met — breadth, essential skills, unit rules, the lot. Where they differ, you do both.",
-            "You apply through both colleges and need approval from each before your final year.",
-            "Expect a higher unit total than 120; the second degree normally carries additional units beyond the first.",
+            "You petition both colleges and need approval from each. Letters & Science asks for a 2.0 overall GPA and normally at least one semester at Berkeley before you petition.",
+            "At most two upper-division courses may count toward both majors. Where the other college runs a stricter rule, that one binds.",
+            "There is no universal extra unit minimum for a second degree. The figure people quote — 136 units — is a ceiling tied to requesting additional semesters, not a number you have to reach to graduate. The published minimum is still 120.",
+            "Transfer students normally get four semesters, with a fifth possible for a simultaneous degree. A CDSS major carries its own limit instead: eight semesters if you started at Berkeley, five if you transferred.",
             "Both majors must be complete at the same time. You can't finish one and add the other later — that's a second bachelor's, a different process.",
-            "A course can generally satisfy requirements in both programs unless a program says otherwise, but major-specific overlap limits still apply.",
+            "Adding the second major is not on its own a reason for an extra semester at CDSS.",
           ].map((r, i) => <div key={i} className="bdl-stat" style={{ display: "block", fontSize: 13 }}>{r}</div>)}
         </div>
       )}
@@ -3160,7 +3245,16 @@ export default function App() {
       for (const g of a.groups) (a.byGroup[g.id] || []).forEach((id) => majMinIds.add(id));
     }
     const bad = courses.filter((c) => majMinIds.has(c.id) && c.grade && !["A+","A","A-","B+","B","B-","C+","C","C-","IP"].includes(c.grade));
+    /* CDSS documents three of its four Essential Skills as satisfied outright by
+       particular majors, so a student holding one should never be asked to tick
+       them off by hand. This is a major-level rule, not a course-level one: it
+       is the Data Science major that clears Statistical Reasoning, not everyone
+       who happens to have taken DATA C8. */
+    const majorIds = new Set(audits.filter((a) => a.prog.type === "major").map((a) => a.prog.id));
     return {
+      cdssComp: majorIds.has("csmajor") || majorIds.has("dsmajor"),
+      cdssStat: majorIds.has("statmajor") || majorIds.has("dsmajor"),
+      cdssHsd: majorIds.has("dsmajor"),
       gpa: parseFloat(p.gpa) >= 2.0,
       units120: stats.total >= 120,
       pnp: stats.total > 0 && stats.pnp <= stats.total / 3,
@@ -3242,33 +3336,40 @@ export default function App() {
         }
       }
 
-    /* Overlap between two majors. The allowance depends on which arrangement
-       you are in, and those are not the same thing: two majors in two colleges
-       is a simultaneous degree, which carries the two-upper-division-course
-       allowance; two majors inside one college is a double major on a single
-       degree, whose limit is set by the college and the two departments. This
-       used to apply the simultaneous-degree number to both, which quietly
-       asserted a figure for double majors that nothing here establishes. The
-       shared courses are still worth surfacing in that case — they are just
-       presented as something to confirm rather than as a limit already broken. */
+    /* Overlap between majors. Two upper-division courses, in total, across
+       every major you hold — the same ceiling whether the second major is a
+       double major inside Letters & Science or a major in another college on a
+       simultaneous degree, and still two rather than four if you hold three
+       majors. Lower-division overlap is not capped by this rule, which is why
+       only upper-division courses are counted. A course counting for a major
+       and for breadth is a different question and is not restricted here.
+       The arrangement still changes what has to be said, so the message names
+       which one you are in; where the other college runs a stricter rule, its
+       rule is the one that binds. */
+    const majorShared = new Set();
+    let crossCollege = false;
     for (let i = 0; i < majorAudits.length; i++)
       for (let j = i + 1; j < majorAudits.length; j++) {
         const A = majorAudits[i], B = majorAudits[j];
         const a = new Set(udOf(A));
-        const shared = udOf(B).filter((id) => a.has(id));
-        if (!shared.length) continue;
-        const both = `${A.prog.name} and ${B.prog.name}`;
-        const twoColleges = A.prog.college && B.prog.college && A.prog.college !== B.prog.college;
-        let w;
-        if (!twoColleges) {
-          w = { tone: "warn", text: `${label(shared)} ${shared.length === 1 ? "is counting" : "are counting"} toward both ${both}. Those are two majors in one college, so this is a double major on a single degree rather than a simultaneous degree, and the ceiling on double counting is set by your college and the two departments. This ledger does not have that figure — check it with both major advisers before you rely on these courses twice.` };
-        } else if (shared.length > 2) {
-          w = { tone: "bad", text: `${label(shared)} are all counting toward both ${both}. Those majors sit in different colleges, so this is a simultaneous degree, and at most two upper-division courses may overlap between the two majors — the rest have to be swapped out.` };
-        } else {
-          w = { tone: "warn", text: `${label(shared)} ${shared.length === 1 ? "is one of your two" : "are your two"} allowed upper-division overlaps between ${both}, the simultaneous-degree allowance for majors in two different colleges. ${shared.length === 1 ? "One more may double count between them." : "Nothing else may double count between them."}` };
-        }
-        push(A.prog.id, w); push(B.prog.id, w);
+        const hit = udOf(B).filter((id) => a.has(id));
+        hit.forEach((id) => majorShared.add(id));
+        if (hit.length && A.prog.college && B.prog.college && A.prog.college !== B.prog.college)
+          crossCollege = true;
       }
+    const msList = [...majorShared];
+    if (msList.length) {
+      const shape = crossCollege
+        ? "Your majors sit in different colleges, so this is a simultaneous degree"
+        : "Both majors sit in one college, so this is a double major on a single degree";
+      let w;
+      if (msList.length > 2) {
+        w = { tone: "bad", text: `${label(msList)} are all counting toward more than one major. ${shape}, and either way the ceiling is two upper-division courses in total across every major you hold — not two per pair — so all but two have to be swapped out. Lower-division courses are not capped this way.` };
+      } else {
+        w = { tone: "warn", text: `${label(msList)} ${msList.length === 1 ? "is one of your two" : "are your two"} allowed upper-division overlaps between majors. ${shape}. That allowance is two courses in total across every major you hold${msList.length === 1 ? ", so one more may double count" : ", so nothing else may double count between them"}. If the other department runs a stricter rule, theirs is the one that binds.` };
+      }
+      majorAudits.forEach((m) => push(m.prog.id, w));
+    }
 
     /* a minor's own department rule, where it has one */
     for (const m of minorAudits) {

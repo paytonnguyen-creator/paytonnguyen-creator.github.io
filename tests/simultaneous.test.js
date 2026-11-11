@@ -34,8 +34,9 @@ const bad=[]; const ok=(c,m)=>{console.log((c?'  ok    ':'  BUG   ')+m); if(!c)b
              [C('ECON140'),C('ECON141'),C('ECON100A'),C('ECON100B')]);
   await tab('econ');
   let w = await p.locator('.bdl-flag, .bdl-cols > div').first().innerText();
-  ok(/simultaneous-degree allowance/i.test(w), 'two shared courses read as the allowance, not a breach');
-  ok(!/double major/i.test(w) || /cannot be a double major/i.test(w), 'and are not called a double major');
+  ok(/allowed upper-division overlaps/i.test(w), 'two shared courses read as the allowance, not a breach');
+  ok(/simultaneous degree/i.test(w), 'named as the simultaneous-degree case');
+  ok(!/double major on a single degree/i.test(w), 'and not as a double major');
 
   console.log('\n— two majors in ONE college do not borrow that number —');
   await boot({majors:['econ','appmath'],minors:[],simultaneous:false});
